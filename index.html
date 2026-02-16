@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Portfolio of A.B.D. Anandakumara" />
+    <title>A.B.D. Anandakumara — Portfolio</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" id="top">
+      <div class="container header-inner">
+        <a class="brand" href="#top" aria-label="Go to top">
+          <span class="brand-mark">A</span>
+          <span class="brand-text">A.B.D. Anandakumara</span>
+        </a>
+
+        <nav class="nav" aria-label="Primary">
+          <a class="nav-link" href="#about">About</a>
+          <a class="nav-link" href="#projects">Projects</a>
+          <a class="nav-link" href="#skills">Skills</a>
+          <a class="nav-link" href="#contact">Contact</a>
+          <button class="icon-button" type="button" id="themeToggle" aria-label="Toggle theme">
+            <span class="icon" aria-hidden="true">◐</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="container hero-inner">
+          <div>
+            <p class="eyebrow">Software Developer • Student</p>
+            <h1 class="hero-title">I build reliable, user-friendly software.</h1>
+            <p class="hero-subtitle">
+              I’m <strong>A.B.D. Anandakumara</strong>. This is my portfolio—projects, skills, and ways to reach me.
+            </p>
+
+            <div class="hero-actions">
+              <a class="button" href="#projects">View projects</a>
+              <a class="button button-secondary" href="#contact">Contact</a>
+            </div>
+
+            <div class="hero-meta">
+              <a class="pill" href="#" id="resumeLink" aria-label="Resume link">Resume (add link)</a>
+              <a class="pill" href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
+              <a class="pill" href="https://www.linkedin.com/" target="_blank" rel="noreferrer">LinkedIn</a>
+            </div>
+          </div>
+
+          <div class="card hero-card" aria-label="Quick summary">
+            <h2 class="card-title">Quick summary</h2>
+            <ul class="list">
+              <li>Interested in web and software engineering</li>
+              <li>Comfortable with teamwork and documentation</li>
+              <li>Focus on clean UI and solid fundamentals</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="about">
+        <div class="container">
+          <div class="section-head">
+            <h2>About</h2>
+            <p>Write a short introduction about who you are, what you study/work on, and what you’re looking for.</p>
+          </div>
+
+          <div class="grid two">
+            <div class="card">
+              <h3 class="card-title">Profile</h3>
+              <p>
+                Replace this text with a concise bio. Mention your degree/program, interests (e.g., web dev, mobile, data), and
+                what kinds of roles you want.
+              </p>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Highlights</h3>
+              <ul class="list">
+                <li>Add 2–4 achievements (competitions, internships, certifications)</li>
+                <li>Add academic or personal milestones</li>
+                <li>Add leadership/club activities</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="projects">
+        <div class="container">
+          <div class="section-head">
+            <h2>Projects</h2>
+            <p>Show 2–4 projects. Keep each one specific: what it does, your role, and tech used.</p>
+          </div>
+
+          <div class="grid three" id="projectsGrid">
+            <article class="card project">
+              <div class="project-top">
+                <h3 class="card-title">Project One</h3>
+                <span class="badge">Web</span>
+              </div>
+              <p class="muted">Short description of the project and the problem it solves.</p>
+              <ul class="chips" aria-label="Tech stack">
+                <li class="chip">HTML</li>
+                <li class="chip">CSS</li>
+                <li class="chip">JavaScript</li>
+              </ul>
+              <div class="card-actions">
+                <a class="text-link" href="#" aria-label="Open live demo">Live</a>
+                <a class="text-link" href="#" aria-label="Open source code">Code</a>
+              </div>
+            </article>
+
+            <article class="card project">
+              <div class="project-top">
+                <h3 class="card-title">Project Two</h3>
+                <span class="badge">App</span>
+              </div>
+              <p class="muted">Short description of the project and what you implemented.</p>
+              <ul class="chips" aria-label="Tech stack">
+                <li class="chip">Java</li>
+                <li class="chip">SQL</li>
+                <li class="chip">Git</li>
+              </ul>
+              <div class="card-actions">
+                <a class="text-link" href="#" aria-label="Open live demo">Live</a>
+                <a class="text-link" href="#" aria-label="Open source code">Code</a>
+              </div>
+            </article>
+
+            <article class="card project">
+              <div class="project-top">
+                <h3 class="card-title">Project Three</h3>
+                <span class="badge">UI</span>
+              </div>
+              <p class="muted">Short description emphasizing design, UX, or performance improvements.</p>
+              <ul class="chips" aria-label="Tech stack">
+                <li class="chip">Figma</li>
+                <li class="chip">CSS</li>
+                <li class="chip">Accessibility</li>
+              </ul>
+              <div class="card-actions">
+                <a class="text-link" href="#" aria-label="Open live demo">Live</a>
+                <a class="text-link" href="#" aria-label="Open source code">Code</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="skills">
+        <div class="container">
+          <div class="section-head">
+            <h2>Skills</h2>
+            <p>List tools/technologies you actually used. Group them to make scanning easy.</p>
+          </div>
+
+          <div class="grid two">
+            <div class="card">
+              <h3 class="card-title">Technical</h3>
+              <ul class="list">
+                <li>Languages: Java, JavaScript, Python (edit)</li>
+                <li>Web: HTML, CSS, REST APIs (edit)</li>
+                <li>Tools: Git/GitHub, VS Code (edit)</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Soft skills</h3>
+              <ul class="list">
+                <li>Communication</li>
+                <li>Teamwork</li>
+                <li>Problem-solving</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="contact">
+        <div class="container">
+          <div class="section-head">
+            <h2>Contact</h2>
+            <p>Make it easy for people to reach you.</p>
+          </div>
+
+          <div class="grid two">
+            <div class="card">
+              <h3 class="card-title">Message</h3>
+              <form class="form" id="contactForm">
+                <label class="field">
+                  <span>Name</span>
+                  <input name="name" autocomplete="name" placeholder="Your name" required />
+                </label>
+                <label class="field">
+                  <span>Email</span>
+                  <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+                </label>
+                <label class="field">
+                  <span>Message</span>
+                  <textarea name="message" rows="5" placeholder="What would you like to talk about?" required></textarea>
+                </label>
+                <button class="button" type="submit">Send</button>
+                <p class="muted" id="formNote">
+                  This form opens your email app (no backend). Hosting stays free.
+                </p>
+              </form>
+            </div>
+
+            <div class="card">
+              <h3 class="card-title">Links</h3>
+              <ul class="list">
+                <li><a class="text-link" href="mailto:you@example.com" id="emailLink">you@example.com</a></li>
+                <li><a class="text-link" href="https://github.com/" target="_blank" rel="noreferrer">github.com/your-username</a></li>
+                <li>
+                  <a class="text-link" href="https://www.linkedin.com/" target="_blank" rel="noreferrer"
+                    >linkedin.com/in/your-handle</a
+                  >
+                </li>
+              </ul>
+              <div class="note">
+                <p class="muted">
+                  Tip: replace the placeholders (email, GitHub, LinkedIn, resume).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="container footer-inner">
+          <p class="muted">© <span id="year"></span> A.B.D. Anandakumara</p>
+          <a class="text-link" href="#top">Back to top</a>
+        </div>
+      </footer>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
