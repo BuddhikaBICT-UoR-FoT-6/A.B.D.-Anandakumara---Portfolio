@@ -2,7 +2,19 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+const corsOriginEnv = process.env.CORS_ORIGIN;
+const corsOrigins = corsOriginEnv
+  ? corsOriginEnv
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  : '*';
+
+app.use(
+  cors({
+    origin: corsOrigins,
+  })
+);
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;

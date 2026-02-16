@@ -62,6 +62,37 @@ For this repo (static frontend only):
 
 If you later add a backend, put it in a separate folder (example: `server/`) and deploy as a **Web Service**.
 
+## Recommended free setup (Frontend: Vercel, Backend: Render)
+Free tiers change over time, but this split is common because it’s simple and performs well.
+
+### 1) Deploy frontend on Vercel
+1. Go to Vercel → **Add New → Project**.
+2. Import your GitHub repo.
+3. Framework preset: **Other**.
+4. Build Command: leave empty.
+5. Output/Publish directory: `.`
+6. Deploy.
+
+### 2) Deploy backend on Render (Express)
+1. Go to Render → **New + → Web Service**.
+2. Select the same GitHub repo.
+3. **Root Directory**: `server`
+4. Build Command: `npm install`
+5. Start Command: `npm start`
+6. Environment variables (Render → Environment):
+   - `CORS_ORIGIN` = your Vercel domain, e.g. `https://your-project.vercel.app`
+
+After deploy, Render will give you a backend URL like `https://your-service.onrender.com`.
+
+### 3) Connect frontend → backend
+Edit `index.html` and set:
+
+```js
+window.PORTFOLIO_API_BASE = 'https://your-service.onrender.com';
+```
+
+Commit + push, and Vercel will auto-redeploy.
+
 ## Custom domain (optional)
 - GitHub Pages: **Settings → Pages → Custom domain** (then add the DNS records GitHub shows).
 - Netlify: **Domain management** (Netlify will tell you which DNS records to add).

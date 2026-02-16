@@ -29,7 +29,7 @@
   }
 
   if (contactForm && formNote && emailLink) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const formData = new FormData(contactForm);
@@ -38,9 +38,33 @@
       const message = String(formData.get('message') || '').trim();
 
       const to = emailLink.getAttribute('href')?.replace('mailto:', '') || 'you@example.com';
+      const apiBase = typeof window !== 'undefined' ? String(window.PORTFOLIO_API_BASE || '').trim() : '';
+
+      if (apiBase) {
+        try {
+          formNote.textContent = 'Sending…';
+
+          const resp = await fetch(`${apiBase.replace(/\/$/, '')}/api/contact`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, message }),
+          });
+
+          if (!resp.ok) {
+            throw new Error(`Request failed with status ${resp.status}`);
+          }
+
+          formNote.textContent = 'Sent! I will get back to you soon.';
+          contactForm.reset();
+          return;
+        } catch (err) {
+          console.error(err);
+          formNote.textContent = 'Could not send via backend. Falling back to email…';
+        }
+      }
+
       const subject = encodeURIComponent(`Portfolio contact from ${name}`);
       const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
-
       window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
       formNote.textContent = 'Opening your email app…';
     });
