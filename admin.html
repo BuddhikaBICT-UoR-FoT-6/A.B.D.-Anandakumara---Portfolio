@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .admin-section {
+            margin-bottom: 2rem;
+        }
+
+        .admin-section h2 {
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .admin-field {
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-field label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .admin-field input,
+        .admin-field textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+        }
+
+        .admin-field textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            background: #dc2626;
+        }
+
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .project-item {
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: var(--card-bg);
+        }
+
+        .project-item h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🔐 Admin Panel</h1>
+            <button class="btn-logout" id="logoutBtn">Logout</button>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            ✓ Changes saved successfully!
+        </div>
+
+        <!-- Personal Info Section -->
+        <div class="admin-section card">
+            <h2>Personal Information</h2>
+            <div class="admin-field">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" placeholder="Buddhika Darshan">
+            </div>
+            <div class="admin-field">
+                <label for="title">Professional Title</label>
+                <input type="text" id="title" placeholder="BICT Undergraduate | Full-Stack Developer">
+            </div>
+            <div class="admin-field">
+                <label for="heroTitle">Hero Title</label>
+                <input type="text" id="heroTitle" placeholder="I build software that works as good as it looks.">
+            </div>
+            <div class="admin-field">
+                <label for="heroSubtitle">Hero Subtitle</label>
+                <textarea id="heroSubtitle" placeholder="I'm Buddhika Darshan. This is my portfolio..."></textarea>
+            </div>
+            <div class="admin-field">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="your@email.com">
+            </div>
+            <div class="admin-field">
+                <label for="github">GitHub URL</label>
+                <input type="url" id="github" placeholder="https://github.com/username">
+            </div>
+            <div class="admin-field">
+                <label for="linkedin">LinkedIn URL</label>
+                <input type="url" id="linkedin" placeholder="https://linkedin.com/in/username">
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="admin-section card">
+            <h2>About Section</h2>
+            <div class="admin-field">
+                <label for="aboutProfile">Profile Description</label>
+                <textarea id="aboutProfile" rows="6" placeholder="I am a Full-Stack Developer..."></textarea>
+            </div>
+            <div class="admin-field">
+                <label for="aboutHighlights">Highlights (one per line)</label>
+                <textarea id="aboutHighlights" rows="4"
+                    placeholder="Oracle Certified Foundations Associate&#10;Final Year BICT Student"></textarea>
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="admin-section card">
+            <h2>Skills</h2>
+            <div class="admin-field">
+                <label for="technicalSkills">Technical Skills (one per line)</label>
+                <textarea id="technicalSkills" rows="4"
+                    placeholder="Languages: Java, JavaScript, Python&#10;Web: HTML, CSS, REST APIs"></textarea>
+            </div>
+            <div class="admin-field">
+                <label for="softSkills">Soft Skills (one per line)</label>
+                <textarea id="softSkills" rows="4"
+                    placeholder="Communication&#10;Teamwork&#10;Problem-solving"></textarea>
+            </div>
+        </div>
+
+        <!-- Projects Section -->
+        <div class="admin-section card">
+            <h2>Projects</h2>
+            <div id="projectsContainer">
+                <!-- Projects will be dynamically loaded here -->
+            </div>
+            <button class="button" id="addProjectBtn">+ Add New Project</button>
+        </div>
+
+        <div class="admin-actions">
+            <button class="btn-save" id="saveBtn">💾 Save All Changes</button>
+            <a href="index.html" class="button button-secondary">← Back to Portfolio</a>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+
+</html>
