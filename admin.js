@@ -1,88 +1,98 @@
 (function () {
     'use strict';
 
-    // Check if user is authenticated
+    // ── AUTH CHECK ─────────────────────────────────────────────
     const isAuthenticated = sessionStorage.getItem('adminAuth') === 'true';
     if (!isAuthenticated) {
         window.location.href = 'index.html';
         return;
     }
 
-    // Default portfolio data structure
+    // ══════════════════════════════════════════════
+    //  TOAST SYSTEM (self-contained for admin page)
+    // ══════════════════════════════════════════════
+    const TOAST_ICONS = { success: '✓', error: '✕', info: 'ℹ', warning: '⚠' };
+    const TOAST_TITLES = { success: 'Success', error: 'Error', info: 'Info', warning: 'Warning' };
+
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+
+    function showToast(message, type = 'info', title, duration = 3500) {
+        const t = document.createElement('div');
+        t.className = `toast toast-${type}`;
+        t.setAttribute('role', 'alert');
+        t.innerHTML = `
+      <span class="toast-left-bar"></span>
+      <span class="toast-icon">${TOAST_ICONS[type] || TOAST_ICONS.info}</span>
+      <span class="toast-body">
+        <div class="toast-title">${title || TOAST_TITLES[type]}</div>
+        <div class="toast-message">${message}</div>
+      </span>
+      <button class="toast-close" aria-label="Dismiss">&times;</button>
+    `;
+        toastContainer.appendChild(t);
+        const dismiss = () => {
+            t.classList.add('toast-exit');
+            t.addEventListener('animationend', () => t.remove(), { once: true });
+        };
+        const timer = setTimeout(dismiss, duration);
+        t.querySelector('.toast-close').addEventListener('click', () => { clearTimeout(timer); dismiss(); });
+    }
+
+    // ══════════════════════════════════════════════
+    //  DEFAULT DATA
+    // ══════════════════════════════════════════════
     const defaultData = {
         personal: {
             fullName: 'Buddhika Darshan',
-            title: 'BICT Undergraduate | Full-Stack Developer (Java/Spring Boot, React, Laravel) | Data Science Enthusiast | OCI Certified',
+            title: 'BICT Undergraduate | Full-Stack Developer | OCI Certified',
             heroTitle: 'I build software that works as good as it looks.',
-            heroSubtitle: "I'm Buddhika Darshan. This is my portfolio—projects, skills, and ways to reach me.",
+            heroSubtitle: "I'm Buddhika Darshan — a final-year engineer who turns complex problems into clean, scalable, and impactful software.",
             email: 'buddhikadarshan1475@gmail.com',
             github: 'https://github.com/BuddhikaBICT-UoR-FoT-6',
             linkedin: 'https://www.linkedin.com/in/buddhika-darshan-9b9168252/'
         },
         about: {
-            profile: `I am a Full-Stack Developer and BICT Undergraduate with a passion for building software that works as good as it looks. I specialize in Java (Spring Boot), Laravel, and React, with growing expertise in Data Science and Cloud Computing. From developing secure e-commerce platforms to interactive educational tools like Cypher-UI, I love turning complex problems into clean, deployable code.
-
-When I'm not debugging or exploring new tech like Svelte and Microsoft Fabric, I'm refining my skills in cryptography and exploring the potential of the cloud. Open for internships and collaborations.`,
+            profile: `I am an innovative Full-Stack Software Engineer with a proven track record of architecting scalable, enterprise-level applications.\n\nBy leveraging a diverse tech stack including React, Angular, Node.js, and Kotlin, I build robust solutions. Open for internships and collaborations.`,
             highlights: [
                 'Oracle Certified Foundations Associate (OCI)',
-                'Final Year BICT Student at University of Ruhuna',
-                'Developed Cypher-UI - Interactive Cryptography Learning Platform',
-                'Proficient in Java, Spring Boot, React, Laravel, and Data Science'
+                'Final Year BICT at University of Ruhuna',
+                'Built CeylonQueueBusPulse — real-time transit platform',
+                'Deployed apps on Azure, Vercel & Railway'
             ]
         },
         skills: {
-            technical: [
-                'Languages: Java, JavaScript, Python',
-                'Web: HTML, CSS, REST APIs',
-                'Tools: Git/GitHub, VS Code'
-            ],
-            soft: [
-                'Communication',
-                'Teamwork',
-                'Problem-solving'
-            ]
+            technical: ['JavaScript / TypeScript', 'Node.js / Express', 'React / Angular', 'Kotlin / Android'],
+            soft: ['Communication', 'Teamwork', 'Problem-solving', 'Git & GitHub']
         },
-        projects: [
-            {
-                title: 'Project One',
-                badge: 'Web',
-                description: 'Short description of the project and the problem it solves.',
-                tech: ['HTML', 'CSS', 'JavaScript'],
-                liveUrl: '#',
-                codeUrl: '#'
-            },
-            {
-                title: 'Project Two',
-                badge: 'App',
-                description: 'Short description of the project and what you implemented.',
-                tech: ['Java', 'SQL', 'Git'],
-                liveUrl: '#',
-                codeUrl: '#'
-            },
-            {
-                title: 'Project Three',
-                badge: 'UI',
-                description: 'Short description emphasizing design, UX, or performance improvements.',
-                tech: ['Figma', 'CSS', 'Accessibility'],
-                liveUrl: '#',
-                codeUrl: '#'
-            }
-        ]
+        projects: []
     };
 
-    // Load saved data or use defaults
     let portfolioData = JSON.parse(localStorage.getItem('portfolioData')) || defaultData;
 
-    // DOM Elements
+    // ══════════════════════════════════════════════
+    //  DOM REFS
+    // ══════════════════════════════════════════════
     const saveBtn = document.getElementById('saveBtn');
     const logoutBtn = document.getElementById('logoutBtn');
-    const successMessage = document.getElementById('successMessage');
     const addProjectBtn = document.getElementById('addProjectBtn');
     const projectsContainer = document.getElementById('projectsContainer');
+    // Resume
+    const resumeDropZone = document.getElementById('resumeDropZone');
+    const resumeFileInput = document.getElementById('resumeFileInput');
+    const resumeBrowseBtn = document.getElementById('resumeBrowseBtn');
+    const resumeCurrentInfo = document.getElementById('resumeCurrentInfo');
+    const resumeCurrentName = document.getElementById('resumeCurrentName');
+    const resumeRemoveBtn = document.getElementById('resumeRemoveBtn');
 
-    // Load data into form
+    // ──────────────────────────────────────────────
+    //  LOAD FORM DATA
+    // ──────────────────────────────────────────────
     function loadFormData() {
-        // Personal Info
         document.getElementById('fullName').value = portfolioData.personal.fullName;
         document.getElementById('title').value = portfolioData.personal.title;
         document.getElementById('heroTitle').value = portfolioData.personal.heroTitle;
@@ -90,128 +100,200 @@ When I'm not debugging or exploring new tech like Svelte and Microsoft Fabric, I
         document.getElementById('email').value = portfolioData.personal.email;
         document.getElementById('github').value = portfolioData.personal.github;
         document.getElementById('linkedin').value = portfolioData.personal.linkedin;
-
-        // About
         document.getElementById('aboutProfile').value = portfolioData.about.profile;
         document.getElementById('aboutHighlights').value = portfolioData.about.highlights.join('\n');
-
-        // Skills
         document.getElementById('technicalSkills').value = portfolioData.skills.technical.join('\n');
         document.getElementById('softSkills').value = portfolioData.skills.soft.join('\n');
-
-        // Projects
         renderProjects();
+        refreshResumeUI();
     }
 
-    // Render projects
+    // ──────────────────────────────────────────────
+    //  RESUME SECTION
+    // ──────────────────────────────────────────────
+    function refreshResumeUI() {
+        const name = localStorage.getItem('resumeName');
+        if (name) {
+            resumeCurrentName.textContent = name;
+            resumeCurrentInfo.style.display = 'flex';
+            resumeDropZone.style.display = 'none';
+        } else {
+            resumeCurrentInfo.style.display = 'none';
+            resumeDropZone.style.display = '';
+        }
+    }
+
+    function handleResumeFile(file) {
+        if (!file) return;
+        if (file.type !== 'application/pdf') {
+            showToast('Only PDF files are supported.', 'error', 'Invalid File');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) { // 5 MB limit
+            showToast('File is too large. Please upload a PDF under 5 MB.', 'warning', 'File Too Large');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                localStorage.setItem('resumeData', e.target.result);
+                localStorage.setItem('resumeName', file.name);
+                refreshResumeUI();
+                showToast(`"${file.name}" uploaded — CV button is now live on your portfolio!`, 'success', 'Resume Uploaded ✓', 5000);
+            } catch (err) {
+                showToast('Storage quota exceeded. Try a smaller file.', 'error', 'Upload Failed');
+            }
+        };
+        reader.onerror = () => showToast('Could not read the file. Please try again.', 'error');
+        reader.readAsDataURL(file);
+    }
+
+    // Browse button
+    resumeBrowseBtn.addEventListener('click', () => resumeFileInput.click());
+    resumeFileInput.addEventListener('change', (e) => handleResumeFile(e.target.files[0]));
+
+    // Drag & drop
+    resumeDropZone.addEventListener('dragover', (e) => { e.preventDefault(); resumeDropZone.classList.add('drag-over'); });
+    resumeDropZone.addEventListener('dragleave', () => resumeDropZone.classList.remove('drag-over'));
+    resumeDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        resumeDropZone.classList.remove('drag-over');
+        handleResumeFile(e.dataTransfer.files[0]);
+    });
+
+    // Remove resume
+    resumeRemoveBtn.addEventListener('click', () => {
+        if (!confirm('Remove the uploaded resume? The CV button will disappear from the portfolio.')) return;
+        localStorage.removeItem('resumeData');
+        localStorage.removeItem('resumeName');
+        refreshResumeUI();
+        showToast('Resume removed from your portfolio.', 'info', 'Resume Removed');
+    });
+
+    // ──────────────────────────────────────────────
+    //  PROJECTS
+    // ──────────────────────────────────────────────
     function renderProjects() {
         projectsContainer.innerHTML = '';
         portfolioData.projects.forEach((project, index) => {
-            const projectDiv = document.createElement('div');
-            projectDiv.className = 'project-item';
-            projectDiv.innerHTML = `
+            const div = document.createElement('div');
+            div.className = 'project-item';
+            div.innerHTML = `
         <h4>Project ${index + 1}</h4>
         <div class="admin-field">
           <label>Title</label>
-          <input type="text" class="project-title" data-index="${index}" value="${project.title}">
+          <input type="text" class="project-title" data-index="${index}" value="${escHtml(project.title)}">
         </div>
         <div class="admin-field">
-          <label>Badge</label>
-          <input type="text" class="project-badge" data-index="${index}" value="${project.badge}">
+          <label>Badge (e.g. Web / App / Mobile)</label>
+          <input type="text" class="project-badge" data-index="${index}" value="${escHtml(project.badge)}">
         </div>
         <div class="admin-field">
           <label>Description</label>
-          <textarea class="project-description" data-index="${index}">${project.description}</textarea>
+          <textarea class="project-description" data-index="${index}">${escHtml(project.description)}</textarea>
         </div>
         <div class="admin-field">
           <label>Technologies (comma separated)</label>
-          <input type="text" class="project-tech" data-index="${index}" value="${project.tech.join(', ')}">
+          <input type="text" class="project-tech" data-index="${index}" value="${escHtml(project.tech.join(', '))}">
         </div>
         <div class="admin-field">
           <label>Live URL</label>
-          <input type="url" class="project-live" data-index="${index}" value="${project.liveUrl}">
+          <input type="url" class="project-live" data-index="${index}" value="${escHtml(project.liveUrl || '')}">
         </div>
         <div class="admin-field">
-          <label>Code URL</label>
-          <input type="url" class="project-code" data-index="${index}" value="${project.codeUrl}">
+          <label>Code / GitHub URL</label>
+          <input type="url" class="project-code" data-index="${index}" value="${escHtml(project.codeUrl || '')}">
         </div>
-        <button class="button button-secondary" onclick="deleteProject(${index})">Delete Project</button>
+        <button class="button button-secondary" onclick="deleteProject(${index})" style="margin-top:4px;">🗑 Delete Project</button>
       `;
-            projectsContainer.appendChild(projectDiv);
+            projectsContainer.appendChild(div);
         });
     }
 
-    // Add new project
+    function escHtml(str) {
+        return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
     window.deleteProject = function (index) {
-        if (confirm('Are you sure you want to delete this project?')) {
-            portfolioData.projects.splice(index, 1);
-            renderProjects();
-        }
+        if (!confirm('Delete this project?')) return;
+        const removed = portfolioData.projects[index].title;
+        portfolioData.projects.splice(index, 1);
+        renderProjects();
+        showToast(`Project "${removed}" deleted.`, 'info', 'Project Deleted');
     };
 
     addProjectBtn.addEventListener('click', () => {
         portfolioData.projects.push({
-            title: 'New Project',
-            badge: 'Web',
-            description: 'Project description',
-            tech: ['Tech1', 'Tech2'],
-            liveUrl: '#',
-            codeUrl: '#'
+            title: 'New Project', badge: 'Web',
+            description: 'Describe what this project does.', tech: ['Tech1'],
+            liveUrl: '', codeUrl: ''
         });
         renderProjects();
+        showToast('New project added. Fill in the details and save.', 'info', 'Project Added');
+        // Scroll to the bottom of the list
+        projectsContainer.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    // Save all changes
+    // ──────────────────────────────────────────────
+    //  SAVE
+    // ──────────────────────────────────────────────
     saveBtn.addEventListener('click', async () => {
-        // Collect personal info
+        saveBtn.disabled = true;
+        saveBtn.textContent = '⏳ Saving…';
+
         portfolioData.personal = {
-            fullName: document.getElementById('fullName').value,
-            title: document.getElementById('title').value,
-            heroTitle: document.getElementById('heroTitle').value,
-            heroSubtitle: document.getElementById('heroSubtitle').value,
-            email: document.getElementById('email').value,
-            github: document.getElementById('github').value,
-            linkedin: document.getElementById('linkedin').value
+            fullName: document.getElementById('fullName').value.trim(),
+            title: document.getElementById('title').value.trim(),
+            heroTitle: document.getElementById('heroTitle').value.trim(),
+            heroSubtitle: document.getElementById('heroSubtitle').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            github: document.getElementById('github').value.trim(),
+            linkedin: document.getElementById('linkedin').value.trim()
         };
 
-        // Collect about
         portfolioData.about = {
-            profile: document.getElementById('aboutProfile').value,
-            highlights: document.getElementById('aboutHighlights').value.split('\n').filter(h => h.trim())
+            profile: document.getElementById('aboutProfile').value.trim(),
+            highlights: document.getElementById('aboutHighlights').value.split('\n').map(h => h.trim()).filter(Boolean)
         };
 
-        // Collect skills
         portfolioData.skills = {
-            technical: document.getElementById('technicalSkills').value.split('\n').filter(s => s.trim()),
-            soft: document.getElementById('softSkills').value.split('\n').filter(s => s.trim())
+            technical: document.getElementById('technicalSkills').value.split('\n').map(s => s.trim()).filter(Boolean),
+            soft: document.getElementById('softSkills').value.split('\n').map(s => s.trim()).filter(Boolean)
         };
 
         // Collect projects
-        const projectTitles = document.querySelectorAll('.project-title');
-        const projectBadges = document.querySelectorAll('.project-badge');
-        const projectDescriptions = document.querySelectorAll('.project-description');
-        const projectTechs = document.querySelectorAll('.project-tech');
-        const projectLives = document.querySelectorAll('.project-live');
-        const projectCodes = document.querySelectorAll('.project-code');
+        const titles = document.querySelectorAll('.project-title');
+        const badges = document.querySelectorAll('.project-badge');
+        const descriptions = document.querySelectorAll('.project-description');
+        const techs = document.querySelectorAll('.project-tech');
+        const lives = document.querySelectorAll('.project-live');
+        const codes = document.querySelectorAll('.project-code');
 
         portfolioData.projects = [];
-        projectTitles.forEach((titleInput, index) => {
+        titles.forEach((_, i) => {
             portfolioData.projects.push({
-                title: titleInput.value,
-                badge: projectBadges[index].value,
-                description: projectDescriptions[index].value,
-                tech: projectTechs[index].value.split(',').map(t => t.trim()).filter(t => t),
-                liveUrl: projectLives[index].value,
-                codeUrl: projectCodes[index].value
+                title: titles[i].value.trim(),
+                badge: badges[i].value.trim(),
+                description: descriptions[i].value.trim(),
+                tech: techs[i].value.split(',').map(t => t.trim()).filter(Boolean),
+                liveUrl: lives[i].value.trim(),
+                codeUrl: codes[i].value.trim()
             });
         });
 
-        // Save to localStorage
-        localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
-
-        // Try to save to backend
         try {
-            const apiBase = typeof window !== 'undefined' ? String(window.PORTFOLIO_API_BASE || '').trim() : '';
+            localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
+        } catch (err) {
+            showToast('localStorage quota exceeded. Try removing the resume.', 'error', 'Save Failed');
+            saveBtn.disabled = false;
+            saveBtn.textContent = '💾 Save All Changes';
+            return;
+        }
+
+        // Try backend
+        try {
+            const apiBase = String(window.PORTFOLIO_API_BASE || '').trim();
             if (apiBase) {
                 await fetch(`${apiBase.replace(/\/$/, '')}/api/save-portfolio`, {
                     method: 'POST',
@@ -219,23 +301,28 @@ When I'm not debugging or exploring new tech like Svelte and Microsoft Fabric, I
                     body: JSON.stringify(portfolioData)
                 });
             }
-        } catch (err) {
-            console.log('Backend save failed, using localStorage only:', err);
+        } catch (e) {
+            console.log('Backend save failed, localStorage only:', e);
         }
 
-        // Show success message
-        successMessage.classList.add('show');
-        setTimeout(() => {
-            successMessage.classList.remove('show');
-        }, 3000);
+        showToast('All changes saved! Your portfolio is up to date.', 'success', 'Saved ✓', 4000);
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Save All Changes';
     });
 
-    // Logout
+    // ──────────────────────────────────────────────
+    //  LOGOUT
+    // ──────────────────────────────────────────────
     logoutBtn.addEventListener('click', () => {
-        sessionStorage.removeItem('adminAuth');
-        window.location.href = 'index.html';
+        showToast('Logging you out…', 'info', 'Goodbye!', 1500);
+        setTimeout(() => {
+            sessionStorage.removeItem('adminAuth');
+            window.location.href = 'index.html';
+        }, 1600);
     });
 
-    // Initialize
+    // ── INIT ──────────────────────────────────────
+    document.getElementById('fullName').setAttribute('placeholder', 'e.g. Buddhika Darshan');
     loadFormData();
+    showToast('Welcome back to the admin panel.', 'info', 'Admin Panel', 2500);
 })();
