@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>404 — Page Not Found | Buddhika Darshan</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%237c5cff'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='800' font-size='18' fill='white'%3EB%3C/text%3E%3C/svg%3E" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #060b18;
+            --text: rgba(255, 255, 255, 0.93);
+            --muted: rgba(255, 255, 255, 0.50);
+            --accent: #7c5cff;
+            --green: #34d399;
+            --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+            text-align: center;
+            background-image:
+                radial-gradient(ellipse 80vw 60vh at 15% 20%, rgba(124, 92, 255, 0.22) 0%, transparent 60%),
+                radial-gradient(ellipse 60vw 50vh at 85% 80%, rgba(52, 211, 153, 0.14) 0%, transparent 60%);
+        }
+
+        .error-number {
+            font-size: clamp(96px, 20vw, 180px);
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, #7c5cff 0%, #a78bfa 50%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -4px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: clamp(22px, 4vw, 32px);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        p {
+            color: var(--muted);
+            font-size: 16px;
+            max-width: 420px;
+            line-height: 1.65;
+            margin-bottom: 36px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 24px;
+            border-radius: 999px;
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c5cff, #6d4ae8);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 92, 255, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(124, 92, 255, 0.55);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.10);
+            transform: translateY(-2px);
+        }
+
+        .glitch {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <span class="glitch">404</span>
+    <div class="error-number" aria-hidden="true">404</div>
+    <h1>Page Not Found</h1>
+    <p>The page you're looking for doesn't exist or has been moved. Let me take you somewhere useful instead.</p>
+    <div class="actions">
+        <a class="btn btn-primary" href="/">← Back to Portfolio</a>
+        <a class="btn btn-secondary" href="/#projects">View Projects</a>
+        <a class="btn btn-secondary" href="/#contact">Contact Me</a>
+    </div>
+
+    <script>
+        // Auto-redirect after 10 seconds
+        let countdown = 10;
+        const p = document.querySelector('p');
+        const original = p.textContent;
+        const timer = setInterval(() => {
+            countdown--;
+            p.textContent = `${original} Redirecting in ${countdown}s…`;
+            if (countdown <= 0) {
+                clearInterval(timer);
+                window.location.href = '/';
+            }
+        }, 1000);
+    </script>
+</body>
+
+</html>
