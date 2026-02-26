@@ -1871,3 +1871,157 @@ textarea:focus {
   gap: 6px;
   text-align: center;
 }
+
+/* ============================
+   ADMIN LOGIN MODAL
+   ============================ */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 11, 24, 0.78);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+  opacity: 0;
+  transition: opacity 0.28s;
+}
+
+.admin-modal-overlay.admin-modal-open {
+  opacity: 1;
+}
+
+.admin-modal {
+  background: rgba(13, 21, 37, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(124, 92, 255, 0.2);
+  padding: 40px 36px 32px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.admin-modal-overlay.admin-modal-open .admin-modal {
+  transform: none;
+}
+
+:root[data-theme="light"] .admin-modal {
+  background: rgba(240, 242, 248, 0.97);
+  border-color: rgba(0, 0, 0, 0.10);
+}
+
+.admin-modal-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.admin-modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.admin-modal-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.admin-modal-field {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.admin-modal-input {
+  width: 100%;
+  padding: 13px 44px 13px 16px;
+  background: var(--panel-2);
+  border: 1.5px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.admin-modal-input::placeholder {
+  color: var(--muted-2);
+}
+
+.admin-modal-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+.admin-modal-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  opacity: 0.7;
+  transition: opacity var(--transition);
+}
+
+.admin-modal-eye:hover {
+  opacity: 1;
+}
+
+.admin-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-modal-actions .button {
+  flex: 1;
+}
+
+/* Shake animation on wrong password */
+@keyframes adminShake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  15% {
+    transform: translateX(-8px);
+  }
+
+  30% {
+    transform: translateX(8px);
+  }
+
+  45% {
+    transform: translateX(-6px);
+  }
+
+  60% {
+    transform: translateX(6px);
+  }
+
+  75% {
+    transform: translateX(-3px);
+  }
+
+  90% {
+    transform: translateX(3px);
+  }
+}
+
+.admin-modal-shake {
+  animation: adminShake 0.5s ease;
+}
