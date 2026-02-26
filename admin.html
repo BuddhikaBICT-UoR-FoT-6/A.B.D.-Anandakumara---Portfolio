@@ -7,7 +7,8 @@
     <title>Admin Panel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
         .admin-container {
@@ -211,6 +212,26 @@
                 <label for="softSkills">Soft Skills (one per line)</label>
                 <textarea id="softSkills" rows="4"
                     placeholder="Communication&#10;Teamwork&#10;Problem-solving"></textarea>
+            </div>
+        </div>
+
+        <!-- Resume Upload Section -->
+        <div class="admin-section card" id="resumeSection">
+            <h2>📄 Resume / CV</h2>
+            <p style="color:var(--muted);font-size:14px;margin-bottom:16px;">Upload your PDF resume. It will be stored
+                locally and a download button will appear on your portfolio.</p>
+
+            <div class="resume-upload-area" id="resumeDropZone">
+                <p>📂 Drag &amp; drop your PDF here, or click to browse</p>
+                <input type="file" id="resumeFileInput" accept=".pdf" style="display:none">
+                <button class="button button-secondary" type="button" id="resumeBrowseBtn">Browse File</button>
+            </div>
+
+            <div class="resume-current" id="resumeCurrentInfo" style="display:none;">
+                <span>✓</span>
+                <span id="resumeCurrentName">resume.pdf</span>
+                <button class="button button-secondary" type="button" id="resumeRemoveBtn"
+                    style="margin-left:auto;padding:4px 12px;height:auto;font-size:12px;">Remove</button>
             </div>
         </div>
 
