@@ -264,14 +264,102 @@
   }
 
   function showAdminLogin() {
-    const password = prompt('🔐 Enter admin password:');
-    if (password === 'buddhika2026') {
-      sessionStorage.setItem('adminAuth', 'true');
-      window.location.href = 'admin.html';
-    } else if (password !== null) {
-      showToast('Incorrect password. Access denied.', 'error', 'Access Denied');
+    // Remove any existing modal
+    document.getElementById('adminLoginModal')?.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'adminLoginModal';
+    overlay.className = 'admin-modal-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Admin login');
+    overlay.innerHTML = `
+      <div class="admin-modal" id="adminModalBox">
+        <div class="admin-modal-icon">🔐</div>
+        <h2 class="admin-modal-title">Admin Access</h2>
+        <p class="admin-modal-sub">Enter the admin password to continue.</p>
+        <div class="admin-modal-field">
+          <input
+            type="password"
+            id="adminPasswordInput"
+            class="admin-modal-input"
+            placeholder="Password"
+            autocomplete="current-password"
+            autofocus
+          />
+          <button class="admin-modal-eye" id="adminEyeBtn" type="button" aria-label="Toggle password visibility">�</button>
+        </div>
+        <div class="admin-modal-actions">
+          <button class="button" id="adminLoginSubmit" type="button">Unlock →</button>
+          <button class="button button-secondary" id="adminLoginCancel" type="button">Cancel</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const input = overlay.querySelector('#adminPasswordInput');
+    const eyeBtn = overlay.querySelector('#adminEyeBtn');
+    const submitB = overlay.querySelector('#adminLoginSubmit');
+    const cancelB = overlay.querySelector('#adminLoginCancel');
+    const box = overlay.querySelector('#adminModalBox');
+
+    // Auto-focus after transition
+    requestAnimationFrame(() => {
+      overlay.classList.add('admin-modal-open');
+      setTimeout(() => input.focus(), 200);
+    });
+
+    function shakeBox() {
+      box.classList.remove('admin-modal-shake');
+      // Force reflow
+      void box.offsetWidth;
+      box.classList.add('admin-modal-shake');
     }
+
+    function closeModal() {
+      overlay.classList.remove('admin-modal-open');
+      setTimeout(() => overlay.remove(), 300);
+    }
+
+    function tryLogin() {
+      const pw = input.value;
+      if (pw === 'buddhika2026') {
+        showToast('Access granted! Opening admin panel…', 'success', 'Welcome Back 🎉', 2500);
+        sessionStorage.setItem('adminAuth', 'true');
+        closeModal();
+        setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+      } else if (pw === '') {
+        shakeBox();
+        showToast('Please enter the admin password.', 'warning', 'Password Required');
+      } else {
+        shakeBox();
+        input.value = '';
+        showToast('Incorrect password. Try again.', 'error', 'Access Denied');
+      }
+    }
+
+    submitB.addEventListener('click', tryLogin);
+    cancelB.addEventListener('click', closeModal);
+
+    // Eye toggle
+    eyeBtn.addEventListener('click', () => {
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      eyeBtn.textContent = show ? '🙈' : '👁';
+    });
+
+    // Enter key
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') tryLogin();
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Click outside = close
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
   }
+
 
   checkSecretURL();
 
