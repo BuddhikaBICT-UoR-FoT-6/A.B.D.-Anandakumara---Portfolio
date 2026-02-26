@@ -437,7 +437,7 @@
 
         const footerText = document.querySelector('.footer .muted');
         if (footerText) {
-          footerText.innerHTML = `© <span id="year">${new Date().getFullYear()}</span> ${data.personal.fullName} — Built with ❤️`;
+          footerText.innerHTML = `© <span id="year">${new Date().getFullYear()}</span> A.B.D. Anandakumara &middot; All rights reserved.`;
         }
       }
 
