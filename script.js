@@ -121,6 +121,72 @@
   }
 
   // ══════════════════════════════════════════════
+  //  HAMBURGER MENU
+  // ══════════════════════════════════════════════
+  const hamburger = document.getElementById('hamburger');
+  const primaryNav = document.getElementById('primaryNav');
+
+  function openMenu() {
+    primaryNav.classList.add('nav-open');
+    hamburger.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeMenu() {
+    primaryNav.classList.remove('nav-open');
+    hamburger.setAttribute('aria-expanded', 'false');
+  }
+
+  if (hamburger && primaryNav) {
+    hamburger.addEventListener('click', () => {
+      const isOpen = hamburger.getAttribute('aria-expanded') === 'true';
+      isOpen ? closeMenu() : openMenu();
+    });
+
+    // Close on nav-link click (mobile) 
+    primaryNav.querySelectorAll('.nav-link').forEach((link) => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!header.contains(e.target)) closeMenu();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMenu();
+    });
+  }
+
+  // ══════════════════════════════════════════════
+  //  BACK TO TOP (floating button + footer link fix)
+  // ══════════════════════════════════════════════
+  // Inject floating button
+  const bttBtn = document.createElement('button');
+  bttBtn.className = 'back-to-top';
+  bttBtn.setAttribute('aria-label', 'Back to top');
+  bttBtn.innerHTML = '↑';
+  document.body.appendChild(bttBtn);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  bttBtn.addEventListener('click', scrollToTop);
+
+  // Fix the footer "Back to top" text link too
+  document.querySelectorAll('a[href="#top"]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      scrollToTop();
+    });
+  });
+
+  // Show/hide floating button
+  window.addEventListener('scroll', () => {
+    bttBtn.classList.toggle('visible', window.scrollY > 300);
+  }, { passive: true });
+
+
+  // ══════════════════════════════════════════════
   //  YEAR
   // ══════════════════════════════════════════════
   if (year) year.textContent = String(new Date().getFullYear());
