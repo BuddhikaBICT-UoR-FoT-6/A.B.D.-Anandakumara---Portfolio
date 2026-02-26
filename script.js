@@ -86,6 +86,31 @@
   });
 
   // ══════════════════════════════════════════════
+  //  ACTIVE NAV LINK ON SCROLL
+  // ══════════════════════════════════════════════
+  const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+  const sections = document.querySelectorAll('section[id]');
+
+  const navObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          navLinks.forEach((link) => {
+            link.classList.toggle(
+              'active',
+              link.getAttribute('href') === `#${entry.target.id}`
+            );
+          });
+        }
+      });
+    },
+    { threshold: 0.35, rootMargin: '-60px 0px -35% 0px' }
+  );
+
+  sections.forEach((sec) => navObserver.observe(sec));
+
+
+  // ══════════════════════════════════════════════
   //  HEADER SHADOW ON SCROLL
   // ══════════════════════════════════════════════
   const header = document.querySelector('.site-header');
