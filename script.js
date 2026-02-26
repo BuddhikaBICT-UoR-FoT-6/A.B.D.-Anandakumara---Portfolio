@@ -6,7 +6,69 @@
   const formNote = document.getElementById('formNote');
   const emailLink = document.getElementById('emailLink');
 
-  // ── SCROLL REVEAL ──────────────────────────────────────────
+  // ══════════════════════════════════════════════
+  //  TOAST NOTIFICATION SYSTEM
+  // ══════════════════════════════════════════════
+  const TOAST_ICONS = {
+    success: '✓',
+    error: '✕',
+    info: 'ℹ',
+    warning: '⚠',
+  };
+
+  const TOAST_TITLES = {
+    success: 'Success',
+    error: 'Error',
+    info: 'Info',
+    warning: 'Warning',
+  };
+
+  let toastContainer = document.querySelector('.toast-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.className = 'toast-container';
+    document.body.appendChild(toastContainer);
+  }
+
+  /**
+   * Show a toast notification.
+   * @param {string} message  – Body text
+   * @param {'success'|'error'|'info'|'warning'} type – Default 'info'
+   * @param {string} [title]  – Override the default title
+   * @param {number} [duration] – Auto-dismiss ms (default 3500)
+   */
+  window.showToast = function showToast(message, type = 'info', title, duration = 3500) {
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.setAttribute('role', 'alert');
+    t.innerHTML = `
+      <span class="toast-left-bar"></span>
+      <span class="toast-icon">${TOAST_ICONS[type] || TOAST_ICONS.info}</span>
+      <span class="toast-body">
+        <div class="toast-title">${title || TOAST_TITLES[type]}</div>
+        <div class="toast-message">${message}</div>
+      </span>
+      <button class="toast-close" aria-label="Dismiss">&times;</button>
+    `;
+
+    toastContainer.appendChild(t);
+
+    const dismiss = () => {
+      t.classList.add('toast-exit');
+      t.addEventListener('animationend', () => t.remove(), { once: true });
+    };
+
+    t.querySelector('.toast-close').addEventListener('click', dismiss);
+    const timer = setTimeout(dismiss, duration);
+    // Clear timer if user manually closes
+    t.querySelector('.toast-close').addEventListener('click', () => clearTimeout(timer));
+
+    return { dismiss };
+  };
+
+  // ══════════════════════════════════════════════
+  //  SCROLL REVEAL
+  // ══════════════════════════════════════════════
   const revealObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -23,18 +85,24 @@
     revealObserver.observe(el);
   });
 
-  // ── HEADER SHADOW ON SCROLL ────────────────────────────────
+  // ══════════════════════════════════════════════
+  //  HEADER SHADOW ON SCROLL
+  // ══════════════════════════════════════════════
   const header = document.querySelector('.site-header');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 20) {
-      header.classList.add('shadow');
-    } else {
-      header.classList.remove('shadow');
-    }
-  }, { passive: true });
+  if (header) {
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('shadow', window.scrollY > 20);
+    }, { passive: true });
+  }
 
-  year.textContent = String(new Date().getFullYear());
+  // ══════════════════════════════════════════════
+  //  YEAR
+  // ══════════════════════════════════════════════
+  if (year) year.textContent = String(new Date().getFullYear());
 
+  // ══════════════════════════════════════════════
+  //  THEME TOGGLE
+  // ══════════════════════════════════════════════
   const preferredTheme = localStorage.getItem('theme');
   if (preferredTheme === 'light') {
     root.setAttribute('data-theme', 'light');
@@ -45,9 +113,11 @@
     if (isLight) {
       root.removeAttribute('data-theme');
       localStorage.setItem('theme', 'dark');
+      showToast('Dark mode enabled', 'info', 'Theme', 2000);
     } else {
       root.setAttribute('data-theme', 'light');
       localStorage.setItem('theme', 'light');
+      showToast('Light mode enabled', 'info', 'Theme', 2000);
     }
   }
 
@@ -55,7 +125,9 @@
     themeToggle.addEventListener('click', toggleTheme);
   }
 
-  // SECRET ADMIN ACCESS - Method 1: Keyboard Shortcut (Ctrl+Shift+A)
+  // ══════════════════════════════════════════════
+  //  SECRET ADMIN ACCESS
+  // ══════════════════════════════════════════════
   let adminKeySequence = { ctrl: false, shift: false, a: false };
 
   document.addEventListener('keydown', (e) => {
@@ -63,7 +135,6 @@
     if (e.shiftKey) adminKeySequence.shift = true;
     if (e.key.toLowerCase() === 'a') adminKeySequence.a = true;
 
-    // Check if all keys are pressed
     if (adminKeySequence.ctrl && adminKeySequence.shift && adminKeySequence.a) {
       e.preventDefault();
       showAdminLogin();
@@ -77,12 +148,9 @@
     if (e.key.toLowerCase() === 'a') adminKeySequence.a = false;
   });
 
-  // SECRET ADMIN ACCESS - Method 2: URL Parameter (for hosted environments)
-  // Access via: yoursite.com/?secret=admin
   function checkSecretURL() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('secret') === 'admin') {
-      // Clear the URL parameter to hide it
       window.history.replaceState({}, document.title, window.location.pathname);
       showAdminLogin();
     }
@@ -90,19 +158,52 @@
 
   function showAdminLogin() {
     const password = prompt('🔐 Enter admin password:');
-    // Simple password check - you can change this password
     if (password === 'buddhika2026') {
       sessionStorage.setItem('adminAuth', 'true');
       window.location.href = 'admin.html';
     } else if (password !== null) {
-      alert('❌ Incorrect password!');
+      showToast('Incorrect password. Access denied.', 'error', 'Access Denied');
     }
   }
 
-  // Check for secret URL on page load
   checkSecretURL();
 
-  // Load portfolio data from localStorage if available
+  // ══════════════════════════════════════════════
+  //  CV / RESUME DOWNLOAD BUTTON
+  // ══════════════════════════════════════════════
+  function initCVButton() {
+    const cvBtn = document.getElementById('cvDownloadBtn');
+    if (!cvBtn) return;
+
+    const resumeData = localStorage.getItem('resumeData');
+    const resumeName = localStorage.getItem('resumeName') || 'Resume.pdf';
+
+    if (resumeData) {
+      // Resume uploaded via admin — make it downloadable
+      cvBtn.style.display = 'inline-flex';
+      cvBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        try {
+          const link = document.createElement('a');
+          link.href = resumeData;
+          link.download = resumeName;
+          link.click();
+          showToast('Your download has started!', 'success', 'Downloading CV');
+        } catch (err) {
+          showToast('Could not download. Please try again.', 'error');
+        }
+      });
+    } else {
+      // No resume uploaded yet — hide button
+      cvBtn.style.display = 'none';
+    }
+  }
+
+  initCVButton();
+
+  // ══════════════════════════════════════════════
+  //  LOAD PORTFOLIO DATA FROM LOCALSTORAGE
+  // ══════════════════════════════════════════════
   function loadPortfolioData() {
     const savedData = localStorage.getItem('portfolioData');
     if (!savedData) return;
@@ -110,7 +211,6 @@
     try {
       const data = JSON.parse(savedData);
 
-      // Update personal info
       if (data.personal) {
         const brandText = document.querySelector('.brand-text');
         if (brandText) brandText.textContent = data.personal.fullName;
@@ -129,7 +229,6 @@
           );
         }
 
-        // Update links
         const githubLinks = document.querySelectorAll('a[href*="github"]');
         githubLinks.forEach(link => link.href = data.personal.github);
 
@@ -141,14 +240,12 @@
           emailLink.textContent = data.personal.email;
         }
 
-        // Update footer
         const footerText = document.querySelector('.footer .muted');
         if (footerText) {
-          footerText.innerHTML = `© <span id="year">${new Date().getFullYear()}</span> ${data.personal.fullName}`;
+          footerText.innerHTML = `© <span id="year">${new Date().getFullYear()}</span> ${data.personal.fullName} — Built with ❤️`;
         }
       }
 
-      // Update about section
       if (data.about) {
         const profileCard = document.querySelector('#about .card p');
         if (profileCard) {
@@ -165,25 +262,11 @@
         }
       }
 
-      // Update skills
-      if (data.skills) {
-        const technicalList = document.querySelector('#skills .card:first-child ul');
-        if (technicalList && data.skills.technical) {
-          technicalList.innerHTML = data.skills.technical.map(s => `<li>${s}</li>`).join('');
-        }
-
-        const softList = document.querySelector('#skills .card:last-child ul');
-        if (softList && data.skills.soft) {
-          softList.innerHTML = data.skills.soft.map(s => `<li>${s}</li>`).join('');
-        }
-      }
-
-      // Update projects
       if (data.projects && data.projects.length > 0) {
         const projectsGrid = document.getElementById('projectsGrid');
         if (projectsGrid) {
           projectsGrid.innerHTML = data.projects.map(project => `
-            <article class="card project">
+            <article class="card project" data-animate>
               <div class="project-top">
                 <h3 class="card-title">${project.title}</h3>
                 <span class="badge">${project.badge}</span>
@@ -193,11 +276,13 @@
                 ${project.tech.map(tech => `<li class="chip">${tech}</li>`).join('')}
               </ul>
               <div class="card-actions">
-                <a class="text-link" href="${project.liveUrl}" aria-label="Open live demo">Live</a>
-                <a class="text-link" href="${project.codeUrl}" aria-label="Open source code">Code</a>
+                ${project.liveUrl && project.liveUrl !== '#' ? `<a class="text-link" href="${project.liveUrl}" target="_blank" rel="noreferrer">Live →</a>` : ''}
+                ${project.codeUrl && project.codeUrl !== '#' ? `<a class="text-link" href="${project.codeUrl}" target="_blank" rel="noreferrer">Code →</a>` : ''}
               </div>
             </article>
           `).join('');
+          // Re-observe new elements
+          projectsGrid.querySelectorAll('[data-animate]').forEach(el => revealObserver.observe(el));
         }
       }
     } catch (err) {
@@ -205,24 +290,35 @@
     }
   }
 
-  // Load saved portfolio data on page load
   loadPortfolioData();
 
-  if (contactForm && formNote && emailLink) {
+  // ══════════════════════════════════════════════
+  //  CONTACT FORM
+  // ══════════════════════════════════════════════
+  if (contactForm && emailLink) {
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
       const formData = new FormData(contactForm);
       const name = String(formData.get('name') || '').trim();
       const email = String(formData.get('email') || '').trim();
       const message = String(formData.get('message') || '').trim();
 
-      const to = emailLink.getAttribute('href')?.replace('mailto:', '') || 'you@example.com';
+      if (!name || !email || !message) {
+        showToast('Please fill in all fields before sending.', 'warning', 'Incomplete Form');
+        return;
+      }
+
+      const to = emailLink.getAttribute('href')?.replace('mailto:', '') || '';
       const apiBase = typeof window !== 'undefined' ? String(window.PORTFOLIO_API_BASE || '').trim() : '';
 
-      if (apiBase) {
+      // Try backend API first
+      if (apiBase !== undefined) {
         try {
-          formNote.textContent = 'Sending…';
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending…';
+          if (formNote) formNote.textContent = '';
 
           const resp = await fetch(`${apiBase.replace(/\/$/, '')}/api/contact`, {
             method: 'POST',
@@ -230,23 +326,30 @@
             body: JSON.stringify({ name, email, message }),
           });
 
-          if (!resp.ok) {
-            throw new Error(`Request failed with status ${resp.status}`);
-          }
+          const data = await resp.json().catch(() => ({}));
 
-          formNote.textContent = 'Sent! I will get back to you soon.';
-          contactForm.reset();
-          return;
+          if (resp.ok) {
+            showToast(`Message sent! I'll get back to you soon, ${name}.`, 'success', 'Message Sent 🎉', 5000);
+            contactForm.reset();
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Message →';
+            return;
+          } else {
+            throw new Error(data.error || `Status ${resp.status}`);
+          }
         } catch (err) {
-          console.error(err);
-          formNote.textContent = 'Could not send via backend. Falling back to email…';
+          console.error('API contact error:', err);
+          showToast('Backend unavailable — opening your email app instead.', 'warning', 'Falling back');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message →';
         }
       }
 
+      // Fallback: mailto
       const subject = encodeURIComponent(`Portfolio contact from ${name}`);
       const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
       window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
-      formNote.textContent = 'Opening your email app…';
+      showToast('Opening your email app…', 'info', 'Email App');
     });
   }
 })();
