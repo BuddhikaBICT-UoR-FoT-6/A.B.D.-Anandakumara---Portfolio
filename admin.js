@@ -88,9 +88,65 @@
     const resumeCurrentInfo = document.getElementById('resumeCurrentInfo');
     const resumeCurrentName = document.getElementById('resumeCurrentName');
     const resumeRemoveBtn = document.getElementById('resumeRemoveBtn');
+    // Profile Photo
+    const profilePhotoInput = document.getElementById('profilePhotoInput');
+    const profilePhotoBrowseBtn = document.getElementById('profilePhotoBrowseBtn');
+    const profilePhotoRemoveBtn = document.getElementById('profilePhotoRemoveBtn');
+    const adminPhotoPreview = document.getElementById('adminPhotoPreview');
+    const adminPhotoFallback = document.getElementById('adminPhotoFallback');
 
-    // ──────────────────────────────────────────────
-    //  LOAD FORM DATA
+    // ── Profile Photo: load saved ──
+    (function initAdminPhoto() {
+        const saved = localStorage.getItem('profilePhoto');
+        if (saved) {
+            adminPhotoPreview.src = saved;
+            adminPhotoPreview.style.display = 'block';
+            adminPhotoFallback.style.display = 'none';
+            profilePhotoRemoveBtn.style.display = '';
+        }
+    })();
+
+    profilePhotoBrowseBtn.addEventListener('click', () => profilePhotoInput.click());
+    profilePhotoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!allowed.includes(file.type)) {
+            showToast('Only JPG, PNG, WebP or GIF images are supported.', 'error', 'Invalid File');
+            return;
+        }
+        if (file.size > 3 * 1024 * 1024) {
+            showToast('Photo is too large. Please use an image under 3 MB.', 'warning', 'File Too Large');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                localStorage.setItem('profilePhoto', ev.target.result);
+                adminPhotoPreview.src = ev.target.result;
+                adminPhotoPreview.style.display = 'block';
+                adminPhotoFallback.style.display = 'none';
+                profilePhotoRemoveBtn.style.display = '';
+                showToast('Profile photo updated! It now appears on your portfolio.', 'success', 'Photo Uploaded ✓', 4500);
+            } catch {
+                showToast('Storage quota exceeded. Try a smaller image.', 'error', 'Upload Failed');
+            }
+        };
+        reader.onerror = () => showToast('Could not read the file. Please try again.', 'error');
+        reader.readAsDataURL(file);
+    });
+
+    profilePhotoRemoveBtn.addEventListener('click', () => {
+        if (!confirm('Remove your profile photo? The default initial will be shown instead.')) return;
+        localStorage.removeItem('profilePhoto');
+        adminPhotoPreview.src = '';
+        adminPhotoPreview.style.display = 'none';
+        adminPhotoFallback.style.display = '';
+        profilePhotoRemoveBtn.style.display = 'none';
+        showToast('Profile photo removed.', 'info', 'Photo Removed');
+    });
+
+
     // ──────────────────────────────────────────────
     function loadFormData() {
         document.getElementById('fullName').value = portfolioData.personal.fullName;
