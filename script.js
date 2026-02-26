@@ -6,6 +6,33 @@
   const formNote = document.getElementById('formNote');
   const emailLink = document.getElementById('emailLink');
 
+  // ── SCROLL REVEAL ──────────────────────────────────────────
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.12 }
+  );
+
+  document.querySelectorAll('[data-animate]').forEach((el) => {
+    revealObserver.observe(el);
+  });
+
+  // ── HEADER SHADOW ON SCROLL ────────────────────────────────
+  const header = document.querySelector('.site-header');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 20) {
+      header.classList.add('shadow');
+    } else {
+      header.classList.remove('shadow');
+    }
+  }, { passive: true });
+
   year.textContent = String(new Date().getFullYear());
 
   const preferredTheme = localStorage.getItem('theme');
