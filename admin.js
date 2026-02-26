@@ -381,4 +381,32 @@
     document.getElementById('fullName').setAttribute('placeholder', 'e.g. Buddhika Darshan');
     loadFormData();
     showToast('Welcome back to the admin panel.', 'info', 'Admin Panel', 2500);
+
+    // ──────────────────────────────────────────────
+    //  UNSAVED CHANGES TOAST HINT
+    // ──────────────────────────────────────────────
+    let hasShownUnsavedHint = false;
+    let unsavedTimer = null;
+
+    function onFieldChange() {
+        if (hasShownUnsavedHint) return;
+        clearTimeout(unsavedTimer);
+        unsavedTimer = setTimeout(() => {
+            hasShownUnsavedHint = true;
+            showToast('You have unsaved changes. Click "Save All Changes" when done.', 'warning', 'Unsaved Changes', 5000);
+        }, 1500); // Wait 1.5s of inactivity after typing
+    }
+
+    // Watch every text input and textarea in the panel
+    document.querySelectorAll('input[type="text"], input[type="url"], input[type="email"], textarea')
+        .forEach(el => el.addEventListener('input', () => {
+            hasShownUnsavedHint = false; // Reset on each save via saveBtn click
+            onFieldChange();
+        }));
+
+    // Reset the "has shown" flag after a successful save so it can trigger again
+    saveBtn.addEventListener('click', () => {
+        hasShownUnsavedHint = false;
+    }, { capture: true });
 })();
+
