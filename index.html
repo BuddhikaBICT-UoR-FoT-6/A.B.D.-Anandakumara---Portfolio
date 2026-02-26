@@ -16,14 +16,14 @@
   <meta property="og:title" content="Buddhika Darshan — Full-Stack Developer Portfolio" />
   <meta property="og:description"
     content="Final-year BICT Engineer at University of Ruhuna. OCI Certified. Built enterprise transit, e-commerce &amp; cryptography platforms. Open for internships." />
-  <meta property="og:image" content="https://buddhika-darshan.vercel.app/og-image.png" />
+  <meta property="og:image" content="/og-image.png" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Buddhika Darshan — Full-Stack Developer Portfolio" />
   <meta name="twitter:description"
     content="Final-year BICT Engineer. OCI Certified. Node.js, React, Angular, Kotlin. Open for internships." />
-  <meta name="twitter:image" content="https://buddhika-darshan.vercel.app/og-image.png" />
+  <meta name="twitter:image" content="/og-image.png" />
 
   <title>Buddhika Darshan — Portfolio</title>
 
@@ -127,7 +127,23 @@
           <p>Full-Stack Developer passionate about building impactful, production-ready software at scale.</p>
         </div>
 
-        <div class="grid two">
+        <div class="about-layout">
+          <!-- Profile Photo -->
+          <div class="profile-photo-wrap" data-animate>
+            <div class="profile-photo-ring">
+              <img id="profilePhotoImg" src="profile.png" alt="Buddhika Darshan — Full-Stack Developer"
+                class="profile-photo" width="220" height="220"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='grid'" />
+              <div class="profile-photo-fallback" aria-hidden="true" style="display:none;">B</div>
+            </div>
+            <div class="profile-photo-label">
+              <span class="status-badge" style="font-size:12px;padding:5px 12px;">
+                <span class="status-dot"></span>Open to work
+              </span>
+            </div>
+          </div>
+
+          <!-- Bio -->
           <div class="card about-profile" data-animate data-animate-delay="1">
             <h3 class="card-title">Profile</h3>
             <p>
@@ -138,14 +154,15 @@
             <p>
               By leveraging a diverse tech stack including React, Angular, Node.js, and Kotlin, I build robust solutions
               featuring resilient REST APIs and intuitive, user-centric interfaces. I'm passionate about tackling
-              complex
-              technical challenges and delivering high-quality, impactful software.
+              complex technical challenges and delivering high-quality, impactful software.
             </p>
             <p>
               When I'm not building or debugging, I explore emerging tech like Azure Cloud, Redis, and cryptography.
               Open for internships and collaborations.
             </p>
           </div>
+
+          <!-- Highlights -->
           <div class="card highlights-card" data-animate data-animate-delay="2">
             <h3 class="card-title">Highlights</h3>
             <ul class="list">
