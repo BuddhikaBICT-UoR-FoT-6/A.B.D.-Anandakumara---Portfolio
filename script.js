@@ -67,7 +67,23 @@
   };
 
   // ══════════════════════════════════════════════
+  //  PROFILE PHOTO (from admin localStorage)
+  // ══════════════════════════════════════════════
+  function initProfilePhoto() {
+    const saved = localStorage.getItem('profilePhoto');
+    const img = document.getElementById('profilePhotoImg');
+    const fb = img ? img.nextElementSibling : null;
+    if (saved && img) {
+      img.src = saved;
+      img.style.display = 'block';
+      if (fb) fb.style.display = 'none';
+    }
+  }
+  initProfilePhoto();
+
+  // ══════════════════════════════════════════════
   //  SCROLL REVEAL
+
   // ══════════════════════════════════════════════
   const revealObserver = new IntersectionObserver(
     (entries) => {
