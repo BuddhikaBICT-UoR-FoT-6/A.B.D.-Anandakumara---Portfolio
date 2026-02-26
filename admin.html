@@ -23,7 +23,17 @@
             align-items: center;
             margin-bottom: 2rem;
             padding-bottom: 1rem;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 1px solid var(--border-2);
+        }
+
+        .admin-header h1 {
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .admin-section {
@@ -33,6 +43,8 @@
         .admin-section h2 {
             margin-bottom: 1rem;
             color: var(--text);
+            font-size: 17px;
+            font-weight: 700;
         }
 
         .admin-field {
@@ -42,20 +54,19 @@
         .admin-field label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--muted);
         }
 
+        /* Admin inputs inherit global input styles from styles.css.
+           Only override padding to match the compact admin layout. */
         .admin-field input,
         .admin-field textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
+            padding: 12px 14px;
+            border-radius: var(--radius-xs);
         }
 
         .admin-field textarea {
@@ -67,51 +78,83 @@
             display: flex;
             gap: 1rem;
             margin-top: 2rem;
+            flex-wrap: wrap;
         }
 
+        /* Use the same gradient-btn as the main site's .button */
         .btn-save {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 0.75rem 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 46px;
+            padding: 0 22px;
+            border-radius: var(--radius-sm);
             border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            background: var(--gradient-btn);
+            color: #fff;
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 24px var(--accent-glow);
+            transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
         }
 
         .btn-save:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 12px 36px var(--accent-glow);
+            filter: brightness(1.08);
         }
 
+        .btn-save:active {
+            transform: translateY(0);
+        }
+
+        /* Danger button — consistent danger-red token */
         .btn-logout {
-            background: #ef4444;
-            color: white;
-            padding: 0.75rem 2rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 46px;
+            padding: 0 22px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            background: rgba(248, 113, 113, 0.12);
+            color: #f87171;
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: background var(--transition), border-color var(--transition), transform var(--transition);
         }
 
         .btn-logout:hover {
             transform: translateY(-2px);
-            background: #dc2626;
+            background: rgba(248, 113, 113, 0.22);
+            border-color: #f87171;
         }
 
+        .btn-logout:active {
+            transform: translateY(0);
+        }
+
+        /* Success message — uses green design token */
         .success-message {
-            background: #10b981;
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
             display: none;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            background: rgba(52, 211, 153, 0.12);
+            color: var(--green);
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 1rem;
         }
 
         .success-message.show {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             animation: slideIn 0.3s ease;
         }
 
@@ -127,17 +170,26 @@
             }
         }
 
+        /* Project item — uses panel token (fixes undefined --card-bg) */
         .project-item {
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-2);
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             margin-bottom: 1rem;
-            background: var(--card-bg);
+            background: var(--panel);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: border-color var(--transition);
+        }
+
+        .project-item:hover {
+            border-color: var(--accent);
         }
 
         .project-item h4 {
             margin-bottom: 0.5rem;
             color: var(--text);
+            font-weight: 700;
         }
     </style>
 </head>
