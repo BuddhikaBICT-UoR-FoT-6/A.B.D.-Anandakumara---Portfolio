@@ -69,7 +69,68 @@
             technical: ['JavaScript / TypeScript', 'Node.js / Express', 'React / Angular', 'Kotlin / Android'],
             soft: ['Communication', 'Teamwork', 'Problem-solving', 'Git & GitHub']
         },
-        projects: []
+        projects: [
+            {
+                title: 'HomeCanvas',
+                badge: 'IoT / Web',
+                icon: '🏠',
+                date: '',
+                description: 'An end-to-end smart home platform integrating an ESP32 micro-controller and sensor fusion for real-time home monitoring, actionable alerts, and a secure centralized dashboard.',
+                tech: ['Java', 'Spring Boot', 'React.js', 'TypeScript', 'ESP32', 'SQL'],
+                liveUrl: '',
+                codeUrl: 'https://github.com/BuddhikaBICT-UoR-FoT-6/HomeCanvas.git'
+            },
+            {
+                title: 'CrowdFlow',
+                badge: 'Mobile',
+                icon: '🗺️',
+                date: '',
+                description: 'A map-first Android platform backed by a highly scalable data pipeline, enabling users to visualize localized traffic conditions and seamlessly submit real-time severity feedback.',
+                tech: ['Kotlin', 'Node.js', 'MongoDB', 'Redis'],
+                liveUrl: '',
+                codeUrl: 'https://github.com/BuddhikaBICT-UoR-FoT-6/CrowdFlow.git'
+            },
+            {
+                title: 'BoutiqueFlow',
+                badge: 'Web',
+                icon: '👗',
+                date: '',
+                description: 'A full-stack digital management platform built to transition a physical clothing shop online, featuring secure real-time inventory tracking, RBAC, and automated digital sales processing.',
+                tech: ['Angular', 'Node.js', 'Express', 'MongoDB'],
+                liveUrl: 'https://abdclothingstore.netlify.app/',
+                codeUrl: 'https://github.com/BuddhikaBICT-UoR-FoT-6/BoutiqueFlow.git'
+            },
+            {
+                title: 'Cypher-UI',
+                badge: 'Web',
+                icon: '🔐',
+                date: '',
+                description: 'An educational platform bridging theoretical cryptography with hands-on implementation, featuring real-time encryption visualizations and brute-force simulators to accelerate concept understanding.',
+                tech: ['React.js', 'Node.js', 'MySQL'],
+                liveUrl: '',
+                codeUrl: 'https://github.com/BuddhikaBICT-UoR-FoT-6/cipher-ui.git'
+            },
+            {
+                title: 'Earn++',
+                badge: 'Mobile',
+                icon: '📈',
+                date: '',
+                description: 'A cross-platform mobile application providing beginner investors with a streamlined, dollar-based alternative to complex spreadsheet portfolio management with real-time profit/loss calculations.',
+                tech: ['Flutter', 'Dart Shelf', 'MySQL'],
+                liveUrl: '',
+                codeUrl: 'https://github.com/BuddhikaBICT-UoR-FoT-6/EarnPlusPlus.git'
+            },
+            {
+                title: 'Secure Environment Variable Vault',
+                badge: 'Desktop',
+                icon: '🔒',
+                date: '',
+                description: 'A desktop utility application designed to securely manage, organize, and edit .env files for local development repositories with encrypted backup generation capabilities.',
+                tech: ['Java', 'JavaFX', 'SQL'],
+                liveUrl: '',
+                codeUrl: 'https://github.com/BuddhikaBICT-UoR-FoT-6/Secure-Environment-Variable-Vault.git'
+            }
+        ]
     };
 
     let portfolioData = JSON.parse(localStorage.getItem('portfolioData')) || defaultData;
@@ -237,13 +298,25 @@
             div.className = 'project-item';
             div.innerHTML = `
         <h4>Project ${index + 1}</h4>
-        <div class="admin-field">
-          <label>Title</label>
-          <input type="text" class="project-title" data-index="${index}" value="${escHtml(project.title)}">
+        <div class="admin-field-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="admin-field">
+                <label>Title</label>
+                <input type="text" class="project-title" data-index="${index}" value="${escHtml(project.title)}">
+            </div>
+            <div class="admin-field">
+                <label>Badge (e.g. Web / App)</label>
+                <input type="text" class="project-badge" data-index="${index}" value="${escHtml(project.badge)}">
+            </div>
         </div>
-        <div class="admin-field">
-          <label>Badge (e.g. Web / App / Mobile)</label>
-          <input type="text" class="project-badge" data-index="${index}" value="${escHtml(project.badge)}">
+        <div class="admin-field-row" style="display:grid;grid-template-columns:80px 1fr;gap:12px;">
+            <div class="admin-field">
+                <label>Icon</label>
+                <input type="text" class="project-icon-field" data-index="${index}" value="${escHtml(project.icon || '🚀')}" placeholder="🚀">
+            </div>
+            <div class="admin-field">
+                <label>Date Range</label>
+                <input type="text" class="project-date" data-index="${index}" value="${escHtml(project.date || '')}" placeholder="e.g. Jan 2026 – Mar 2026">
+            </div>
         </div>
         <div class="admin-field">
           <label>Description</label>
@@ -253,13 +326,15 @@
           <label>Technologies (comma separated)</label>
           <input type="text" class="project-tech" data-index="${index}" value="${escHtml(project.tech.join(', '))}">
         </div>
-        <div class="admin-field">
-          <label>Live URL</label>
-          <input type="url" class="project-live" data-index="${index}" value="${escHtml(project.liveUrl || '')}">
-        </div>
-        <div class="admin-field">
-          <label>Code / GitHub URL</label>
-          <input type="url" class="project-code" data-index="${index}" value="${escHtml(project.codeUrl || '')}">
+        <div class="admin-field-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="admin-field">
+                <label>Live URL</label>
+                <input type="url" class="project-live" data-index="${index}" value="${escHtml(project.liveUrl || '')}">
+            </div>
+            <div class="admin-field">
+                <label>Code / GitHub URL</label>
+                <input type="url" class="project-code" data-index="${index}" value="${escHtml(project.codeUrl || '')}">
+            </div>
         </div>
         <button class="button button-secondary" onclick="deleteProject(${index})" style="margin-top:4px;">🗑 Delete Project</button>
       `;
@@ -282,6 +357,7 @@
     addProjectBtn.addEventListener('click', () => {
         portfolioData.projects.push({
             title: 'New Project', badge: 'Web',
+            icon: '🚀', date: '',
             description: 'Describe what this project does.', tech: ['Tech1'],
             liveUrl: '', codeUrl: ''
         });
@@ -321,6 +397,8 @@
         // Collect projects
         const titles = document.querySelectorAll('.project-title');
         const badges = document.querySelectorAll('.project-badge');
+        const icons = document.querySelectorAll('.project-icon-field');
+        const projectDates = document.querySelectorAll('.project-date');
         const descriptions = document.querySelectorAll('.project-description');
         const techs = document.querySelectorAll('.project-tech');
         const lives = document.querySelectorAll('.project-live');
@@ -331,6 +409,8 @@
             portfolioData.projects.push({
                 title: titles[i].value.trim(),
                 badge: badges[i].value.trim(),
+                icon: icons[i].value.trim() || '🚀',
+                date: projectDates[i].value.trim(),
                 description: descriptions[i].value.trim(),
                 tech: techs[i].value.split(',').map(t => t.trim()).filter(Boolean),
                 liveUrl: lives[i].value.trim(),

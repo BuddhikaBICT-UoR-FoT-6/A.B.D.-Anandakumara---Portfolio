@@ -462,17 +462,19 @@
         if (projectsGrid) {
           projectsGrid.innerHTML = data.projects.map(project => `
             <article class="card project" data-animate>
+              <span class="project-icon" aria-hidden="true">${project.icon || '🚀'}</span>
               <div class="project-top">
                 <h3 class="card-title">${project.title}</h3>
                 <span class="badge">${project.badge}</span>
               </div>
+              <span class="project-date">${project.date || ''}</span>
               <p class="muted">${project.description}</p>
               <ul class="chips" aria-label="Tech stack">
                 ${project.tech.map(tech => `<li class="chip">${tech}</li>`).join('')}
               </ul>
               <div class="card-actions">
-                ${project.liveUrl && project.liveUrl !== '#' ? `<a class="text-link" href="${project.liveUrl}" target="_blank" rel="noreferrer">Live →</a>` : ''}
-                ${project.codeUrl && project.codeUrl !== '#' ? `<a class="text-link" href="${project.codeUrl}" target="_blank" rel="noreferrer">Code →</a>` : ''}
+                ${project.liveUrl && project.liveUrl !== '#' && project.liveUrl !== '' ? `<a class="text-link" href="${project.liveUrl}" target="_blank" rel="noreferrer">Live →</a>` : ''}
+                ${project.codeUrl && project.codeUrl !== '#' && project.codeUrl !== '' ? `<a class="text-link" href="${project.codeUrl}" target="_blank" rel="noreferrer">Code →</a>` : ''}
               </div>
             </article>
           `).join('');
