@@ -342,8 +342,8 @@
         </div>
     </div>
 
-    <script src="admin.js"></script>
-    <script>
+    <script type="module" src="admin.js"></script>
+    <script type="module">
         // Minimal circuit bg for admin
         class CircuitBackground {
             constructor(canvas) {
@@ -353,12 +353,19 @@
                 this.particles = [];
                 this.gridSize = 60;
                 this.mouse = { x: -1000, y: -1000 };
+                this.mouseStopped = false;
+                this.mouseTimer = null;
                 
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
                 window.addEventListener('mousemove', (e) => {
                     this.mouse.x = e.clientX;
                     this.mouse.y = e.clientY;
+                    this.mouseStopped = false;
+                    if (this.mouseTimer) clearTimeout(this.mouseTimer);
+                    this.mouseTimer = setTimeout(() => {
+                        this.mouseStopped = true;
+                    }, 150);
                 });
                 
                 this.init();
@@ -396,7 +403,7 @@
                     const dx = this.mouse.x - p.x;
                     const dy = this.mouse.y - p.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 200) {
+                    if (this.mouseStopped && dist < 200) {
                         const force = (200 - dist) / 200;
                         p.vx += (dx / dist) * force * 0.3;
                         p.vy += (dy / dist) * force * 0.3;

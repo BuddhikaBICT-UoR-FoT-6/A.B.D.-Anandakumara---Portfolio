@@ -250,9 +250,16 @@ export default function App() {
             Buddhika Darshan
           </motion.div>
           <div className="flex gap-8 text-sm font-mono tracking-widest text-zinc-400">
-            {['About', 'Projects', 'Skills', 'Certs', 'Contact'].map(item => (
+            {['About', 'Projects', 'Skills', 'Contact'].map(item => (
               <motion.a key={item} href={`#${item.toLowerCase()}`} whileHover={{ color: '#a855f7', x: 2 }} className="transition-colors">{item}</motion.a>
             ))}
+            <motion.a 
+              href="/admin.html" 
+              whileHover={{ color: '#a855f7', x: 2 }} 
+              className="text-purple-400 font-bold border-l border-zinc-800 pl-8 transition-colors"
+            >
+              Admin
+            </motion.a>
           </div>
         </nav>
 
@@ -284,6 +291,11 @@ export default function App() {
             <QuickSummary />
           </div>
         </div>
+
+        <div id="about" className="py-20" />
+        <div id="projects" className="py-20" />
+        <div id="skills" className="py-20" />
+        <div id="contact" className="py-20" />
 
         <footer className="mt-auto pt-12 flex justify-between items-center text-[10px] font-mono text-zinc-500 tracking-[0.3em] uppercase">
           <div className="flex items-center gap-2">
