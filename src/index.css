@@ -3,14 +3,27 @@
 @tailwind utilities;
 
 :root {
-  background-color: #02040a;
-  color: #f4f4f5;
+  --pcb-red: #ff3300;
+  --pcb-amber: #ff6600;
+  --pcb-yellow: #ffaa00;
+  --voltage-blue: #88aaff;
 }
 
 body {
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #1a1e24; /* Board base color fallback */
+  
+  
+  
+  
+  background-repeat: no-repeat;
+  color: #f4f4f5;
+  overflow-x: hidden;
 }
 
 @keyframes typing {
