@@ -232,6 +232,160 @@ const HoverModule = ({ isReady }) => (
   </motion.div>
 );
 
+const AboutSection = () => (
+  <section id="about" className="py-24 relative z-10">
+    <div className="container mx-auto px-6">
+      <div className="mb-12">
+        <span className="text-cyan-500 font-mono text-sm tracking-widest uppercase mb-2 block">Who I Am</span>
+        <h2 className="text-4xl md:text-5xl font-bold text-zinc-100">About</h2>
+      </div>
+      <div className="grid md:grid-cols-2 gap-12">
+        <div className="bg-[#0a0212]/80 backdrop-blur-md border border-purple-500/30 rounded-xl p-8 shadow-[0_0_30px_rgba(168,85,247,0.1)]">
+          <h3 className="text-2xl font-bold text-purple-400 mb-4">Profile</h3>
+          <p className="text-zinc-400 leading-relaxed mb-4">
+            I am a Full-Stack Software Engineer and BICT undergraduate specializing in building scalable,
+            AI-integrated applications. From architecting agentic IoT smart environments to developing semantic
+            search engines, I bridge the gap between robust backend systems (Java/Spring Boot, Node.js) and
+            intuitive, modern frontends (React, Flutter).
+          </p>
+          <p className="text-zinc-400 leading-relaxed">
+            Driven by a passion for clean code and cloud-ready infrastructure (GCP, Oracle Cloud), I thrive on
+            solving complex system architecture challenges. I am currently seeking software engineering internships
+            where I can contribute to high-impact projects.
+          </p>
+        </div>
+        <div className="bg-[#0a0212]/80 backdrop-blur-md border border-cyan-500/30 rounded-xl p-8 shadow-[0_0_30px_rgba(34,211,238,0.1)]">
+          <h3 className="text-2xl font-bold text-cyan-400 mb-4">Highlights</h3>
+          <ul className="space-y-3 text-zinc-300 font-mono text-sm">
+            <li className="flex items-center gap-3"><span className="text-cyan-500">›</span> Final Year BICT at University of Ruhuna</li>
+            <li className="flex items-center gap-3"><span className="text-cyan-500">›</span> Oracle Certified Foundations Associate (OCI)</li>
+            <li className="flex items-center gap-3"><span className="text-cyan-500">›</span> Built HomeCanvas (Gemini AI, ESP32, Spring Boot)</li>
+            <li className="flex items-center gap-3"><span className="text-cyan-500">›</span> Built Smart Campus (Offline-first Flutter platform)</li>
+            <li className="flex items-center gap-3"><span className="text-cyan-500">›</span> Deployed via GCP, Docker, Vercel & Netlify</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const ProjectsSection = () => {
+  const projects = [
+    { title: "HomeCanvas", type: "IoT / Web", tech: ["Java", "Spring Boot", "React.js", "ESP32"], link: "https://homecanvas99.netlify.app/", code: "https://github.com/BuddhikaBICT-UoR-FoT-6/HomeCanvas.git", desc: "An end-to-end smart home platform integrating an ESP32 micro-controller and sensor fusion for real-time home monitoring." },
+    { title: "CrowdFlow", type: "Mobile", tech: ["Kotlin", "Node.js", "MongoDB", "Redis"], code: "https://github.com/BuddhikaBICT-UoR-FoT-6/CrowdFlow.git", desc: "A map-first Android platform backed by a highly scalable data pipeline, enabling users to visualize localized traffic conditions." },
+    { title: "Smart Campus", type: "Mobile", tech: ["Flutter", "Dart", "Provider", "SQLite"], code: "https://github.com/BuddhikaBICT-UoR-FoT-6/smart_campus.git", desc: "A production-grade, multi-role Flutter application that digitizes and centralizes administrative and academic workflows." },
+    { title: "BoutiqueFlow", type: "Web", tech: ["Angular", "Node.js", "Express", "MongoDB"], link: "https://boutiqueflow.netlify.app/#/", code: "https://github.com/BuddhikaBICT-UoR-FoT-6/BoutiqueFlow.git", desc: "A full-stack digital retail platform transitioning a physical clothing shop online with RBAC dashboards and Stripe." },
+    { title: "Cypher-UI", type: "Web", tech: ["React.js", "Node.js", "MySQL"], link: "https://cipher-ui-zeta.vercel.app/", code: "https://github.com/BuddhikaBICT-UoR-FoT-6/cipher-ui.git", desc: "An educational platform bridging theoretical cryptography with hands-on implementation and real-time encryption visualizations." }
+  ];
+
+  return (
+    <section id="projects" className="py-24 relative z-10">
+      <div className="container mx-auto px-6">
+        <div className="mb-12">
+          <span className="text-purple-500 font-mono text-sm tracking-widest uppercase mb-2 block">My Work</span>
+          <h2 className="text-4xl md:text-5xl font-bold text-zinc-100">Projects</h2>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projects.map((p, i) => (
+            <motion.div key={i} whileHover={{ y: -5, boxShadow: "0 0 30px rgba(168,85,247,0.3)" }} className="bg-[#0a0212]/80 backdrop-blur-md border border-purple-500/20 hover:border-purple-500/50 rounded-xl p-6 flex flex-col transition-all">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-bold text-purple-300">{p.title}</h3>
+                <span className="text-[10px] font-mono bg-purple-900/40 text-purple-400 px-2 py-1 rounded border border-purple-500/30">{p.type}</span>
+              </div>
+              <p className="text-zinc-400 text-sm mb-6 flex-1">{p.desc}</p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {p.tech.map(t => <span key={t} className="text-[10px] font-mono text-cyan-400 bg-cyan-900/20 px-2 py-1 rounded border border-cyan-500/20">{t}</span>)}
+              </div>
+              <div className="flex gap-4 text-sm font-mono font-bold">
+                {p.link && <a href={p.link} target="_blank" rel="noreferrer" className="text-purple-400 hover:text-cyan-400 transition-colors">Live ↗</a>}
+                {p.code && <a href={p.code} target="_blank" rel="noreferrer" className="text-purple-400 hover:text-cyan-400 transition-colors">Code ↗</a>}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const SkillsSection = () => {
+  const skills = [
+    { name: "Spring Boot / Java", pct: 88 }, { name: "React / Flutter", pct: 87 },
+    { name: "Node.js / Express", pct: 88 }, { name: "JavaScript / TypeScript", pct: 90 },
+    { name: "Kotlin / Android", pct: 80 }, { name: "MongoDB / MySQL", pct: 83 }
+  ];
+
+  return (
+    <section id="skills" className="py-24 relative z-10">
+      <div className="container mx-auto px-6">
+        <div className="mb-12">
+          <span className="text-cyan-500 font-mono text-sm tracking-widest uppercase mb-2 block">Toolkit</span>
+          <h2 className="text-4xl md:text-5xl font-bold text-zinc-100">Skills & Certifications</h2>
+        </div>
+        <div className="grid md:grid-cols-2 gap-12">
+          <div className="bg-[#0a0212]/80 backdrop-blur-md border border-cyan-500/30 rounded-xl p-8">
+            <h3 className="text-2xl font-bold text-cyan-400 mb-6">Technical Expertise</h3>
+            <div className="space-y-6">
+              {skills.map(s => (
+                <div key={s.name}>
+                  <div className="flex justify-between text-sm font-mono mb-2 text-zinc-300">
+                    <span>{s.name}</span>
+                    <span className="text-cyan-500">{s.pct}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                    <motion.div initial={{ width: 0 }} whileInView={{ width: `${s.pct}%` }} transition={{ duration: 1 }} className="h-full bg-gradient-to-r from-cyan-500 to-purple-500 shadow-[0_0_10px_#22d3ee]" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-[#0a0212]/80 backdrop-blur-md border border-purple-500/30 rounded-xl p-8">
+            <h3 className="text-2xl font-bold text-purple-400 mb-6">Certifications</h3>
+            <div className="space-y-4">
+              <div className="p-4 bg-purple-900/20 border border-purple-500/20 rounded flex justify-between items-center">
+                <div>
+                  <h4 className="font-bold text-zinc-200">Back End Development & APIs</h4>
+                  <p className="text-xs text-zinc-400 font-mono mt-1">freeCodeCamp</p>
+                </div>
+                <span className="text-[10px] font-mono text-cyan-400">Oct 2025</span>
+              </div>
+              <div className="p-4 bg-purple-900/20 border border-purple-500/20 rounded flex justify-between items-center">
+                <div>
+                  <h4 className="font-bold text-zinc-200">OCI Foundations Associate</h4>
+                  <p className="text-xs text-zinc-400 font-mono mt-1">Oracle</p>
+                </div>
+                <span className="text-[10px] font-mono text-cyan-400">Sep 2025</span>
+              </div>
+              <div className="p-4 bg-purple-900/20 border border-purple-500/20 rounded flex justify-between items-center">
+                <div>
+                  <h4 className="font-bold text-zinc-200">Front End Development Libraries</h4>
+                  <p className="text-xs text-zinc-400 font-mono mt-1">freeCodeCamp</p>
+                </div>
+                <span className="text-[10px] font-mono text-cyan-400">Sep 2025</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const ContactSection = () => (
+  <section id="contact" className="py-24 relative z-10">
+    <div className="container mx-auto px-6">
+      <div className="bg-[#0a0212]/90 backdrop-blur-md border-2 border-purple-500/40 rounded-2xl p-12 text-center max-w-3xl mx-auto shadow-[0_0_50px_rgba(168,85,247,0.15)]">
+        <h2 className="text-4xl font-bold text-zinc-100 mb-4">Let's Talk</h2>
+        <p className="text-zinc-400 mb-8 max-w-lg mx-auto">Have a project in mind or just want to say hi? My inbox is always open.</p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <a href="mailto:buddhikadarshan1475@gmail.com" className="px-8 py-4 bg-purple-600 rounded-full font-bold text-lg shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:bg-purple-500 transition-colors">Say Hello</a>
+          <a href="https://www.linkedin.com/in/buddhika-darshan-9b9168252/" target="_blank" rel="noreferrer" className="px-8 py-4 border border-zinc-700 rounded-full font-bold text-lg hover:bg-zinc-800 transition-colors">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
 // ==========================================
 // 3. MAIN COMPONENT
 // ==========================================
@@ -291,8 +445,20 @@ export default function App() {
         setMouseStopped(true);
       }, 150);
     };
+    
+    const handleKeydown = (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        window.location.href = '/admin.html';
+      }
+    };
+
     window.addEventListener('mousemove', handleMove);
-    return () => window.removeEventListener('mousemove', handleMove);
+    window.addEventListener('keydown', handleKeydown);
+    return () => {
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('keydown', handleKeydown);
+    };
   }, []);
 
   useEffect(() => {
@@ -436,13 +602,6 @@ export default function App() {
             {['About', 'Projects', 'Skills', 'Contact'].map(item => (
               <motion.a key={item} href={`#${item.toLowerCase()}`} whileHover={{ color: '#a855f7', x: 2 }} className="transition-colors">{item}</motion.a>
             ))}
-            <motion.a 
-              href="/admin.html" 
-              whileHover={{ color: '#a855f7', x: 2 }} 
-              className="text-purple-400 font-bold border-l border-zinc-800 pl-8 transition-colors"
-            >
-              Admin
-            </motion.a>
           </div>
         </nav>
 
@@ -475,10 +634,10 @@ export default function App() {
           </div>
         </div>
 
-        <div id="about" className="py-20" />
-        <div id="projects" className="py-20" />
-        <div id="skills" className="py-20" />
-        <div id="contact" className="py-20" />
+        <AboutSection />
+        <ProjectsSection />
+        <SkillsSection />
+        <ContactSection />
 
         <footer className="mt-auto pt-12 flex justify-between items-center text-[10px] font-mono text-zinc-500 tracking-[0.3em] uppercase">
           <div className="flex items-center gap-2">
