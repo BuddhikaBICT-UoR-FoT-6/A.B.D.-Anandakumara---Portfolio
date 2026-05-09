@@ -406,9 +406,35 @@
     try {
       const data = JSON.parse(savedData);
 
+      // ── Migrate stale localStorage: patch liveUrls, add Smart Campus ──
+      (function migrateData() {
+        if (!data.projects) return;
+        let dirty = false;
+        const livePatches = {
+          'HomeCanvas':   'https://homecanvas99.netlify.app/',
+          'Cypher-UI':    'https://cipher-ui-zeta.vercel.app/',
+          'BoutiqueFlow': 'https://abdclothingstore.netlify.app/',
+        };
+        data.projects.forEach(p => {
+          if (livePatches[p.title] && !p.liveUrl) { p.liveUrl = livePatches[p.title]; dirty = true; }
+        });
+        const hasSC = data.projects.some(p => p.title === 'Smart Campus');
+        if (!hasSC) {
+          const scEntry = { title: 'Smart Campus', badge: 'Mobile', icon: '🎓', date: 'Feb 2026 – Apr 2026',
+            description: 'A production-grade, multi-role Flutter application that digitizes and centralizes administrative and academic workflows at the Faculty of Technology — built for Students, Academic Staff, and Super-Administrators with an offline-first architecture for low-connectivity environments.',
+            tech: ['Flutter', 'Dart', 'Provider', 'SQLite', 'MySQL', 'Clean Architecture'],
+            liveUrl: '', codeUrl: 'https://github.com/BuddhikaBICT-UoR-FoT-6/smart_campus.git' };
+          const idx = data.projects.findIndex(p => p.title === 'Cypher-UI');
+          data.projects.splice(idx >= 0 ? idx + 1 : data.projects.length, 0, scEntry);
+          dirty = true;
+        }
+        if (dirty) try { localStorage.setItem('portfolioData', JSON.stringify(data)); } catch (_) {}
+      })();
+
       if (data.personal) {
         const brandText = document.querySelector('.brand-text');
         if (brandText) brandText.textContent = data.personal.fullName;
+
 
         const eyebrow = document.querySelector('.eyebrow');
         if (eyebrow) eyebrow.textContent = data.personal.title;

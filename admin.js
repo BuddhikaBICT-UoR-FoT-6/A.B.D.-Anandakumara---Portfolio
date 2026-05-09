@@ -77,7 +77,7 @@
                 date: '',
                 description: 'An end-to-end smart home platform integrating an ESP32 micro-controller and sensor fusion for real-time home monitoring, actionable alerts, and a secure centralized dashboard.',
                 tech: ['Java', 'Spring Boot', 'React.js', 'TypeScript', 'ESP32', 'SQL'],
-                liveUrl: '',
+                liveUrl: 'https://homecanvas99.netlify.app/',
                 codeUrl: 'https://github.com/BuddhikaBICT-UoR-FoT-6/HomeCanvas.git'
             },
             {
@@ -107,8 +107,18 @@
                 date: '',
                 description: 'An educational platform bridging theoretical cryptography with hands-on implementation, featuring real-time encryption visualizations and brute-force simulators to accelerate concept understanding.',
                 tech: ['React.js', 'Node.js', 'MySQL'],
-                liveUrl: '',
+                liveUrl: 'https://cipher-ui-zeta.vercel.app/',
                 codeUrl: 'https://github.com/BuddhikaBICT-UoR-FoT-6/cipher-ui.git'
+            },
+            {
+                title: 'Smart Campus',
+                badge: 'Mobile',
+                icon: '🎓',
+                date: 'Feb 2026 – Apr 2026',
+                description: 'A production-grade, multi-role Flutter application that digitizes and centralizes administrative and academic workflows at the Faculty of Technology — built for Students, Academic Staff, and Super-Administrators with an offline-first architecture for low-connectivity environments.',
+                tech: ['Flutter', 'Dart', 'Provider', 'SQLite', 'MySQL', 'Clean Architecture'],
+                liveUrl: '',
+                codeUrl: 'https://github.com/BuddhikaBICT-UoR-FoT-6/smart_campus.git'
             },
             {
                 title: 'Earn++',
@@ -135,8 +145,44 @@
 
     let portfolioData = JSON.parse(localStorage.getItem('portfolioData')) || defaultData;
 
-    // ══════════════════════════════════════════════
-    //  DOM REFS
+    // ── MIGRATE: patch stale localStorage data with new liveUrls / new projects ──
+    (function migratePortfolioData() {
+        if (!portfolioData.projects) return;
+        let dirty = false;
+
+        const patches = {
+            'HomeCanvas':  { liveUrl: 'https://homecanvas99.netlify.app/' },
+            'Cypher-UI':   { liveUrl: 'https://cipher-ui-zeta.vercel.app/' },
+            'BoutiqueFlow':{ liveUrl: 'https://abdclothingstore.netlify.app/' },
+        };
+
+        // Apply liveUrl patches
+        portfolioData.projects.forEach(p => {
+            const patch = patches[p.title];
+            if (patch && !p.liveUrl) {
+                Object.assign(p, patch);
+                dirty = true;
+            }
+        });
+
+        // Add Smart Campus if not already present
+        const hasSC = portfolioData.projects.some(p => p.title === 'Smart Campus');
+        if (!hasSC) {
+            const scEntry = defaultData.projects.find(p => p.title === 'Smart Campus');
+            if (scEntry) {
+                // Insert after Cypher-UI
+                const idx = portfolioData.projects.findIndex(p => p.title === 'Cypher-UI');
+                portfolioData.projects.splice(idx >= 0 ? idx + 1 : portfolioData.projects.length, 0, scEntry);
+                dirty = true;
+            }
+        }
+
+        if (dirty) {
+            try { localStorage.setItem('portfolioData', JSON.stringify(portfolioData)); } catch (_) {}
+        }
+    })();
+
+
     // ══════════════════════════════════════════════
     const saveBtn = document.getElementById('saveBtn');
     const logoutBtn = document.getElementById('logoutBtn');
