@@ -98,6 +98,39 @@ const HoverModule = () => (
   </motion.div>
 );
 
+const Typewriter = ({ strings }) => {
+  const [currentStringIndex, setCurrentStringIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const fullString = strings[currentStringIndex];
+      
+      if (!isDeleting) {
+        setCurrentText(fullString.substring(0, currentText.length + 1));
+        if (currentText === fullString) {
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        setCurrentText(fullString.substring(0, currentText.length - 1));
+        if (currentText === '') {
+          setIsDeleting(false);
+          setCurrentStringIndex((prev) => (prev + 1) % strings.length);
+        }
+      }
+    }, isDeleting ? 50 : 100);
+
+    return () => clearTimeout(timeout);
+  }, [currentText, isDeleting, currentStringIndex, strings]);
+
+  return (
+    <span className="text-cyan-400 border-r-2 border-cyan-400 pr-1 animate-[pulse_1s_ease-in-out_infinite]">
+      {currentText}
+    </span>
+  );
+};
+
 // --- UI SECTIONS ---
 const NavBar = ({ fullName }) => (
   <div className="fixed top-0 left-0 right-0 z-50 px-6 py-4 pointer-events-none">
@@ -465,6 +498,8 @@ export default function App() {
                 {portfolioData.personal.heroTitle}
               </h1>
               <p className="text-xl text-zinc-400 max-w-lg leading-relaxed pointer-events-auto">
+                I'm a <Typewriter strings={['React Developer', 'IoT Engineer', 'Full-Stack Developer', 'Tech Enthusiast']} />
+                <br /><br />
                 {portfolioData.personal.heroSubtitle}
               </p>
             </motion.div>

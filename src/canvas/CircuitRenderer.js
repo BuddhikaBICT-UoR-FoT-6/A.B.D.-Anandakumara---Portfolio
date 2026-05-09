@@ -5,16 +5,20 @@ export default class CircuitRenderer {
     this.offscreenCanvas = document.createElement('canvas');
     this.offscreenCtx = this.offscreenCanvas.getContext('2d', { alpha: false });
     
+    this.gridSize = 40;
     this.traces = [];
     this.chips = [];
     this.pulses = [];
+    this.gridPulses = [];
     this.leds = [];
     this.heatZones = [];
+    this.nodes = [];
     this.particles = [];
     this.ripples = [];
     
     this.mouse = { x: -1000, y: -1000 };
     this.isHovering = false;
+    this.maxParticles = 80;
     
     this.isRunning = false;
     this.lastTime = 0;
@@ -69,7 +73,19 @@ export default class CircuitRenderer {
     this.generateNetwork();
     this.drawBaseLayer();
     
-    // Draw immediately on resize in case we are stopped (prefers-reduced-motion)
+    // Initialize floating particles
+    this.particles = [];
+    for (let i = 0; i < this.maxParticles; i++) {
+      this.particles.push({
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        vx: (Math.random() - 0.5) * 1,
+        vy: (Math.random() - 0.5) * 1,
+        size: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.5 + 0.2
+      });
+    }
+
     if (!this.isRunning) {
       this.ctx.drawImage(this.offscreenCanvas, 0, 0, this.width, this.height);
     }
@@ -191,38 +207,53 @@ export default class CircuitRenderer {
 
   onMouseLeave() {
     this.isHovering = false;
-    this.particles.forEach(p => {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 4 + Math.random() * 4;
-      p.vx = Math.cos(angle) * speed;
-      p.vy = Math.sin(angle) * speed;
-    });
   }
 
   onClick(e) {
     const x = e.clientX;
     const y = e.clientY;
 
-    // 1. Burst particles
+    // Expanding ring
+    this.ripples.push({ x, y, r: 0, maxR: 180, alpha: 1 });
+
+    // Disperse Particles (Burst)
     this.particles.forEach(p => {
       const dx = p.x - x;
       const dy = p.y - y;
-      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-      const force = Math.max(0, 300 - dist) / 10;
-      p.vx += (dx/dist) * force;
-      p.vy += (dy/dist) * force;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 400) {
+        const force = (400 - dist) / 40;
+        p.vx += (dx / dist) * force;
+        p.vy += (dy / dist) * force;
+      }
     });
     
-    // 2. Expanding ring
-    this.ripples.push({ x, y, r: 0, maxR: 180, alpha: 1 });
+    // Spawn grid pulses in all 4 directions from nearest grid point
+    const gridX = Math.round(x / this.gridSize) * this.gridSize;
+    const gridY = Math.round(y / this.gridSize) * this.gridSize;
     
-    // 3. Inject pulses
+    for (let i = 0; i < 4; i++) {
+      this.gridPulses.push({
+        x: gridX,
+        y: gridY,
+        prevX: gridX,
+        prevY: gridY,
+        targetX: gridX,
+        targetY: gridY,
+        speed: 8 + Math.random() * 4,
+        life: 1.5,
+        dir: i,
+        isBurst: true
+      });
+    }
+    
+    // Inject pulses along static traces
     for(let i=0; i<3; i++) {
       if(this.traces.length > 0) {
         this.pulses.push({
           pathIndex: Math.floor(Math.random() * this.traces.length),
           t: 0,
-          speed: 0.015, // 3x normal speed
+          speed: 0.015,
           color: '#00ffff',
           width: 3
         });
@@ -234,7 +265,6 @@ export default class CircuitRenderer {
     if (!this.isRunning) return;
     const delta = timestamp - this.lastTime;
     
-    // Cap at ~60fps
     if (delta >= 16) {
       this.lastTime = timestamp - (delta % 16);
       this.update(delta);
@@ -244,35 +274,13 @@ export default class CircuitRenderer {
   }
 
   update(delta) {
-    // Spawn pulses randomly (max 40)
-    if (Math.random() < 0.05 && this.pulses.length < 40 && this.traces.length > 0) {
-      this.pulses.push({
-        pathIndex: Math.floor(Math.random() * this.traces.length),
-        t: 0,
-        speed: 0.005,
-        color: ['#00ff88', '#00aaff', '#ff6600'][Math.floor(Math.random()*3)],
-        width: 2
-      });
-    }
-
     // Update pulses
     for (let i = this.pulses.length - 1; i >= 0; i--) {
       let p = this.pulses[i];
       p.t += p.speed;
       if (p.t >= 1) {
         this.pulses.splice(i, 1);
-        if (Math.random() < 0.4 && this.traces.length > 0) {
-          // Branch to a new pulse
-          this.pulses.push({
-            pathIndex: Math.floor(Math.random() * this.traces.length),
-            t: 0,
-            speed: p.speed,
-            color: p.color,
-            width: p.width
-          });
-        }
       } else {
-        // Flash LEDs near pulse
         const path = this.traces[p.pathIndex];
         const exactIndex = p.t * (path.length - 1);
         const i0 = Math.floor(exactIndex);
@@ -289,7 +297,41 @@ export default class CircuitRenderer {
       }
     }
 
-    // Update LEDs
+    // Update Grid Pulses
+    for (let i = this.gridPulses.length - 1; i >= 0; i--) {
+      const p = this.gridPulses[i];
+      
+      const dx = p.targetX - p.x;
+      const dy = p.targetY - p.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < 1) {
+        p.prevX = p.targetX;
+        p.prevY = p.targetY;
+        
+        if (Math.random() > 0.3) {
+          p.dir = Math.floor(Math.random() * 4);
+        }
+
+        switch(p.dir) {
+          case 0: p.targetY -= this.gridSize; break;
+          case 1: p.targetX += this.gridSize; break;
+          case 2: p.targetY += this.gridSize; break;
+          case 3: p.targetX -= this.gridSize; break;
+        }
+        
+        p.life -= 0.05;
+      } else {
+        p.x += (dx / dist) * p.speed;
+        p.y += (dy / dist) * p.speed;
+      }
+
+      if (p.life <= 0 || p.x < 0 || p.x > this.width || p.y < 0 || p.y > this.height) {
+        this.gridPulses.splice(i, 1);
+      }
+    }
+
+    // Update LED Nodes
     this.leds.forEach(led => {
       led.timer -= delta;
       if (led.timer <= 0) {
@@ -304,45 +346,23 @@ export default class CircuitRenderer {
     // Update Heat Zones
     this.heatZones.forEach(hz => {
       hz.intensity = (Math.sin(performance.now() * hz.speed + hz.phase) + 1) / 2;
-      hz.x += (Math.random() - 0.5) * 0.6; // slow drift
-      hz.y += (Math.random() - 0.5) * 0.6;
-      if (Math.random() < 0.002 && this.chips.length > 0) { // teleport
-        const chip = this.chips[Math.floor(Math.random() * this.chips.length)];
-        hz.x = chip.x + chip.w/2;
-        hz.y = chip.y + chip.h/2;
-      }
     });
 
-    // Spawn Particles
-    if (this.isHovering && this.particles.length < 60) {
-      for(let i=0; i<2; i++) {
-        this.particles.push({
-          x: this.mouse.x + (Math.random() - 0.5) * 80,
-          y: this.mouse.y + (Math.random() - 0.5) * 80,
-          vx: 0, vy: 0,
-          life: 1, maxLife: 100 + Math.random() * 50,
-          color: '#00ff88'
-        });
-      }
-    }
-
     // Update Particles
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      let p = this.particles[i];
-      if (this.isHovering) {
-        // Spring attraction
-        p.vx += (this.mouse.x - p.x) * 0.04;
-        p.vy += (this.mouse.y - p.y) * 0.04;
-      }
-      p.vx *= 0.88; // Damping
-      p.vy *= 0.88;
+    this.particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
-      p.life -= 1;
-      if (p.life <= 0) {
-        this.particles.splice(i, 1);
+      
+      if (p.x < 0 || p.x > this.width) p.vx *= -1;
+      if (p.y < 0 || p.y > this.height) p.vy *= -1;
+
+      if (this.isHovering) {
+        p.vx += (this.mouse.x - p.x) * 0.0004;
+        p.vy += (this.mouse.y - p.y) * 0.0004;
       }
-    }
+      p.vx *= 0.99;
+      p.vy *= 0.99;
+    });
 
     // Update Ripples
     for (let i = this.ripples.length - 1; i >= 0; i--) {
@@ -355,25 +375,20 @@ export default class CircuitRenderer {
 
   draw() {
     const ctx = this.ctx;
-    // VERY IMPORTANT: Clear the canvas at the start of every frame
     ctx.clearRect(0, 0, this.width, this.height);
     
-    // 1. Draw Static Base Layer (traces and chips) from offscreen canvas
     ctx.drawImage(this.offscreenCanvas, 0, 0, this.width, this.height);
 
-    // 2. Draw Heat Zones (additive blending)
     ctx.globalCompositeOperation = 'screen';
     this.heatZones.forEach(hz => {
       const grad = ctx.createRadialGradient(hz.x, hz.y, 0, hz.x, hz.y, hz.radius);
       grad.addColorStop(0, `rgba(255,40,0,${hz.intensity * 0.35})`);
-      grad.addColorStop(0.5, `rgba(255,100,0,${hz.intensity * 0.15})`);
       grad.addColorStop(1, `rgba(255,60,0,0)`);
       ctx.fillStyle = grad;
       ctx.fillRect(hz.x - hz.radius, hz.y - hz.radius, hz.radius * 2, hz.radius * 2);
     });
     ctx.globalCompositeOperation = 'source-over';
 
-    // 3. Draw Animated Pulses on traces
     this.pulses.forEach(p => {
       const path = this.traces[p.pathIndex];
       const exactIndex = p.t * (path.length - 1);
@@ -391,24 +406,42 @@ export default class CircuitRenderer {
       ctx.arc(x, y, p.width, 0, Math.PI * 2);
       ctx.fill();
     });
-    ctx.shadowBlur = 0; // Reset shadow
+    ctx.shadowBlur = 0;
 
-    // 4. Draw LED Nodes
+    // Draw Grid Pulses
+    this.gridPulses.forEach(p => {
+      const gradient = ctx.createLinearGradient(p.prevX, p.prevY, p.x, p.y);
+      gradient.addColorStop(0, 'transparent');
+      gradient.addColorStop(1, `rgba(0, 242, 255, ${p.life * 0.8})`);
+      
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(p.prevX, p.prevY);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#00f2ff';
+      ctx.fillStyle = `rgba(0, 242, 255, ${p.life})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
     this.leds.forEach(led => {
       ctx.beginPath();
       ctx.arc(led.x, led.y, 3, 0, Math.PI * 2);
       if (led.state === 'off') {
         ctx.fillStyle = '#0a1a0a';
-        ctx.strokeStyle = '#1a3a1a';
-        ctx.lineWidth = 1;
-        ctx.fill();
-        ctx.stroke();
       } else if (led.state === 'dim') {
         ctx.fillStyle = '#1a4a1a';
         ctx.shadowBlur = 4;
         ctx.shadowColor = '#1a4a1a';
         ctx.fill();
-      } else { // on
+      } else {
         ctx.fillStyle = led.color;
         ctx.shadowBlur = 16;
         ctx.shadowColor = led.color;
@@ -417,15 +450,25 @@ export default class CircuitRenderer {
       ctx.shadowBlur = 0;
     });
 
-    // 5. Draw Hover Particles
+    // Draw Particles
     this.particles.forEach(p => {
-      ctx.fillStyle = `rgba(0, 255, 136, ${p.life / p.maxLife})`;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-      ctx.fill();
+      this.ctx.fillStyle = `rgba(0, 242, 255, ${p.alpha})`;
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      this.ctx.fill();
+      
+      const dx = this.mouse.x - p.x;
+      const dy = this.mouse.y - p.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      if (this.isHovering && dist < 150) {
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowColor = '#00f2ff';
+        this.ctx.fill();
+        this.ctx.shadowBlur = 0;
+      }
     });
 
-    // 6. Draw Click Ripples
     this.ripples.forEach(r => {
       ctx.strokeStyle = `rgba(0, 255, 255, ${r.alpha})`;
       ctx.lineWidth = 2;
