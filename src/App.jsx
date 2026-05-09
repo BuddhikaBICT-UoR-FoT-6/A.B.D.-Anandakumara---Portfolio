@@ -43,29 +43,108 @@ const Microprocessor = () => (
     initial={{ scale: 0.9, opacity: 0 }}
     animate={{ scale: 1, opacity: 1 }}
     transition={{ duration: 1, ease: "easeOut" }}
-    className="relative w-48 h-48 bg-zinc-900 border-4 border-zinc-800 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.2)] flex items-center justify-center overflow-hidden"
+    className="relative w-56 h-56 bg-zinc-900 border-[6px] border-zinc-800 rounded-lg shadow-[0_0_60px_rgba(139,92,246,0.2)] flex items-center justify-center overflow-hidden"
   >
-    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-    <div className="absolute -left-2 top-0 bottom-0 flex flex-col justify-around py-4">
-      {[...Array(6)].map((_, i) => <div key={i} className="w-4 h-1 bg-zinc-800 rounded-full" />)}
-    </div>
-    <div className="absolute -right-2 top-0 bottom-0 flex flex-col justify-around py-4">
-      {[...Array(6)].map((_, i) => <div key={i} className="w-4 h-1 bg-zinc-800 rounded-full" />)}
-    </div>
-    <div className="flex flex-col items-center gap-4 z-10">
-      <div className="flex gap-4">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" className="w-10 h-10 drop-shadow-[0_0_8px_#61dafb]" />
-        <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Spring_Framework_Logo_2018.svg" alt="Spring" className="w-10 h-10 drop-shadow-[0_0_8px_#6db33f]" />
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-800/50 to-transparent pointer-events-none" />
+    
+    {/* Realistic Pin Headers */}
+    {['top', 'bottom', 'left', 'right'].map(side => (
+      <div key={side} className={clsx(
+        "absolute flex justify-around p-1 bg-zinc-800/50",
+        side === 'top' || side === 'bottom' ? "w-full h-4 left-0 flex-row" : "h-full w-4 top-0 flex-col",
+        side === 'top' ? "top-0 border-b border-zinc-700" : side === 'bottom' ? "bottom-0 border-t border-zinc-700" : side === 'left' ? "left-0 border-r border-zinc-700" : "right-0 border-l border-zinc-700"
+      )}>
+        {[...Array(12)].map((_, i) => (
+          <div key={i} className={clsx(
+            "bg-zinc-600 rounded-sm shadow-inner",
+            side === 'top' || side === 'bottom' ? "w-1.5 h-full" : "h-1.5 w-full"
+          )} />
+        ))}
       </div>
-      <span className="text-[10px] font-mono text-zinc-500 tracking-[0.2em] uppercase">B-CORE v4.0</span>
+    ))}
+
+    {/* Center Etched Content */}
+    <div className="flex flex-col items-center gap-5 z-10">
+      <div className="flex gap-5">
+        <motion.img 
+          animate={{ filter: ["drop-shadow(0 0 5px #61dafb)", "drop-shadow(0 0 15px #61dafb)", "drop-shadow(0 0 5px #61dafb)"] }}
+          transition={{ duration: 3, repeat: Infinity }}
+          src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" 
+          alt="React" className="w-12 h-12" 
+        />
+        <motion.img 
+          animate={{ filter: ["drop-shadow(0 0 5px #6db33f)", "drop-shadow(0 0 15px #6db33f)", "drop-shadow(0 0 5px #6db33f)"] }}
+          transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
+          src="https://upload.wikimedia.org/wikipedia/commons/4/44/Spring_Framework_Logo_2018.svg" 
+          alt="Spring" className="w-12 h-12" 
+        />
+      </div>
+      <div className="text-center font-mono space-y-1">
+        <span className="block text-[10px] text-zinc-500 tracking-[0.3em] uppercase">Architecture Hub</span>
+        <span className="block text-[8px] text-purple-400 font-bold tracking-tighter uppercase animate-pulse">IoT Link: Established</span>
+      </div>
     </div>
+    
+    {/* Internal Pulse */}
     <motion.div 
-      animate={{ opacity: [0.2, 0.5, 0.2] }}
-      transition={{ duration: 3, repeat: Infinity }}
-      className="absolute inset-0 bg-purple-500/10 blur-2xl" 
+      animate={{ opacity: [0.1, 0.3, 0.1] }}
+      transition={{ duration: 4, repeat: Infinity }}
+      className="absolute inset-0 bg-purple-500/10 blur-3xl" 
     />
   </motion.div>
 );
+
+const PCBComponent = ({ x, y, type }) => {
+  const isChip = type === 'chip';
+  const isCapacitor = type === 'cap';
+  const isLED = type === 'led';
+
+  return (
+    <div 
+      className="absolute pointer-events-none" 
+      style={{ left: x, top: y }}
+    >
+      {isChip && (
+        <div className="w-12 h-12 bg-zinc-800 border border-zinc-700 rounded-sm shadow-lg flex flex-wrap p-1 gap-1">
+          {[...Array(9)].map((_, i) => <div key={i} className="w-2 h-2 bg-zinc-900 rounded-[1px]" />)}
+        </div>
+      )}
+      {isCapacitor && (
+        <div className="w-3 h-8 bg-zinc-700 border-x border-zinc-600 rounded-full shadow-md relative">
+          <div className="absolute top-1 left-1/2 -translate-x-1/2 w-2 h-1 bg-zinc-400 rounded-sm" />
+        </div>
+      )}
+      {isLED && (
+        <motion.div 
+          animate={{ 
+            backgroundColor: [ "rgba(139, 92, 246, 0.2)", "rgba(139, 92, 246, 0.8)", "rgba(139, 92, 246, 0.2)" ],
+            boxShadow: [ "0 0 0px #a855f7", "0 0 10px #a855f7", "0 0 0px #a855f7" ]
+          }}
+          transition={{ duration: 1.5 + Math.random(), repeat: Infinity }}
+          className="w-1.5 h-1.5 rounded-full"
+        />
+      )}
+    </div>
+  );
+};
+
+const IoTIndicator = ({ x, y, label }) => {
+  const [value, setValue] = useState(0);
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setValue(Math.floor(Math.random() * 100));
+    }, 2000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="absolute font-mono text-[8px] text-zinc-600 tracking-tighter" style={{ left: x, top: y }}>
+      <span className="block opacity-60">{label}</span>
+      <span className="text-purple-400 font-bold">{value}% <span className="animate-pulse">_</span></span>
+    </div>
+  );
+};
 
 const QuickSummary = () => (
   <motion.div 
@@ -100,6 +179,7 @@ export default function App() {
   const [traces, setTraces] = useState([]);
   const [activePulses, setActivePulses] = useState([]);
   const [mouseStopped, setMouseStopped] = useState(false);
+  const [pcbElements, setPcbElements] = useState([]);
   const mouseRef = useRef({ x: -1000, y: -1000 });
   const mouseTimerRef = useRef(null);
   const particlesRef = useRef([]);
@@ -110,10 +190,23 @@ export default function App() {
       const w = window.innerWidth;
       const h = window.innerHeight;
       setDimensions({ width: w, height: h });
-      setTraces(generateTraces(60, w, h));
+      setTraces(generateTraces(80, w, h));
       
+      // Generate PCB Layout Elements
+      const elements = [];
+      const types = ['chip', 'cap', 'led'];
+      for (let i = 0; i < 40; i++) {
+        elements.push({
+          id: i,
+          x: Math.random() * w,
+          y: Math.random() * h,
+          type: types[Math.floor(Math.random() * types.length)]
+        });
+      }
+      setPcbElements(elements);
+
       // Init particles
-      particlesRef.current = Array.from({ length: 100 }, () => ({
+      particlesRef.current = Array.from({ length: 120 }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
         vx: (Math.random() - 0.5) * 2,
@@ -240,6 +333,19 @@ export default function App() {
           <circle key={i} cx={p.x} cy={p.y} r={p.size} fill={COLORS.glow} opacity={p.alpha} />
         ))}
       </svg>
+
+      {/* PCB Hardware Elements */}
+      <div className="absolute inset-0 pointer-events-none opacity-40">
+        {pcbElements.map(el => (
+          <PCBComponent key={el.id} {...el} />
+        ))}
+        
+        {/* Dynamic IoT Indicators at key clusters */}
+        <IoTIndicator x="10%" y="20%" label="TEMP_SENSE_01" />
+        <IoTIndicator x="85%" y="15%" label="NET_LOAD_CORE" />
+        <IoTIndicator x="15%" y="80%" label="VCC_STABILITY" />
+        <IoTIndicator x="80%" y="75%" label="IO_LATENCY_MS" />
+      </div>
 
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none contrast-150 brightness-150" 
            style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/carbon-fibre.png")` }} />
