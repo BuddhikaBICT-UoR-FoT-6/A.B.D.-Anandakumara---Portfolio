@@ -511,6 +511,23 @@
     } catch (err) {
       console.error('Error loading portfolio data:', err);
     }
+
+    // ══════════════════════════════════════════════
+    //  EMAIL COPY
+    // ══════════════════════════════════════════════
+    const copyBtn = document.getElementById('copyEmailBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const email = 'buddhikadarshan1475@gmail.com';
+        navigator.clipboard.writeText(email).then(() => {
+          showToast('Email address copied to clipboard!', 'success', 'Copied');
+          copyBtn.textContent = '✅';
+          setTimeout(() => { copyBtn.textContent = '📋'; }, 2000);
+        }).catch(() => {
+          showToast('Failed to copy email.', 'error');
+        });
+      });
+    }
   }
 
   loadPortfolioData();
@@ -575,4 +592,22 @@
       showToast('Opening your email app…', 'info', 'Email App');
     });
   }
+
+  // ══════════════════════════════════════════════
+  //  EMAIL COPY
+  // ══════════════════════════════════════════════
+  const copyBtn = document.getElementById('copyEmailBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      const email = 'buddhikadarshan1475@gmail.com';
+      navigator.clipboard.writeText(email).then(() => {
+        showToast('Email address copied to clipboard!', 'success', 'Copied');
+        copyBtn.textContent = '✅';
+        setTimeout(() => { copyBtn.textContent = '📋'; }, 2000);
+      }).catch(() => {
+        showToast('Failed to copy email.', 'error');
+      });
+    });
+  }
 })();
+
