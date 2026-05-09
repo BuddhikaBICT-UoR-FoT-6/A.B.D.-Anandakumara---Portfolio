@@ -403,6 +403,20 @@
     const savedData = localStorage.getItem('portfolioData');
     if (!savedData) return;
 
+    // Guard: if stored data has fewer projects than expected (stale/admin-saved before
+    // all projects were added), wipe it so the hardcoded HTML cards are shown instead.
+    try {
+      const probe = JSON.parse(savedData);
+      if (!probe.projects || probe.projects.length < 5) {
+        localStorage.removeItem('portfolioData');
+        return;
+      }
+    } catch (_) {
+      localStorage.removeItem('portfolioData');
+      return;
+    }
+
+
     try {
       const data = JSON.parse(savedData);
 
