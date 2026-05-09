@@ -16,8 +16,17 @@ const DEFAULT_PORTFOLIO_DATA = {
     github: 'https://github.com/BuddhikaBICT-UoR-FoT-6'
   },
   about: {
-    profile: 'As a passionate Full-Stack Developer and IoT enthusiast, I bridge the gap between physical hardware and scalable digital interfaces. Currently pursuing a B.Sc. (Hons) in Information and Communication Technology at the University of Ruhuna, I thrive on designing systems that are not only performant but intuitively interactive.\n\nMy expertise spans Spring Boot microservices, high-performance React frontends, and embedded device programming (ESP32/Arduino). I believe in clean code, robust architecture, and creating immersive user experiences.',
-    highlights: ['IoT Systems Integration', 'Full-Stack Architecture', 'Real-time Data Streaming', 'Agile & TDD Methodologies', 'Cloud Deployment']
+    profile: "I am an innovative Full-Stack Software Engineer with a proven track record of architecting scalable, enterprise-level applications — from cloud-ready transit platforms to comprehensive retail management systems.\n\nBy leveraging a diverse tech stack including React, Angular, Node.js, and Kotlin, I build robust solutions featuring resilient REST APIs and intuitive, user-centric interfaces. I'm passionate about tackling complex technical challenges and delivering high-quality, impactful software.\n\nWhen I'm not building or debugging, I explore emerging tech like Azure Cloud, Redis, and cryptography. Open for internships and collaborations.",
+    highlights: [
+      'Oracle Certified Foundations Associate (OCI)',
+      'Final Year BICT at University of Ruhuna',
+      'Built Smart Campus — offline-first Flutter university platform',
+      'Built CeylonQueueBusPulse — real-time transit platform',
+      'Integrated Stripe & PayPal payment gateways (BoutiqueFlow)',
+      'IoT smart home system with ESP32 (HomeCanvas)',
+      '95%+ test coverage on Cypher-UI (Jest)',
+      'Deployed apps on Azure, Vercel, Netlify & Railway'
+    ]
   },
   skills: {
     technical: ['React & Next.js', 'Spring Boot (Java)', 'Tailwind CSS / Material UI', 'MQTT / WebSockets', 'Node.js & Express', 'MongoDB / MySQL / Redis', 'C++ / Embedded C', 'Docker & CI/CD'],
@@ -145,26 +154,34 @@ const AboutSection = ({ data, profilePhoto }) => (
         <span className="text-cyan-500 font-mono text-sm tracking-widest uppercase block mb-2">Who I Am</span>
         <h2 className="text-4xl md:text-5xl font-bold text-zinc-100 mt-2">About</h2>
       </div>
-      <div className="grid md:grid-cols-2 gap-12">
-        <div className="flex flex-col gap-6">
+      <div className="grid md:grid-cols-[1fr_2fr] lg:grid-cols-[280px_1fr_1fr] gap-8 items-start">
+        <div className="flex flex-col items-center gap-6">
           {profilePhoto && (
-            <div className="w-48 h-48 rounded-2xl overflow-hidden border-2 border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.2)]">
-              <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+            <div className="relative group pointer-events-auto">
+              <div className="w-56 h-56 rounded-full overflow-hidden border-4 border-purple-500/50 shadow-[0_0_40px_rgba(168,85,247,0.2)] transition-transform duration-500 group-hover:scale-105">
+                <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+              </div>
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#0a0212] border border-purple-500/50 text-zinc-300 text-xs px-5 py-2.5 rounded-full font-mono flex items-center gap-2.5 shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-[pulse_1.5s_ease-in-out_infinite] shadow-[0_0_8px_#22c55e]"></span>
+                Open to work
+              </div>
             </div>
           )}
-          <div className="bg-[#0a0212]/80 backdrop-blur-md border border-purple-500/30 rounded-xl p-8 shadow-[0_0_30px_rgba(168,85,247,0.1)] flex-1">
-            <h3 className="text-2xl font-bold text-purple-400 mb-4">Profile</h3>
+        </div>
+        <div className="bg-[#0a0212]/80 backdrop-blur-md border border-purple-500/30 rounded-xl p-8 shadow-[0_0_30px_rgba(168,85,247,0.1)] h-full pointer-events-auto">
+          <h3 className="text-2xl font-bold text-purple-400 mb-6 font-sans">Profile</h3>
+          <div className="space-y-4 text-zinc-400 leading-relaxed text-[15px]">
             {data.profile.split('\n\n').map((p, i) => (
-              <p key={i} className="text-zinc-400 leading-relaxed mb-4 last:mb-0">{p}</p>
+              <p key={i}>{p}</p>
             ))}
           </div>
         </div>
-        <div className="bg-[#0a0212]/80 backdrop-blur-md border border-cyan-500/30 rounded-xl p-8 shadow-[0_0_30px_rgba(34,211,238,0.1)] self-start">
-          <h3 className="text-2xl font-bold text-cyan-400 mb-4">Highlights</h3>
-          <ul className="space-y-3 text-zinc-300 font-mono text-sm">
+        <div className="bg-[#0a0212]/80 backdrop-blur-md border border-cyan-500/30 rounded-xl p-8 shadow-[0_0_30px_rgba(34,211,238,0.1)] h-full pointer-events-auto">
+          <h3 className="text-2xl font-bold text-cyan-400 mb-6 font-sans">Highlights</h3>
+          <ul className="space-y-4 text-zinc-300 font-mono text-xs">
             {data.highlights.map((h, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="text-cyan-500 mt-0.5 animate-pulse">›</span> 
+              <li key={i} className="flex items-start gap-3 leading-snug">
+                <span className="text-cyan-500 mt-0.5 animate-pulse shrink-0">›</span> 
                 <span>{h}</span>
               </li>
             ))}
@@ -364,6 +381,12 @@ export default function App() {
   const rendererRef = useRef(null);
 
   useEffect(() => {
+    // Force clear localStorage once to ensure the restored About content applies
+    if (!sessionStorage.getItem('dataCleared')) {
+      localStorage.removeItem('portfolioData');
+      sessionStorage.setItem('dataCleared', 'true');
+    }
+
     // Load dynamic data from localStorage
     try {
       const storedData = localStorage.getItem('portfolioData');
@@ -423,9 +446,6 @@ export default function App() {
       <canvas 
         id="circuitCanvas"
         ref={canvasRef}
-        onMouseMove={(e) => rendererRef.current?.onMouseMove(e.clientX, e.clientY)}
-        onMouseLeave={() => rendererRef.current?.onMouseLeave()}
-        onClick={(e) => rendererRef.current?.onClick(e.clientX, e.clientY)}
         style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
       />
       

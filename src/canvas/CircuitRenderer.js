@@ -30,6 +30,9 @@ export default class CircuitRenderer {
     if (this.isRunning) return;
     this.resize();
     window.addEventListener('resize', this.resize);
+    window.addEventListener('mousemove', this.onMouseMove);
+    window.addEventListener('mouseleave', this.onMouseLeave);
+    window.addEventListener('click', this.onClick);
     
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (mq.matches) {
@@ -45,6 +48,9 @@ export default class CircuitRenderer {
   stop() {
     this.isRunning = false;
     window.removeEventListener('resize', this.resize);
+    window.removeEventListener('mousemove', this.onMouseMove);
+    window.removeEventListener('mouseleave', this.onMouseLeave);
+    window.removeEventListener('click', this.onClick);
   }
 
   resize() {
@@ -177,9 +183,9 @@ export default class CircuitRenderer {
     });
   }
 
-  onMouseMove(x, y) {
-    this.mouse.x = x;
-    this.mouse.y = y;
+  onMouseMove(e) {
+    this.mouse.x = e.clientX;
+    this.mouse.y = e.clientY;
     this.isHovering = true;
   }
 
@@ -193,7 +199,10 @@ export default class CircuitRenderer {
     });
   }
 
-  onClick(x, y) {
+  onClick(e) {
+    const x = e.clientX;
+    const y = e.clientY;
+
     // 1. Burst particles
     this.particles.forEach(p => {
       const dx = p.x - x;
