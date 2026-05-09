@@ -6,9 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 // ==========================================
 const COLORS = {
   bg: '#02040a',
-  trace: 'rgba(139, 92, 246, 0.15)', // Neon Violet
+  trace: 'rgba(251, 146, 60, 0.15)', // Orange-Amber
   pulse: '#ffffff',
-  glow: '#a855f7', // Electric Purple
+  glow: '#fb923c', // Orange-Amber
 };
 
 // Procedural Trace Generation
@@ -81,7 +81,7 @@ const Microprocessor = () => (
       </div>
       <div className="text-center font-mono space-y-1">
         <span className="block text-[10px] text-zinc-500 tracking-[0.3em] uppercase">Architecture Hub</span>
-        <span className="block text-[8px] text-purple-400 font-bold tracking-tighter uppercase animate-pulse">IoT Link: Established</span>
+        <span className="block text-[8px] text-orange-400 font-bold tracking-tighter uppercase animate-pulse">IoT Link: Established</span>
       </div>
     </div>
     
@@ -117,8 +117,8 @@ const PCBComponent = ({ x, y, type }) => {
       {isLED && (
         <motion.div 
           animate={{ 
-            backgroundColor: [ "rgba(139, 92, 246, 0.2)", "rgba(139, 92, 246, 0.8)", "rgba(139, 92, 246, 0.2)" ],
-            boxShadow: [ "0 0 0px #a855f7", "0 0 10px #a855f7", "0 0 0px #a855f7" ]
+            backgroundColor: [ "rgba(251, 146, 60, 0.2)", "rgba(251, 146, 60, 0.8)", "rgba(251, 146, 60, 0.2)" ],
+            boxShadow: [ "0 0 0px #fb923c", "0 0 10px #fb923c", "0 0 0px #fb923c" ]
           }}
           transition={{ duration: 1.5 + Math.random(), repeat: Infinity }}
           className="w-1.5 h-1.5 rounded-full"
@@ -141,7 +141,7 @@ const IoTIndicator = ({ x, y, label }) => {
   return (
     <div className="absolute font-mono text-[8px] text-zinc-600 tracking-tighter" style={{ left: x, top: y }}>
       <span className="block opacity-60">{label}</span>
-      <span className="text-purple-400 font-bold">{value}% <span className="animate-pulse">_</span></span>
+      <span className="text-orange-400 font-bold">{value}% <span className="animate-pulse">_</span></span>
     </div>
   );
 };
@@ -311,7 +311,13 @@ export default function App() {
       onClick={triggerInteraction}
       className="relative min-h-screen bg-[#02040a] text-zinc-100 overflow-hidden cursor-crosshair select-none"
     >
-      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40">
+      {/* BACKGROUND IMAGE LAYER */}
+      <div 
+        className="absolute inset-0 opacity-60 bg-cover bg-center pointer-events-none"
+        style={{ backgroundImage: `url("/assets/pcb_bg.jpg")` }}
+      />
+
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-50">
         {traces.map((trace) => (
           <path key={trace.id} d={trace.path} stroke={COLORS.trace} strokeWidth="1.5" fill="none" />
         ))}
