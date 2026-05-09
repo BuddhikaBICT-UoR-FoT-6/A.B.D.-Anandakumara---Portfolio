@@ -350,14 +350,37 @@
                 this.canvas = canvas;
                 this.ctx = canvas.getContext('2d');
                 this.pulses = [];
+                this.particles = [];
                 this.gridSize = 60;
+                this.mouse = { x: -1000, y: -1000 };
+                
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
+                window.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.clientX;
+                    this.mouse.y = e.clientY;
+                });
+                
+                this.init();
                 this.animate();
             }
             resize() {
                 this.canvas.width = window.innerWidth;
                 this.canvas.height = window.innerHeight;
+                this.init();
+            }
+            init() {
+                this.particles = [];
+                for (let i = 0; i < 40; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 1,
+                        vy: (Math.random() - 0.5) * 1,
+                        size: Math.random() * 2 + 1,
+                        alpha: Math.random() * 0.3 + 0.1
+                    });
+                }
             }
             createPulse() {
                 if (this.pulses.length > 8) return;
@@ -367,6 +390,25 @@
             }
             update() {
                 if (Math.random() > 0.95) this.createPulse();
+                
+                // Update Particles
+                this.particles.forEach(p => {
+                    const dx = this.mouse.x - p.x;
+                    const dy = this.mouse.y - p.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 200) {
+                        const force = (200 - dist) / 200;
+                        p.vx += (dx / dist) * force * 0.3;
+                        p.vy += (dy / dist) * force * 0.3;
+                    }
+                    p.vx *= 0.95; p.vy *= 0.95;
+                    p.x += p.vx; p.y += p.vy;
+                    if (p.x < 0) p.x = this.canvas.width;
+                    if (p.x > this.canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = this.canvas.height;
+                    if (p.y > this.canvas.height) p.y = 0;
+                });
+
                 for (let i = this.pulses.length - 1; i >= 0; i--) {
                     const p = this.pulses[i];
                     if (Math.abs(p.x - p.tx) < 1 && Math.abs(p.y - p.ty) < 1) {
@@ -390,6 +432,15 @@
                 for (let i = 0; i < this.canvas.width; i += this.gridSize) { this.ctx.moveTo(i, 0); this.ctx.lineTo(i, this.canvas.height); }
                 for (let i = 0; i < this.canvas.height; i += this.gridSize) { this.ctx.moveTo(0, i); this.ctx.lineTo(this.canvas.width, i); }
                 this.ctx.stroke();
+                
+                // Draw Particles
+                this.particles.forEach(p => {
+                    this.ctx.fillStyle = `rgba(0, 242, 255, ${p.alpha})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+
                 this.pulses.forEach(p => {
                     this.ctx.fillStyle = `rgba(0, 242, 255, ${p.life * 0.5})`;
                     this.ctx.beginPath();

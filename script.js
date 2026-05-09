@@ -16,12 +16,26 @@
       this.ctx = canvas.getContext('2d');
       this.dots = [];
       this.pulses = [];
+      this.particles = [];
       this.gridSize = 40;
       this.dotRadius = 1;
-      this.maxPulses = 15;
+      this.maxPulses = 20;
+      this.maxParticles = 80;
+      this.mouse = { x: -1000, y: -1000 };
+      this.mouseStopped = false;
+      this.mouseTimer = null;
       
       this.resize();
       window.addEventListener('resize', () => this.resize());
+      window.addEventListener('mousemove', (e) => {
+        this.mouse.x = e.clientX;
+        this.mouse.y = e.clientY;
+        this.mouseStopped = false;
+        if (this.mouseTimer) clearTimeout(this.mouseTimer);
+        this.mouseTimer = setTimeout(() => {
+          this.mouseStopped = true;
+        }, 150);
+      });
       
       this.init();
       this.animate();
@@ -38,7 +52,19 @@
       document.body.appendChild(wave);
       wave.addEventListener('animationend', () => wave.remove());
 
-      // 2. Spawn pulses in all directions on canvas
+      // 2. Disperse Particles
+      this.particles.forEach(p => {
+        const dx = p.x - e.clientX;
+        const dy = p.y - e.clientY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 400) {
+          const force = (400 - dist) / 40;
+          p.vx += (dx / dist) * force;
+          p.vy += (dy / dist) * force;
+        }
+      });
+
+      // 3. Spawn pulses in all directions on canvas
       // Find nearest grid intersection
       const x = Math.round(e.clientX / this.gridSize) * this.gridSize;
       const y = Math.round(e.clientY / this.gridSize) * this.gridSize;
@@ -67,6 +93,7 @@
 
     init() {
       this.dots = [];
+      this.particles = [];
       const cols = Math.ceil(this.canvas.width / this.gridSize) + 1;
       const rows = Math.ceil(this.canvas.height / this.gridSize) + 1;
 
@@ -78,6 +105,18 @@
             active: Math.random() > 0.8
           });
         }
+      }
+
+      // Initialize floating particles
+      for (let i = 0; i < this.maxParticles; i++) {
+        this.particles.push({
+          x: Math.random() * this.canvas.width,
+          y: Math.random() * this.canvas.height,
+          vx: (Math.random() - 0.5) * 1,
+          vy: (Math.random() - 0.5) * 1,
+          size: Math.random() * 2 + 1,
+          alpha: Math.random() * 0.5 + 0.2
+        });
       }
     }
 
@@ -100,6 +139,37 @@
 
     updatePulses() {
       if (Math.random() > 0.95) this.createPulse();
+
+      // Update Particles
+      this.particles.forEach(p => {
+        const dx = this.mouse.x - p.x;
+        const dy = this.mouse.y - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (this.mouseStopped && dist < 250) {
+          // Gather towards mouse ONLY when stopped
+          const force = (250 - dist) / 250;
+          p.vx += (dx / dist) * force * 0.7;
+          p.vy += (dy / dist) * force * 0.7;
+        } else {
+          // Drift randomly
+          p.vx += (Math.random() - 0.5) * 0.1;
+          p.vy += (Math.random() - 0.5) * 0.1;
+        }
+
+        // Friction
+        p.vx *= 0.95;
+        p.vy *= 0.95;
+        
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Wrap around screen
+        if (p.x < 0) p.x = this.canvas.width;
+        if (p.x > this.canvas.width) p.x = 0;
+        if (p.y < 0) p.y = this.canvas.height;
+        if (p.y > this.canvas.height) p.y = 0;
+      });
 
       for (let i = this.pulses.length - 1; i >= 0; i--) {
         const p = this.pulses[i];
@@ -162,6 +232,23 @@
         this.ctx.lineTo(this.canvas.width, i);
       }
       this.ctx.stroke();
+
+      // Draw Particles
+      this.particles.forEach(p => {
+        this.ctx.fillStyle = `rgba(0, 242, 255, ${p.alpha})`;
+        this.ctx.beginPath();
+        this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Dynamic glow for particles near mouse
+        const dist = Math.sqrt((this.mouse.x - p.x)**2 + (this.mouse.y - p.y)**2);
+        if (dist < 100) {
+          this.ctx.shadowBlur = 5;
+          this.ctx.shadowColor = '#00f2ff';
+          this.ctx.fill();
+          this.ctx.shadowBlur = 0;
+        }
+      });
 
       // Draw pulses
       this.pulses.forEach(p => {
