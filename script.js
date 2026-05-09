@@ -5,6 +5,200 @@
   const contactForm = document.getElementById('contactForm');
   const formNote = document.getElementById('formNote');
   const emailLink = document.getElementById('emailLink');
+  const circuitCanvas = document.getElementById('circuit-bg');
+
+  // ══════════════════════════════════════════════
+  //  CIRCUIT BACKGROUND ANIMATION
+  // ══════════════════════════════════════════════
+  class CircuitBackground {
+    constructor(canvas) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d');
+      this.dots = [];
+      this.pulses = [];
+      this.gridSize = 40;
+      this.dotRadius = 1;
+      this.maxPulses = 15;
+      
+      this.resize();
+      window.addEventListener('resize', () => this.resize());
+      
+      this.init();
+      this.animate();
+
+      window.addEventListener('click', (e) => this.handleClick(e));
+    }
+
+    handleClick(e) {
+      // 1. Create CSS Wave
+      const wave = document.createElement('div');
+      wave.className = 'elec-wave';
+      wave.style.left = `${e.clientX}px`;
+      wave.style.top = `${e.clientY}px`;
+      document.body.appendChild(wave);
+      wave.addEventListener('animationend', () => wave.remove());
+
+      // 2. Spawn pulses in all directions on canvas
+      // Find nearest grid intersection
+      const x = Math.round(e.clientX / this.gridSize) * this.gridSize;
+      const y = Math.round(e.clientY / this.gridSize) * this.gridSize;
+      
+      for (let i = 0; i < 4; i++) {
+        this.pulses.push({
+          x: x,
+          y: y,
+          prevX: x,
+          prevY: y,
+          targetX: x,
+          targetY: y,
+          speed: 8 + Math.random() * 4,
+          life: 1.5,
+          dir: i,
+          isBurst: true
+        });
+      }
+    }
+
+    resize() {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+      this.init();
+    }
+
+    init() {
+      this.dots = [];
+      const cols = Math.ceil(this.canvas.width / this.gridSize) + 1;
+      const rows = Math.ceil(this.canvas.height / this.gridSize) + 1;
+
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          this.dots.push({
+            x: i * this.gridSize,
+            y: j * this.gridSize,
+            active: Math.random() > 0.8
+          });
+        }
+      }
+    }
+
+    createPulse() {
+      if (this.pulses.length >= this.maxPulses) return;
+
+      const startDot = this.dots[Math.floor(Math.random() * this.dots.length)];
+      this.pulses.push({
+        x: startDot.x,
+        y: startDot.y,
+        prevX: startDot.x,
+        prevY: startDot.y,
+        targetX: startDot.x,
+        targetY: startDot.y,
+        speed: 2 + Math.random() * 3,
+        life: 1,
+        dir: Math.floor(Math.random() * 4) // 0: up, 1: right, 2: down, 3: left
+      });
+    }
+
+    updatePulses() {
+      if (Math.random() > 0.95) this.createPulse();
+
+      for (let i = this.pulses.length - 1; i >= 0; i--) {
+        const p = this.pulses[i];
+        
+        // Move towards target
+        const dx = p.targetX - p.x;
+        const dy = p.targetY - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 1) {
+          // Reached target, pick new one
+          p.prevX = p.targetX;
+          p.prevY = p.targetY;
+          
+          // Randomly change direction at grid intersections
+          if (Math.random() > 0.3) {
+            p.dir = Math.floor(Math.random() * 4);
+          }
+
+          switch(p.dir) {
+            case 0: p.targetY -= this.gridSize; break;
+            case 1: p.targetX += this.gridSize; break;
+            case 2: p.targetY += this.gridSize; break;
+            case 3: p.targetX -= this.gridSize; break;
+          }
+          
+          p.life -= 0.05;
+        } else {
+          p.x += (dx / dist) * p.speed;
+          p.y += (dy / dist) * p.speed;
+        }
+
+        if (p.life <= 0 || p.x < 0 || p.x > this.canvas.width || p.y < 0 || p.y > this.canvas.height) {
+          this.pulses.splice(i, 1);
+        }
+      }
+    }
+
+    draw() {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      
+      // Draw grid dots
+      this.ctx.fillStyle = 'rgba(0, 242, 255, 0.05)';
+      this.dots.forEach(dot => {
+        this.ctx.beginPath();
+        this.ctx.arc(dot.x, dot.y, this.dotRadius, 0, Math.PI * 2);
+        this.ctx.fill();
+      });
+
+      // Draw traces (static lines)
+      this.ctx.strokeStyle = 'rgba(0, 242, 255, 0.03)';
+      this.ctx.lineWidth = 1;
+      this.ctx.beginPath();
+      for (let i = 0; i < this.canvas.width; i += this.gridSize) {
+        this.ctx.moveTo(i, 0);
+        this.ctx.lineTo(i, this.canvas.height);
+      }
+      for (let i = 0; i < this.canvas.height; i += this.gridSize) {
+        this.ctx.moveTo(0, i);
+        this.ctx.lineTo(this.canvas.width, i);
+      }
+      this.ctx.stroke();
+
+      // Draw pulses
+      this.pulses.forEach(p => {
+        const gradient = this.ctx.createLinearGradient(p.prevX, p.prevY, p.x, p.y);
+        gradient.addColorStop(0, 'transparent');
+        const color = p.isBurst ? 'rgba(0, 242, 255, ' : 'rgba(0, 242, 255, ';
+        gradient.addColorStop(1, `${color}${p.life * 0.8})`);
+        
+        this.ctx.strokeStyle = gradient;
+        this.ctx.lineWidth = p.isBurst ? 3 : 2;
+        this.ctx.lineCap = 'round';
+        this.ctx.beginPath();
+        this.ctx.moveTo(p.prevX, p.prevY);
+        this.ctx.lineTo(p.x, p.y);
+        this.ctx.stroke();
+
+        // Glow head
+        this.ctx.shadowBlur = p.isBurst ? 20 : 10;
+        this.ctx.shadowColor = '#00f2ff';
+        this.ctx.fillStyle = `rgba(0, 242, 255, ${p.life})`;
+        this.ctx.beginPath();
+        this.ctx.arc(p.x, p.y, p.isBurst ? 3 : 2, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.shadowBlur = 0;
+      });
+    }
+
+    animate() {
+      this.updatePulses();
+      this.draw();
+      requestAnimationFrame(() => this.animate());
+    }
+  }
+
+  if (circuitCanvas) {
+    new CircuitBackground(circuitCanvas);
+  }
 
   // ══════════════════════════════════════════════
   //  TOAST NOTIFICATION SYSTEM

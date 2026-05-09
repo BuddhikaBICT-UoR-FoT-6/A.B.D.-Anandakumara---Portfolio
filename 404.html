@@ -27,12 +27,51 @@
         }
 
         :root {
-            --bg: #060b18;
-            --text: rgba(255, 255, 255, 0.93);
-            --muted: rgba(255, 255, 255, 0.50);
-            --accent: #7c5cff;
-            --green: #34d399;
+            --bg: #02040a;
+            --text: #e0f2fe;
+            --muted: #94a3b8;
+            --accent: #00f2ff;
+            --green: #10b981;
             --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        #circuit-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        /* Electricity Wave Effect */
+        .elec-wave {
+            position: fixed;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0.8;
+            animation: elecWaveAnim 0.6s cubic-bezier(0.1, 0.5, 0.5, 1) forwards;
+            box-shadow: 0 0 15px var(--accent), inset 0 0 10px var(--accent);
+        }
+
+        @keyframes elecWaveAnim {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            100% {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
         }
 
         html,
@@ -51,21 +90,20 @@
             min-height: 100vh;
             padding: 24px;
             text-align: center;
-            background-image:
-                radial-gradient(ellipse 80vw 60vh at 15% 20%, rgba(124, 92, 255, 0.22) 0%, transparent 60%),
-                radial-gradient(ellipse 60vw 50vh at 85% 80%, rgba(52, 211, 153, 0.14) 0%, transparent 60%);
+            overflow: hidden;
         }
 
         .error-number {
             font-size: clamp(96px, 20vw, 180px);
             font-weight: 800;
             line-height: 1;
-            background: linear-gradient(135deg, #7c5cff 0%, #a78bfa 50%, #34d399 100%);
+            background: linear-gradient(135deg, #00f2ff 0%, #3b82f6 50%, #8b5cf6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: -4px;
             margin-bottom: 16px;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.3));
         }
 
         h1 {
@@ -105,9 +143,9 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #7c5cff, #6d4ae8);
+            background: linear-gradient(135deg, #00f2ff, #0077ff);
             color: #fff;
-            box-shadow: 0 4px 20px rgba(124, 92, 255, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 242, 255, 0.3);
         }
 
         .btn-primary:hover {
@@ -150,6 +188,7 @@
 </head>
 
 <body>
+    <canvas id="circuit-bg"></canvas>
     <span class="glitch">404</span>
     <div class="error-number" aria-hidden="true">404</div>
     <h1>Page Not Found</h1>
@@ -161,6 +200,81 @@
     </div>
 
     <script>
+        // Circuit Background
+        class CircuitBackground {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.pulses = [];
+                this.gridSize = 50;
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.animate();
+            }
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            createPulse() {
+                if (this.pulses.length > 10) return;
+                const x = Math.floor(Math.random() * (this.canvas.width / this.gridSize)) * this.gridSize;
+                const y = Math.floor(Math.random() * (this.canvas.height / this.gridSize)) * this.gridSize;
+                this.pulses.push({ x, y, tx: x, ty: y, speed: 2 + Math.random() * 2, life: 1, dir: Math.floor(Math.random() * 4) });
+            }
+            update() {
+                if (Math.random() > 0.9) this.createPulse();
+                for (let i = this.pulses.length - 1; i >= 0; i--) {
+                    const p = this.pulses[i];
+                    if (Math.abs(p.x - p.tx) < 1 && Math.abs(p.y - p.ty) < 1) {
+                        p.dir = Math.floor(Math.random() * 4);
+                        if (p.dir === 0) p.ty -= this.gridSize;
+                        else if (p.dir === 1) p.tx += this.gridSize;
+                        else if (p.dir === 2) p.ty += this.gridSize;
+                        else p.tx -= this.gridSize;
+                        p.life -= 0.1;
+                    } else {
+                        p.x += (p.tx - p.x) * 0.1 * p.speed;
+                        p.y += (p.ty - p.y) * 0.1 * p.speed;
+                    }
+                    if (p.life <= 0) this.pulses.splice(i, 1);
+                }
+            }
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.strokeStyle = 'rgba(0, 242, 255, 0.05)';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                for (let i = 0; i < this.canvas.width; i += this.gridSize) { this.ctx.moveTo(i, 0); this.ctx.lineTo(i, this.canvas.height); }
+                for (let i = 0; i < this.canvas.height; i += this.gridSize) { this.ctx.moveTo(0, i); this.ctx.lineTo(this.canvas.width, i); }
+                this.ctx.stroke();
+                this.pulses.forEach(p => {
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.shadowColor = '#00f2ff';
+                    this.ctx.fillStyle = `rgba(0, 242, 255, ${p.life})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.shadowBlur = 0;
+                });
+            }
+            animate() {
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        new CircuitBackground(document.getElementById('circuit-bg'));
+
+        // Handle Electricity Wave
+        window.addEventListener('click', (e) => {
+            const wave = document.createElement('div');
+            wave.className = 'elec-wave';
+            wave.style.left = `${e.clientX}px`;
+            wave.style.top = `${e.clientY}px`;
+            document.body.appendChild(wave);
+            wave.addEventListener('animationend', () => wave.remove());
+        });
+
         // Auto-redirect after 10 seconds
         let countdown = 10;
         const p = document.querySelector('p');
