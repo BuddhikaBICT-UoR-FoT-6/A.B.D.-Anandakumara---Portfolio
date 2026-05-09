@@ -14,7 +14,6 @@ function PCBBoard({ surgeTime, setMousePos }) {
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 8;
 
-  // High-res texture dimensions
   const imgAspect = 5824 / 3264;
   const viewportAspect = viewport.width / viewport.height;
   
@@ -41,7 +40,7 @@ function PCBBoard({ surgeTime, setMousePos }) {
         emissiveIntensity={1.0}
       />
       <LightSystem planeWidth={scaleX} planeHeight={scaleY} surgeTime={surgeTime} />
-      <TraceAnimator planeWidth={scaleX} planeHeight={scaleY} />
+      <TraceAnimator planeWidth={scaleX} planeHeight={scaleY} surgeTime={surgeTime} />
     </mesh>
   );
 }
@@ -60,13 +59,16 @@ export default function PCBScene() {
         <PCBBoard surgeTime={surgeTime} setMousePos={setMousePos} />
       </Suspense>
 
-      <ParticleSystem mousePos={mousePos} />
+      <ParticleSystem mousePos={mousePos} surgeTime={surgeTime} />
       
       <mesh 
         position={[0, 0, 0]} 
         visible={false} 
         onPointerMove={(e) => setMousePos([e.point.x, e.point.y, 0.1])}
-        onClick={() => setSurgeTime(performance.now())}
+        onClick={(e) => {
+          setMousePos([e.point.x, e.point.y, 0.1]);
+          setSurgeTime(performance.now());
+        }}
       >
         <planeGeometry args={[200, 200]} />
       </mesh>

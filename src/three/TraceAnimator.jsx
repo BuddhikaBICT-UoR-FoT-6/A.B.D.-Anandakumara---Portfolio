@@ -1,9 +1,8 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-export default function TraceAnimator({ planeWidth, planeHeight }) {
-  // Define trace curves using relative coords 0-1
+export default function TraceAnimator({ planeWidth, planeHeight, surgeTime }) {
   const curves = useMemo(() => {
     const rawPaths = [
       [{rx: 0.05, ry: 0.05}, {rx: 0.15, ry: 0.05}, {rx: 0.15, ry: 0.15}],
@@ -20,50 +19,72 @@ export default function TraceAnimator({ planeWidth, planeHeight }) {
       const points = path.map(pt => new THREE.Vector3(
         (pt.rx - 0.5) * planeWidth,
         (0.5 - pt.ry) * planeHeight,
-        0.05 // just above the board
+        0.15
       ));
-      // Using CatmullRomCurve3 for smooth movement
       return new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.1);
     });
   }, [planeWidth, planeHeight]);
 
-  // Pool of 6 pulse lights
-  const pulses = useMemo(() => {
-    return Array.from({ length: 6 }).map(() => ({
-      curveIndex: Math.floor(Math.random() * curves.length),
+  const pulseStates = useMemo(() => {
+    return Array.from({ length: 10 }).map((_, i) => ({
+      curve: curves[Math.floor(Math.random() * curves.length)],
       t: Math.random(),
-      speed: 0.002 + Math.random() * 0.003
+      speed: 0.003 + Math.random() * 0.004,
+      isSurgePulse: false
     }));
-  }, [curves.length]);
+  }, [curves]);
 
   const lightRefs = useRef([]);
+  const lastSurgeTime = useRef(0);
+
+  // Trigger surge pulses on click
+  useEffect(() => {
+    if (surgeTime > lastSurgeTime.current) {
+      lastSurgeTime.current = surgeTime;
+      pulseStates.forEach(pulse => {
+        pulse.t = 0; // Restart all pulses for a "wave" effect
+        pulse.speed = 0.015; // Faster for surge
+        pulse.isSurgePulse = true;
+      });
+      setTimeout(() => {
+        pulseStates.forEach(pulse => {
+          pulse.isSurgePulse = false;
+          pulse.speed = 0.003 + Math.random() * 0.004;
+        });
+      }, 1000);
+    }
+  }, [surgeTime, pulseStates]);
 
   useFrame(() => {
-    pulses.forEach((pulse, i) => {
+    pulseStates.forEach((pulse, i) => {
       pulse.t += pulse.speed;
-      if (pulse.t >= 1) {
+      if (pulse.t > 1.0) {
         pulse.t = 0;
-        pulse.curveIndex = Math.floor(Math.random() * curves.length);
-        pulse.speed = 0.002 + Math.random() * 0.003;
+        pulse.curve = curves[Math.floor(Math.random() * curves.length)];
       }
 
       const light = lightRefs.current[i];
       if (light) {
-        const point = curves[pulse.curveIndex].getPoint(pulse.t);
-        light.position.copy(point);
+        const pos = pulse.curve.getPoint(pulse.t);
+        light.position.set(pos.x, pos.y, 0.15);
+        
+        const brightness = Math.sin(pulse.t * Math.PI);
+        const baseIntensity = pulse.isSurgePulse ? 30 : 6;
+        light.intensity = baseIntensity + brightness * 10;
+        light.distance = pulse.isSurgePulse ? 4.0 : 1.5;
       }
     });
   });
 
   return (
     <group>
-      {pulses.map((_, i) => (
+      {pulseStates.map((_, i) => (
         <pointLight
           key={`pulse-${i}`}
           ref={el => lightRefs.current[i] = el}
-          color={0xff4400}
-          intensity={8}
-          distance={0.6}
+          color={0xff6600}
+          intensity={6}
+          distance={1.5}
         />
       ))}
     </group>
