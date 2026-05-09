@@ -57,17 +57,30 @@
             linkedin: 'https://www.linkedin.com/in/buddhika-darshan-9b9168252/'
         },
         about: {
-            profile: `I am an innovative Full-Stack Software Engineer with a proven track record of architecting scalable, enterprise-level applications.\n\nBy leveraging a diverse tech stack including React, Angular, Node.js, and Kotlin, I build robust solutions. Open for internships and collaborations.`,
+            profile: `I am a Full-Stack Software Engineer and BICT undergraduate specializing in building scalable, AI-integrated applications. From architecting agentic IoT smart environments to developing semantic search engines, I bridge the gap between robust backend systems (Java/Spring Boot, Node.js) and intuitive, modern frontends (React, Flutter).\n\nDriven by a passion for clean code and cloud-ready infrastructure (GCP, Oracle Cloud), I thrive on solving complex system architecture challenges. I am currently seeking software engineering internships where I can contribute to high-impact projects and continue exploring the intersection of modern web development and artificial intelligence.`,
             highlights: [
-                'Oracle Certified Foundations Associate (OCI)',
-                'Final Year BICT at University of Ruhuna',
-                'Built CeylonQueueBusPulse — real-time transit platform',
-                'Deployed apps on Azure, Vercel & Railway'
+                '🎓 Final Year BICT at University of Ruhuna',
+                '☁️ Oracle Certified Foundations Associate (OCI)',
+                '🤖 Built HomeCanvas (Gemini AI, ESP32, Spring Boot)',
+                '📱 Built Smart Campus (Offline-first Flutter platform)',
+                '🚌 Built CeylonQueueBusPulse (Real-time transit tracking)',
+                '💳 Integrated Stripe & PayPal for BoutiqueFlow',
+                '🧪 95%+ Jest coverage on Cypher-UI cryptography engine',
+                '🚀 Deployed via GCP, Docker, Vercel & Netlify'
             ]
         },
         skills: {
-            technical: ['JavaScript / TypeScript', 'Node.js / Express', 'React / Angular', 'Kotlin / Android'],
-            soft: ['Communication', 'Teamwork', 'Problem-solving', 'Git & GitHub']
+            technical: [
+                'Spring Boot / Java',
+                'React / Flutter',
+                'Node.js / Express',
+                'JavaScript / TypeScript',
+                'Kotlin / Android',
+                'MongoDB / MySQL / SQLite',
+                'Cloud (GCP / OCI)',
+                'Docker / CI-CD'
+            ],
+            soft: ['Communication', 'Teamwork', 'Problem-solving', 'Git & GitHub', 'REST API Design', 'Jest Testing', 'Redis Caching', 'Cryptography']
         },
         projects: [
             {
