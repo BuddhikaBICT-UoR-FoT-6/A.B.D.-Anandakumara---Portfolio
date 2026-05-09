@@ -39,27 +39,27 @@ export default function LightSystem({ planeWidth, planeHeight, surgeTime }) {
     const timeSinceSurge = performance.now() - surgeTime;
     const isSurging = timeSinceSurge < 80 && surgeTime > 0;
 
-    // Amber LEDs: oscillate 0.8 -> 4.0
+    // Amber LEDs: oscillate 1.5 -> 6.0
     amberRefs.current.forEach((light, i) => {
       if (light) {
         const conf = amberLights[i];
-        const baseIntensity = 0.8 + ((Math.sin(t * conf.speed + conf.phase) + 1) / 2) * 3.2;
-        light.intensity = isSurging ? 10.0 : baseIntensity;
+        const baseIntensity = 1.5 + ((Math.sin(t * conf.speed + conf.phase) + 1) / 2) * 4.5;
+        light.intensity = isSurging ? 15.0 : baseIntensity;
       }
     });
 
-    // Red LEDs: oscillate 1.5 -> 6.0
+    // Red LEDs: oscillate 2.5 -> 10.0
     redRefs.current.forEach((light, i) => {
       if (light) {
         const conf = redLights[i];
-        const baseIntensity = 1.5 + ((Math.sin(t * conf.speed + conf.phase) + 1) / 2) * 4.5;
-        light.intensity = isSurging ? 12.0 : baseIntensity;
+        const baseIntensity = 2.5 + ((Math.sin(t * conf.speed + conf.phase) + 1) / 2) * 7.5;
+        light.intensity = isSurging ? 20.0 : baseIntensity;
       }
     });
 
     // Ring LED
     if (ringRef.current) {
-      ringRef.current.intensity = isSurging ? 20.0 : 3.0 + ((Math.sin(t * 0.3) + 1) / 2) * 9.0;
+      ringRef.current.intensity = isSurging ? 30.0 : 5.0 + ((Math.sin(t * 0.3) + 1) / 2) * 15.0;
     }
 
     // Heat zones: random walk drift
@@ -76,8 +76,8 @@ export default function LightSystem({ planeWidth, planeHeight, surgeTime }) {
         light.position.x += conf.vx;
         light.position.y += conf.vy;
         
-        // Pulse intensity 0.2 -> 1.8
-        light.intensity = isSurging ? 4.0 : 0.2 + ((Math.sin(t * 0.5 + i) + 1) / 2) * 1.6;
+        // Pulse intensity 0.5 -> 3.0
+        light.intensity = isSurging ? 8.0 : 0.5 + ((Math.sin(t * 0.5 + i) + 1) / 2) * 2.5;
       }
     });
   });
@@ -97,8 +97,8 @@ export default function LightSystem({ planeWidth, planeHeight, surgeTime }) {
           ref={(el) => (amberRefs.current[i] = el)}
           position={getPos(conf.rx, conf.ry)}
           color={0xff8800}
-          distance={1.2}
-          intensity={0.8}
+          distance={4.0}
+          intensity={1.5}
         />
       ))}
 
@@ -109,8 +109,8 @@ export default function LightSystem({ planeWidth, planeHeight, surgeTime }) {
           ref={(el) => (redRefs.current[i] = el)}
           position={getPos(conf.rx, conf.ry)}
           color={0xff1100}
-          distance={2.0}
-          intensity={1.5}
+          distance={6.0}
+          intensity={2.5}
         />
       ))}
 
@@ -119,8 +119,8 @@ export default function LightSystem({ planeWidth, planeHeight, surgeTime }) {
         ref={ringRef}
         position={getPos(0.1, 0.15)} // Approx top left
         color={0xff0000}
-        distance={3.0}
-        intensity={3.0}
+        distance={10.0}
+        intensity={5.0}
       />
 
       {/* Heat Zones */}
@@ -130,8 +130,8 @@ export default function LightSystem({ planeWidth, planeHeight, surgeTime }) {
           ref={(el) => (heatRefs.current[i] = el)}
           position={getPos(conf.rx, conf.ry)}
           color={0xff3300}
-          distance={4.0}
-          intensity={0.2}
+          distance={12.0}
+          intensity={0.8}
         />
       ))}
     </group>

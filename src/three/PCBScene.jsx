@@ -11,6 +11,9 @@ function PCBBoard({ surgeTime, setMousePos }) {
   const texture = useTexture('/background.jpg');
   const { viewport } = useThree();
   
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+
   // High-res texture dimensions
   const imgAspect = 5824 / 3264;
   const viewportAspect = viewport.width / viewport.height;
@@ -31,10 +34,11 @@ function PCBBoard({ surgeTime, setMousePos }) {
       <planeGeometry args={[scaleX, scaleY]} />
       <meshStandardMaterial 
         map={texture} 
-        roughness={0.4}
-        metalness={0.7}
-        emissive="#0a0500"
-        emissiveIntensity={0.1}
+        roughness={0.9}
+        metalness={0.1}
+        emissiveMap={texture}
+        emissive={new THREE.Color('#ffffff')}
+        emissiveIntensity={1.0}
       />
       <LightSystem planeWidth={scaleX} planeHeight={scaleY} surgeTime={surgeTime} />
       <TraceAnimator planeWidth={scaleX} planeHeight={scaleY} />
@@ -50,8 +54,7 @@ export default function PCBScene() {
     <>
       <OrthographicCamera makeDefault position={[0, 0, 10]} zoom={1} />
       
-      {/* Dark warm ambient light */}
-      <ambientLight intensity={0.25} color="#442211" />
+      <ambientLight intensity={1.5} color="#ffffff" />
       
       <Suspense fallback={null}>
         <PCBBoard surgeTime={surgeTime} setMousePos={setMousePos} />
@@ -59,7 +62,6 @@ export default function PCBScene() {
 
       <ParticleSystem mousePos={mousePos} />
       
-      {/* Invisible interaction plane that covers the screen even during load */}
       <mesh 
         position={[0, 0, 0]} 
         visible={false} 
