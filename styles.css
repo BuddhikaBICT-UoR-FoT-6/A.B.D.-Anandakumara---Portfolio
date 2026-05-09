@@ -733,23 +733,13 @@ img {
   display: flex;
   flex-direction: column;
   cursor: default;
-}
-
-/* Animated top-border gradient on hover */
-.project::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-.card.project {
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
   position: relative;
   overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
-.card.project::after {
+/* Shimmer sweep on hover */
+.project::after {
   content: '';
   position: absolute;
   top: 0;
@@ -758,13 +748,14 @@ img {
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
   transition: 0.5s;
+  pointer-events: none;
 }
 
-.card.project:hover::after {
+.project:hover::after {
   left: 100%;
 }
 
-.card.project:hover {
+.project:hover {
   transform: translateY(-10px);
   box-shadow: var(--shadow-lg), var(--shadow-glow);
   border-color: var(--accent);
@@ -1562,11 +1553,10 @@ textarea:focus {
   color: var(--muted);
   list-style: none;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  z-index: 1000;
-  transition: background var(--transition), border var(--transition), transform 0.3s ease;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  transition: background var(--transition), color var(--transition);
   user-select: none;
 }
 
