@@ -6,10 +6,11 @@ import { clsx } from 'clsx';
 // 1. UTILS & CONSTANTS
 // ==========================================
 const COLORS = {
-  bg: '#02040a',
-  trace: 'rgba(251, 146, 60, 0.15)', // Orange-Amber
-  pulse: '#ffffff',
-  glow: '#fb923c', // Orange-Amber
+  bg: '#0d021f',
+  trace: 'rgba(168, 85, 247, 0.4)', // Deep Purple
+  pulse: '#22d3ee', // Cyan
+  glow: '#a855f7', // Purple
+  gold: '#fbbf24', // Gold
 };
 
 // Procedural Trace Generation
@@ -39,60 +40,113 @@ const generateTraces = (count, width, height) => {
 // 2. SUB-COMPONENTS
 // ==========================================
 
-const Microprocessor = () => (
-  <motion.div 
-    initial={{ scale: 0.9, opacity: 0 }}
-    animate={{ scale: 1, opacity: 1 }}
-    transition={{ duration: 1, ease: "easeOut" }}
-    className="relative w-56 h-56 bg-zinc-900 border-[6px] border-zinc-800 rounded-lg shadow-[0_0_60px_rgba(139,92,246,0.2)] flex items-center justify-center overflow-hidden"
-  >
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-800/50 to-transparent pointer-events-none" />
-    
-    {/* Realistic Pin Headers */}
-    {['top', 'bottom', 'left', 'right'].map(side => (
-      <div key={side} className={clsx(
-        "absolute flex justify-around p-1 bg-zinc-800/50",
-        side === 'top' || side === 'bottom' ? "w-full h-4 left-0 flex-row" : "h-full w-4 top-0 flex-col",
-        side === 'top' ? "top-0 border-b border-zinc-700" : side === 'bottom' ? "bottom-0 border-t border-zinc-700" : side === 'left' ? "left-0 border-r border-zinc-700" : "right-0 border-l border-zinc-700"
-      )}>
-        {[...Array(12)].map((_, i) => (
-          <div key={i} className={clsx(
-            "bg-zinc-600 rounded-sm shadow-inner",
-            side === 'top' || side === 'bottom' ? "w-1.5 h-full" : "h-1.5 w-full"
-          )} />
-        ))}
-      </div>
-    ))}
+const SystemCore = () => {
+  const [cpu, setCpu] = useState(42);
+  const [mem, setMem] = useState(12);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCpu(Math.floor(Math.random() * 40) + 30);
+      setMem(Math.floor(Math.random() * 20) + 60);
+    }, 1500);
+    return () => clearInterval(timer);
+  }, []);
 
-    {/* Center Etched Content */}
-    <div className="flex flex-col items-center gap-5 z-10">
-      <div className="flex gap-5">
-        <motion.img 
-          animate={{ filter: ["drop-shadow(0 0 5px #61dafb)", "drop-shadow(0 0 15px #61dafb)", "drop-shadow(0 0 5px #61dafb)"] }}
-          transition={{ duration: 3, repeat: Infinity }}
-          src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" 
-          alt="React" className="w-12 h-12" 
-        />
-        <motion.img 
-          animate={{ filter: ["drop-shadow(0 0 5px #6db33f)", "drop-shadow(0 0 15px #6db33f)", "drop-shadow(0 0 5px #6db33f)"] }}
-          transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
-          src="https://upload.wikimedia.org/wikipedia/commons/4/44/Spring_Framework_Logo_2018.svg" 
-          alt="Spring" className="w-12 h-12" 
-        />
+  return (
+    <motion.div 
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 1, ease: "easeOut" }}
+      className="relative w-72 h-72 bg-[#0a0212] border-[8px] border-[#1a052e] rounded-xl shadow-[0_0_80px_rgba(34,211,238,0.15)] flex flex-col items-center justify-center overflow-hidden"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-900/20 to-transparent pointer-events-none" />
+      
+      {/* Gold Pin Headers */}
+      {['top', 'bottom', 'left', 'right'].map(side => (
+        <div key={side} className={clsx(
+          "absolute flex justify-around p-1 bg-yellow-900/20",
+          side === 'top' || side === 'bottom' ? "w-full h-5 left-0 flex-row" : "h-full w-5 top-0 flex-col",
+          side === 'top' ? "top-0 border-b border-yellow-700/50" : side === 'bottom' ? "bottom-0 border-t border-yellow-700/50" : side === 'left' ? "left-0 border-r border-yellow-700/50" : "right-0 border-l border-yellow-700/50"
+        )}>
+          {[...Array(16)].map((_, i) => (
+            <div key={i} className={clsx(
+              "bg-yellow-600/80 rounded-sm shadow-[0_0_5px_#fbbf24]",
+              side === 'top' || side === 'bottom' ? "w-1.5 h-full" : "h-1.5 w-full"
+            )} />
+          ))}
+        </div>
+      ))}
+
+      <div className="flex flex-col items-center gap-4 z-10 w-full px-8">
+        <h2 className="text-cyan-400 font-mono text-xs tracking-[0.2em] font-bold text-center border-b border-cyan-500/30 pb-2 w-full">
+          SYSTEM CORE: IOT FUSION v2.0
+        </h2>
+        <div className="w-full space-y-2 font-mono text-[10px]">
+          <div className="flex justify-between items-center bg-black/50 p-1.5 rounded border border-purple-500/30">
+            <span className="text-purple-300">CPU_LOAD</span>
+            <span className="text-cyan-300 font-bold">{cpu}%</span>
+          </div>
+          <div className="flex justify-between items-center bg-black/50 p-1.5 rounded border border-purple-500/30">
+            <span className="text-purple-300">MEM_ALLOC</span>
+            <span className="text-cyan-300 font-bold">{mem}%</span>
+          </div>
+          <div className="flex justify-between items-center bg-black/50 p-1.5 rounded border border-purple-500/30">
+            <span className="text-purple-300">CORE_TEMP</span>
+            <span className="text-yellow-400 font-bold">42.1°C</span>
+          </div>
+        </div>
       </div>
-      <div className="text-center font-mono space-y-1">
-        <span className="block text-[10px] text-zinc-500 tracking-[0.3em] uppercase">Architecture Hub</span>
-        <span className="block text-[8px] text-orange-400 font-bold tracking-tighter uppercase animate-pulse">IoT Link: Established</span>
+      
+      {/* Cyan Core Pulse */}
+      <motion.div 
+        animate={{ opacity: [0.1, 0.4, 0.1], scale: [0.9, 1.1, 0.9] }}
+        transition={{ duration: 3, repeat: Infinity }}
+        className="absolute inset-0 bg-cyan-500/10 blur-3xl rounded-full" 
+      />
+    </motion.div>
+  );
+};
+
+const ReactProcessor = ({ x, y }) => (
+  <div className="absolute w-48 h-32 bg-[#120424] border-2 border-purple-800 rounded-lg shadow-[0_0_30px_rgba(168,85,247,0.2)] flex flex-col items-center justify-center overflow-hidden" style={{ left: x, top: y }}>
+    <div className="absolute top-2 left-2 right-2 flex justify-between items-center border-b border-purple-900 pb-1">
+      <span className="text-[8px] font-mono text-cyan-400 uppercase tracking-widest">React UI Render Engine</span>
+      <div className="flex gap-1">
+        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
       </div>
     </div>
-    
-    {/* Internal Pulse */}
-    <motion.div 
-      animate={{ opacity: [0.1, 0.3, 0.1] }}
-      transition={{ duration: 4, repeat: Infinity }}
-      className="absolute inset-0 bg-purple-500/10 blur-3xl" 
+    <motion.img 
+      animate={{ rotate: 360 }}
+      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" 
+      alt="React" className="w-12 h-12 opacity-80 mt-4 drop-shadow-[0_0_10px_#61dafb]" 
     />
-  </motion.div>
+    <div className="absolute bottom-2 text-[6px] font-mono text-purple-400/50 opacity-50 whitespace-pre">
+      {"const UI = () => <Render />"}
+    </div>
+  </div>
+);
+
+const SpringBootKernel = ({ x, y }) => (
+  <div className="absolute w-40 h-40 bg-[#0c1814] border-2 border-green-900 rounded-lg shadow-[0_0_30px_rgba(109,179,63,0.1)] flex flex-col items-center justify-center" style={{ left: x, top: y }}>
+    <span className="absolute top-2 text-[8px] font-mono text-green-400 uppercase tracking-widest text-center">Spring Boot<br/>Kernel v1.5</span>
+    <motion.img 
+      animate={{ opacity: [0.7, 1, 0.7] }}
+      transition={{ duration: 4, repeat: Infinity }}
+      src="https://upload.wikimedia.org/wikipedia/commons/4/44/Spring_Framework_Logo_2018.svg" 
+      alt="Spring" className="w-14 h-14 drop-shadow-[0_0_12px_#6db33f]" 
+    />
+    <span className="absolute bottom-3 text-[9px] font-mono text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded border border-yellow-700/50">STATE: RUNNING</span>
+  </div>
+);
+
+const LabeledPort = ({ x, y, label }) => (
+  <div className="absolute flex flex-col items-center gap-1" style={{ left: x, top: y }}>
+    <div className="w-10 h-10 rounded-full border-4 border-zinc-700 bg-black flex items-center justify-center shadow-inner">
+      <div className="w-4 h-4 rounded-full bg-cyan-900/50 border border-cyan-500/50" />
+    </div>
+    <span className="font-mono text-[7px] text-cyan-500 tracking-wider bg-black/80 px-1 rounded">{label}</span>
+  </div>
 );
 
 const PCBComponent = ({ x, y, type }) => {
@@ -101,71 +155,78 @@ const PCBComponent = ({ x, y, type }) => {
   const isLED = type === 'led';
 
   return (
-    <div 
-      className="absolute pointer-events-none" 
-      style={{ left: x, top: y }}
-    >
+    <div className="absolute pointer-events-none" style={{ left: x, top: y }}>
       {isChip && (
-        <div className="w-12 h-12 bg-zinc-800 border border-zinc-700 rounded-sm shadow-lg flex flex-wrap p-1 gap-1">
-          {[...Array(9)].map((_, i) => <div key={i} className="w-2 h-2 bg-zinc-900 rounded-[1px]" />)}
+        <div className="w-10 h-10 bg-[#0a0212] border border-purple-800 rounded-sm shadow-[0_2px_10px_rgba(0,0,0,0.5)] flex flex-wrap p-1 gap-1">
+          {[...Array(9)].map((_, i) => <div key={i} className="w-2 h-2 bg-purple-900/30 rounded-[1px]" />)}
         </div>
       )}
       {isCapacitor && (
-        <div className="w-3 h-8 bg-zinc-700 border-x border-zinc-600 rounded-full shadow-md relative">
-          <div className="absolute top-1 left-1/2 -translate-x-1/2 w-2 h-1 bg-zinc-400 rounded-sm" />
+        <div className="w-3 h-8 bg-zinc-800 border-x border-zinc-600 rounded-full shadow-md relative overflow-hidden">
+          <div className="absolute bottom-0 w-full bg-purple-600/50" style={{ height: `${Math.random() * 100}%` }} />
+          <div className="absolute top-1 left-1/2 -translate-x-1/2 w-2 h-1 bg-yellow-600 rounded-sm" />
         </div>
       )}
       {isLED && (
         <motion.div 
           animate={{ 
-            backgroundColor: [ "rgba(251, 146, 60, 0.2)", "rgba(251, 146, 60, 0.8)", "rgba(251, 146, 60, 0.2)" ],
-            boxShadow: [ "0 0 0px #fb923c", "0 0 10px #fb923c", "0 0 0px #fb923c" ]
+            backgroundColor: [ "rgba(34, 211, 238, 0.2)", "rgba(34, 211, 238, 0.9)", "rgba(34, 211, 238, 0.2)" ],
+            boxShadow: [ "0 0 0px #22d3ee", "0 0 12px #22d3ee", "0 0 0px #22d3ee" ]
           }}
-          transition={{ duration: 1.5 + Math.random(), repeat: Infinity }}
-          className="w-1.5 h-1.5 rounded-full"
+          transition={{ duration: Math.random() * 2 + 0.5, repeat: Infinity, delay: Math.random() }}
+          className="w-1.5 h-1.5 rounded-sm"
         />
       )}
     </div>
   );
 };
 
-const IoTIndicator = ({ x, y, label }) => {
+const IoTIndicator = ({ x, y, label, isStatic, staticVal, type = 'cyan' }) => {
   const [value, setValue] = useState(0);
   
   useEffect(() => {
+    if (isStatic) return;
     const timer = setInterval(() => {
       setValue(Math.floor(Math.random() * 100));
-    }, 2000);
+    }, 1500 + Math.random() * 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [isStatic]);
+
+  const colorClass = type === 'cyan' ? 'text-cyan-400' : type === 'gold' ? 'text-yellow-400' : 'text-purple-400';
 
   return (
-    <div className="absolute font-mono text-[8px] text-zinc-600 tracking-tighter" style={{ left: x, top: y }}>
-      <span className="block opacity-60">{label}</span>
-      <span className="text-orange-400 font-bold">{value}% <span className="animate-pulse">_</span></span>
+    <div className="absolute font-mono text-[8px] bg-black/60 border border-purple-500/30 p-1 rounded backdrop-blur-sm" style={{ left: x, top: y }}>
+      <span className="block opacity-70 text-zinc-400 mb-0.5">{label}</span>
+      <span className={`${colorClass} font-bold`}>
+        {isStatic ? staticVal : `${value}%`} {!isStatic && <span className="animate-pulse">_</span>}
+      </span>
     </div>
   );
 };
 
-const QuickSummary = () => (
+const HoverModule = ({ isReady }) => (
   <motion.div 
-    animate={{ boxShadow: ["0 0 20px rgba(168,85,247,0.1)", "0 0 40px rgba(168,85,247,0.3)", "0 0 20px rgba(168,85,247,0.1)"] }}
-    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-    className="p-6 bg-zinc-900/80 backdrop-blur-md border border-purple-500/30 rounded-2xl w-full max-w-sm"
+    animate={{ boxShadow: isReady ? "0 0 40px rgba(34,211,238,0.3)" : "0 0 20px rgba(168,85,247,0.1)" }}
+    className="p-6 bg-[#0a0212]/80 backdrop-blur-md border border-cyan-500/30 rounded-xl w-full max-w-sm relative overflow-hidden"
   >
-    <h3 className="text-purple-400 font-mono text-xs tracking-widest uppercase mb-4">System Status: Active</h3>
-    <ul className="space-y-3 text-zinc-300 text-sm">
-      <li className="flex items-start gap-2">
-        <span className="text-purple-500 mt-1">▹</span>
-        <span>4th Year BICT Honours student at University of Ruhuna</span>
+    <div className="absolute top-0 right-0 p-2">
+      <div className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded ${isReady ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50' : 'bg-purple-500/20 text-purple-400 border border-purple-500/50'}`}>
+        HOVER MODULE: {isReady ? 'READY' : 'STANDBY'}
+      </div>
+    </div>
+    <h3 className="text-cyan-400 font-mono text-xs tracking-widest uppercase mb-4 mt-2 border-b border-cyan-900 pb-2">User Profile Data</h3>
+    <ul className="space-y-3 text-zinc-300 text-sm font-mono">
+      <li className="flex items-start gap-3">
+        <span className="text-cyan-500 mt-0.5">›</span>
+        <span>B.Sc. BICT (Hons) Undergraduate</span>
       </li>
-      <li className="flex items-start gap-2">
-        <span className="text-purple-500 mt-1">▹</span>
-        <span>Specializing in IoT & Full-Stack Development</span>
+      <li className="flex items-start gap-3">
+        <span className="text-cyan-500 mt-0.5">›</span>
+        <span>IoT & Full-Stack Architect</span>
       </li>
-      <li className="flex items-start gap-2">
-        <span className="text-purple-500 mt-1">▹</span>
-        <span>OCI Certified Foundations Associate</span>
+      <li className="flex items-start gap-3">
+        <span className="text-cyan-500 mt-0.5">›</span>
+        <span>Oracle Certified Foundations</span>
       </li>
     </ul>
   </motion.div>
@@ -310,15 +371,17 @@ export default function App() {
     <div 
       ref={containerRef}
       onClick={triggerInteraction}
-      className="relative min-h-screen bg-[#02040a] text-zinc-100 overflow-hidden cursor-crosshair select-none"
+      className="relative min-h-screen bg-[#0d021f] text-zinc-100 overflow-hidden cursor-crosshair select-none"
     >
       {/* BACKGROUND IMAGE LAYER */}
       <div 
-        className="absolute inset-0 opacity-60 bg-cover bg-center pointer-events-none"
-        style={{ backgroundImage: `url("/assets/pcb_bg.jpg")` }}
+        className="absolute inset-0 bg-cover bg-center pointer-events-none"
+        style={{ backgroundImage: `url("/assets/deep_purple_pcb.png")`, mixBlendMode: 'screen', opacity: 0.8 }}
       />
+      {/* Vapor Field */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-purple-900/20 via-transparent to-cyan-900/20 pointer-events-none mix-blend-screen blur-xl" />
 
-      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-50">
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-60 z-0">
         {traces.map((trace) => (
           <path key={trace.id} d={trace.path} stroke={COLORS.trace} strokeWidth="1.5" fill="none" />
         ))}
@@ -330,6 +393,7 @@ export default function App() {
               stroke={COLORS.pulse}
               strokeWidth="2.5"
               fill="none"
+              style={{ filter: 'drop-shadow(0 0 6px #22d3ee)' }}
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: [0, 1, 0] }}
               transition={{ duration: pulse.duration, ease: "easeOut" }}
@@ -337,25 +401,31 @@ export default function App() {
           ))}
         </AnimatePresence>
         {particlesRef.current.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={p.size} fill={COLORS.glow} opacity={p.alpha} />
+          <circle key={i} cx={p.x} cy={p.y} r={p.size} fill={COLORS.pulse} opacity={p.alpha} />
         ))}
       </svg>
 
       {/* PCB Hardware Elements */}
-      <div className="absolute inset-0 pointer-events-none opacity-40">
+      <div className="absolute inset-0 pointer-events-none opacity-80 z-0">
         {pcbElements.map(el => (
           <PCBComponent key={el.id} {...el} />
         ))}
         
-        {/* Dynamic IoT Indicators at key clusters */}
-        <IoTIndicator x="10%" y="20%" label="TEMP_SENSE_01" />
-        <IoTIndicator x="85%" y="15%" label="NET_LOAD_CORE" />
-        <IoTIndicator x="15%" y="80%" label="VCC_STABILITY" />
-        <IoTIndicator x="80%" y="75%" label="IO_LATENCY_MS" />
-      </div>
+        {/* Specific Processors & Ports */}
+        <ReactProcessor x="8%" y="25%" />
+        <SpringBootKernel x="78%" y="60%" />
+        
+        <LabeledPort x="5%" y="10%" label="PRIMARY IOT IN" />
+        <LabeledPort x="85%" y="15%" label="ETHERNET v6" />
+        <LabeledPort x="80%" y="85%" label="GWAY ADDR" />
 
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none contrast-150 brightness-150" 
-           style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/carbon-fibre.png")` }} />
+        {/* Dynamic IoT Indicators */}
+        <IoTIndicator x="18%" y="45%" label="SENSOR_01" isStatic staticVal="22.1C" type="cyan" />
+        <IoTIndicator x="25%" y="20%" label="SENSOR_02" isStatic staticVal="60% H" type="cyan" />
+        <IoTIndicator x="85%" y="40%" label="V_IN" isStatic staticVal="12.01V" type="gold" />
+        <IoTIndicator x="75%" y="35%" label="V_OUT" isStatic staticVal="3.30V" type="gold" />
+        <IoTIndicator x="45%" y="85%" label="NET_TRAFFIC" type="cyan" />
+      </div>
 
       <div className="relative z-10 container mx-auto px-6 py-12 flex flex-col min-h-screen">
         <nav className="flex justify-between items-center mb-24">
@@ -400,8 +470,8 @@ export default function App() {
             </div>
           </div>
           <div className="flex flex-col items-center gap-12 lg:items-end">
-            <Microprocessor />
-            <QuickSummary />
+            <SystemCore />
+            <HoverModule isReady={mouseStopped} />
           </div>
         </div>
 
