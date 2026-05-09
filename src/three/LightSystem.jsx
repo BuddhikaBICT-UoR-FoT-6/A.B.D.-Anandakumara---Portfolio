@@ -1,7 +1,7 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 
-export default function LightSystem({ planeWidth, planeHeight }) {
+export default function LightSystem({ planeWidth, planeHeight, surgeTime }) {
   // Use useMemo to generate random light positions mapped to 0-1 range
   const amberLights = useMemo(() => {
     return Array.from({ length: 15 }).map(() => ({
