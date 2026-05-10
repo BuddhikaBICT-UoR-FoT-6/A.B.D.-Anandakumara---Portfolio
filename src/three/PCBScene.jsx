@@ -11,74 +11,49 @@ import Shockwave from './Shockwave';
 const Board = () => {
   const meshRef = useRef();
 
-  // Create a procedural normal map for the fiberglass texture
-  const normalMap = useMemo(() => {
+  // Optimized procedural trace texture (512x512 instead of 1024)
+  const traceTexture = useMemo(() => {
     const size = 512;
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
-    const imgData = ctx.createImageData(size, size);
     
-    for (let i = 0; i < imgData.data.length; i += 4) {
-      const v = Math.random() * 20;
-      imgData.data[i] = 128 + v;     // R
-      imgData.data[i + 1] = 128 + v; // G
-      imgData.data[i + 2] = 255;     // B
-      imgData.data[i + 3] = 255;     // A
-    }
-    ctx.putImageData(imgData, 0, 0);
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(10, 10);
-    return tex;
-  }, []);
-
-  // Simple procedural trace texture (dark gold lines)
-  const traceTexture = useMemo(() => {
-    const size = 1024;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    
-    ctx.fillStyle = '#1a4a1a'; // Deep PCB green
+    // Solid background
+    ctx.fillStyle = '#1a4a1a'; 
     ctx.fillRect(0, 0, size, size);
     
-    ctx.strokeStyle = '#b8860b'; // Gold copper
+    // Basic traces
+    ctx.strokeStyle = '#b8860b';
     ctx.lineWidth = 1;
-    ctx.globalAlpha = 0.6; // Increased opacity for visibility
+    ctx.globalAlpha = 0.4;
     
-    // Draw Manhattan traces
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 40; i++) {
       const x = Math.random() * size;
       const y = Math.random() * size;
       ctx.beginPath();
       ctx.moveTo(x, y);
-      if (Math.random() > 0.5) {
-        ctx.lineTo(x + (Math.random() - 0.5) * 400, y);
-        ctx.lineTo(x + (Math.random() - 0.5) * 400, y + (Math.random() - 0.5) * 400);
-      } else {
-        ctx.lineTo(x, y + (Math.random() - 0.5) * 400);
-        ctx.lineTo(x + (Math.random() - 0.5) * 400, y + (Math.random() - 0.5) * 400);
-      }
+      ctx.lineTo(x + (Math.random() - 0.5) * 200, y);
+      ctx.lineTo(x + (Math.random() - 0.5) * 200, y + (Math.random() - 0.5) * 200);
       ctx.stroke();
     }
     
-    return new THREE.CanvasTexture(canvas);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(2, 2);
+    return tex;
   }, []);
 
   return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
-      <planeGeometry args={[120, 120]} />
+    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
+      <planeGeometry args={[150, 150]} />
       <meshStandardMaterial 
         color="#1a4a1a"
         map={traceTexture}
-        normalMap={normalMap}
-        roughness={0.4}
-        metalness={0.3}
-        emissive="#0a1a0a"
-        emissiveIntensity={0.2}
+        roughness={0.5}
+        metalness={0.2}
+        emissive="#051a05"
+        emissiveIntensity={0.5}
       />
     </mesh>
   );
@@ -87,18 +62,11 @@ const Board = () => {
 const Components3D = () => {
   const components = useMemo(() => {
     const items = [];
-    for (let i = 0; i < 6; i++) {
-      items.push({
-        type: 'capacitor',
-        position: [(Math.random() - 0.5) * 30, -1.8, (Math.random() - 0.5) * 30],
-        args: [0.4, 0.4, 1.2, 32]
-      });
-    }
     for (let i = 0; i < 4; i++) {
       items.push({
-        type: 'resistor',
-        position: [(Math.random() - 0.5) * 30, -1.9, (Math.random() - 0.5) * 30],
-        args: [0.8, 0.2, 0.2]
+        type: 'capacitor',
+        position: [(Math.random() - 0.5) * 20, -1.8, (Math.random() - 0.5) * 20],
+        args: [0.3, 0.3, 1, 16]
       });
     }
     return items;
@@ -107,18 +75,9 @@ const Components3D = () => {
   return (
     <group>
       {components.map((c, i) => (
-        <mesh key={i} position={c.position} rotation={c.type === 'capacitor' ? [0, 0, 0] : [0, Math.random() * Math.PI, 0]}>
-          {c.type === 'capacitor' ? (
-            <>
-              <cylinderGeometry args={c.args} />
-              <meshStandardMaterial color="#333" roughness={0.3} metalness={0.8} />
-            </>
-          ) : (
-            <>
-              <boxGeometry args={c.args} />
-              <meshStandardMaterial color="#664422" roughness={0.7} />
-            </>
-          )}
+        <mesh key={i} position={c.position}>
+          <cylinderGeometry args={c.args} />
+          <meshStandardMaterial color="#222" roughness={0.3} metalness={0.8} />
         </mesh>
       ))}
     </group>
@@ -128,12 +87,11 @@ const Components3D = () => {
 const PCBScene = () => {
   return (
     <div className="fixed inset-0 z-0 bg-[#000800]">
-      <Canvas shadows gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
-        <PerspectiveCamera makeDefault position={[0, 18, 22]} fov={45} />
+      <Canvas shadows={false} gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}>
+        <PerspectiveCamera makeDefault position={[0, 20, 25]} fov={45} />
         
-        <ambientLight intensity={0.5} />
-        <pointLight position={[15, 15, 15]} intensity={2.5} color="#ffffff" />
-        <pointLight position={[-15, 15, -15]} intensity={1.5} color="#00ff44" />
+        <ambientLight intensity={0.8} />
+        <pointLight position={[10, 10, 10]} intensity={3} color="#ffffff" />
         
         <Board />
         <Components3D />
@@ -143,12 +101,12 @@ const PCBScene = () => {
         <ParticleEngine />
         <Shockwave />
 
+        {/* Temporarily reducing post-processing for debug */}
         <EffectComposer disableNormalPass>
           <Bloom 
-            intensity={1.5} 
-            luminanceThreshold={0.01} 
-            luminanceSmoothing={0.9} 
-            radius={0.6} 
+            intensity={1.0} 
+            luminanceThreshold={0.1} 
+            radius={0.4} 
           />
         </EffectComposer>
       </Canvas>

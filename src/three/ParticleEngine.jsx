@@ -3,11 +3,12 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { audio } from '../utils/AudioManager';
 
-const PARTICLE_COUNT = 200;
+const PARTICLE_COUNT = 150; // Slightly reduced for performance
 
 const ParticleEngine = () => {
   const pointsRef = useRef();
   const { mouse, raycaster, camera } = useThree();
+  const lastGatherState = useRef(false);
   
   // Particle data pool
   const particles = useMemo(() => {
@@ -18,8 +19,7 @@ const ParticleEngine = () => {
         velocity: new THREE.Vector3((Math.random() - 0.5) * 0.02, 0, (Math.random() - 0.5) * 0.02),
         state: 'idle',
         size: 1.5,
-        brightness: 0.15,
-        life: 1.0
+        brightness: 0.15
       });
     }
     return data;
@@ -35,7 +35,7 @@ const ParticleEngine = () => {
 
   const cursorWorldPos = new THREE.Vector3();
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const t = performance.now() * 0.001;
 
     // Update cursor world position
@@ -49,29 +49,27 @@ const ParticleEngine = () => {
       const distToCursor = p.position.distanceTo(cursorWorldPos);
 
       // State transitions
-      if (distToCursor < 5) {
-        if (p.state !== 'gathering') {
-          isAnyGathering = true;
-        }
+      if (distToCursor < 6) {
         p.state = 'gathering';
+        isAnyGathering = true;
       } else if (p.state === 'gathering') {
         p.state = 'dispersing';
-        p.velocity.add(new THREE.Vector3((Math.random() - 0.5) * 0.2, 0, (Math.random() - 0.5) * 0.2));
+        p.velocity.add(new THREE.Vector3((Math.random() - 0.5) * 0.1, 0, (Math.random() - 0.5) * 0.1));
       }
 
       // Physics logic
       if (p.state === 'gathering') {
         const dx = cursorWorldPos.x - p.position.x;
         const dz = cursorWorldPos.z - p.position.z;
-        p.velocity.x += dx * 0.006;
-        p.velocity.z += dz * 0.006;
-        p.velocity.x += -dz * 0.003;
-        p.velocity.z += dx * 0.003;
-        p.velocity.multiplyScalar(0.82);
-        p.size = THREE.MathUtils.lerp(p.size, 6, 0.1);
+        p.velocity.x += dx * 0.005;
+        p.velocity.z += dz * 0.005;
+        p.velocity.x += -dz * 0.002;
+        p.velocity.z += dx * 0.002;
+        p.velocity.multiplyScalar(0.85);
+        p.size = THREE.MathUtils.lerp(p.size, 5, 0.1);
         p.brightness = THREE.MathUtils.lerp(p.brightness, 1.0, 0.1);
       } else if (p.state === 'dispersing') {
-        p.velocity.multiplyScalar(0.95);
+        p.velocity.multiplyScalar(0.96);
         p.brightness -= 0.02;
         if (p.brightness <= 0.15) {
           p.state = 'idle';
@@ -95,8 +93,12 @@ const ParticleEngine = () => {
       colors[i * 3 + 2] = c.b;
     });
 
-    if (isAnyGathering) {
+    // CRITICAL PERFORMANCE FIX: Only play audio on transition
+    if (isAnyGathering && !lastGatherState.current) {
       audio.playHover();
+      lastGatherState.current = true;
+    } else if (!isAnyGathering && lastGatherState.current) {
+      lastGatherState.current = false;
     }
 
     pointsRef.current.geometry.attributes.position.needsUpdate = true;
@@ -109,7 +111,7 @@ const ParticleEngine = () => {
       particles.forEach(p => {
         if (p.state === 'gathering') {
           const dir = p.position.clone().sub(cursorWorldPos).normalize();
-          p.velocity.add(dir.multiplyScalar(0.3 + Math.random() * 0.2));
+          p.velocity.add(dir.multiplyScalar(0.4));
           p.state = 'dispersing';
         }
       });
