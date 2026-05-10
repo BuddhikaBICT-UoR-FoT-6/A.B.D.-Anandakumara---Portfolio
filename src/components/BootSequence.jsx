@@ -2,26 +2,27 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { audio } from '../utils/AudioManager';
 
-const BOOT_LINES = [
-  { text: '> POST: CPU OK | RAM: 8192MB | Storage: NVMe 512GB', speed: 5 },
-  { text: '> Voltage rails: 3.3V ✓  5V ✓  12V ✓  -12V ✓', speed: 5 },
-  { text: '> GPIO pins: 54 digital, 16 analog — initialized', speed: 5 },
-  { text: '> I²C bus: scanning... 4 devices found [0x27][0x3C][0x48][0x76]', speed: 5 },
-  { text: 'LOADING_BAR', label: 'Loading kernel modules', progress: 100, speed: 5 },
-  { text: 'LOADING_BAR', label: 'Initializing React v18.2', progress: 100, speed: 10 },
-  { text: 'LOADING_BAR', label: 'Three.js WebGL renderer', progress: 100, speed: 5 },
-  { text: '> Sensor registry: 24 IoT nodes online', speed: 8 },
-  { text: 'SEPARATOR', speed: 0 },
-  { text: '  SYSTEM READY — A.B.D. Anandakumara', speed: 20 },
-  { text: '  Launching portfolio interface...', speed: 20 },
-  { text: 'SEPARATOR', speed: 0 },
+const BOOT_SCRIPT = [
+  { text: '> Initializing Arduino Build Environment...' },
+  { type: 'bar', label: '> avr-gcc 7.3.0 — Compiling sketch...', length: 10, totalTime: 800 },
+  { type: 'bar', label: '> Linking .elf binary...', length: 10, totalTime: 600 },
+  { type: 'bar', label: '> Flashing to ATmega328P...', length: 10, totalTime: 1200 },
+  { text: '> [INFO] Bootloader handshake: OK' },
+  { type: 'bar', label: '> Loading React 18.2 module...', length: 10, totalTime: 900 },
+  { type: 'bar', label: '> Mounting Spring Boot context...', length: 10, totalTime: 1000 },
+  { type: 'bar', label: '> Establishing MQTT broker...', length: 10, totalTime: 700 },
+  { text: '> [WARN] High voltage detected on PIN_A3 — monitoring', color: '#ffcc00' },
+  { type: 'bar', label: '> Calibrating ESP32 sensor array...', length: 10, totalTime: 1100 },
+  { text: '> [SYS] All systems nominal. Ping: 19ms' },
+  { type: 'bar', label: '> Booting portfolio instance v2.0...', length: 10, totalTime: 800 },
+  { text: '> ABD://ANANDAKUMARA — READY ✓' }
 ];
 
 const BootSequence = ({ onComplete }) => {
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [lines, setLines] = useState([]);
   const [isBooted, setIsBooted] = useState(false);
-  const timerRef = useRef();
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     if (sessionStorage.getItem('booted')) {
@@ -29,89 +30,142 @@ const BootSequence = ({ onComplete }) => {
       return;
     }
 
-    if (currentLineIndex < BOOT_LINES.length) {
-      const line = BOOT_LINES[currentLineIndex];
-      if (line.text === 'LOADING_BAR') {
+    if (currentLineIndex < BOOT_SCRIPT.length) {
+      const line = BOOT_SCRIPT[currentLineIndex];
+      if (line.type === 'bar') {
         renderLoadingBar(line);
-      } else if (line.text === 'SEPARATOR') {
-        setLines(prev => [...prev, '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━']);
-        setCurrentLineIndex(prev => prev + 1);
       } else {
         typeLine(line);
       }
     } else {
-      timerRef.current = setTimeout(() => {
+      // Flash final line then dissolve
+      setTimeout(() => {
         setIsBooted(true);
         sessionStorage.setItem('booted', 'true');
-        setTimeout(onComplete, 800);
-      }, 500);
+        setTimeout(onComplete, 1200); // Wait for dissolve animation
+      }, 800);
     }
-    return () => clearTimeout(timerRef.current);
+    
+    // Auto-scroll
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
   }, [currentLineIndex]);
 
   const typeLine = (line) => {
     let i = 0;
-    const interval = setInterval(() => {
+    
+    const typeNextChar = () => {
+      if (i === 1) audio.unlock();
+      
       if (i <= line.text.length) {
-        if (i === 1) audio.unlock();
-        // Play sound every 2nd char to reduce overhead
         if (i % 2 === 0) audio.playKey();
+        
         setLines(prev => {
           const newLines = [...prev];
-          newLines[currentLineIndex] = line.text.slice(0, i) + '█';
+          newLines[currentLineIndex] = {
+            text: line.text.slice(0, i) + '█',
+            color: line.color || '#00ff41',
+            opacity: 1
+          };
+          
+          // Fade older lines
+          for (let j = 0; j < currentLineIndex; j++) {
+            if (newLines[j]) newLines[j].opacity = 0.4;
+          }
+          
           return newLines;
         });
         i++;
+        
+        // Variable typing speed 20-80ms
+        const delay = 20 + Math.random() * 60;
+        setTimeout(typeNextChar, delay);
       } else {
-        clearInterval(interval);
         setLines(prev => {
           const newLines = [...prev];
-          newLines[currentLineIndex] = line.text;
+          newLines[currentLineIndex] = {
+            text: line.text,
+            color: line.color || '#00ff41',
+            opacity: 1
+          };
           return newLines;
         });
         setCurrentLineIndex(prev => prev + 1);
       }
-    }, line.speed);
+    };
+    
+    typeNextChar();
   };
 
   const renderLoadingBar = (line) => {
-    const totalChars = 20;
-    let currentChars = 0;
-    const interval = setInterval(() => {
-      if (currentChars <= totalChars) {
-        if (currentChars % 2 === 0) audio.playKey();
-        const percent = Math.floor((currentChars / totalChars) * 100);
-        const bar = '█'.repeat(currentChars) + '░'.repeat(totalChars - currentChars);
+    let currentBlocks = 0;
+    const intervalTime = line.totalTime / line.length;
+    
+    const fillNextBlock = () => {
+      if (currentBlocks <= line.length) {
+        audio.playKey();
+        const percent = Math.floor((currentBlocks / line.length) * 100);
+        const filled = '█'.repeat(currentBlocks);
+        const empty = '░'.repeat(line.length - currentBlocks);
+        
         setLines(prev => {
           const newLines = [...prev];
-          newLines[currentLineIndex] = `> ${line.label.padEnd(25)} [${bar}] ${percent}% █`;
+          newLines[currentLineIndex] = {
+            text: `${line.label.padEnd(38)} ${filled}${empty} ${percent}% █`,
+            color: '#00ff41',
+            opacity: 1
+          };
+          
+          for (let j = 0; j < currentLineIndex; j++) {
+            if (newLines[j]) newLines[j].opacity = 0.4;
+          }
+          
           return newLines;
         });
-        currentChars++;
+        currentBlocks++;
+        setTimeout(fillNextBlock, intervalTime);
       } else {
-        clearInterval(interval);
         setLines(prev => {
           const newLines = [...prev];
-          newLines[currentLineIndex] = newLines[currentLineIndex].replace(' █', ' ✓');
+          newLines[currentLineIndex] = {
+            text: newLines[currentLineIndex].text.replace(' █', ' ✓'),
+            color: '#00ff41',
+            opacity: 1
+          };
           return newLines;
         });
         setCurrentLineIndex(prev => prev + 1);
       }
-    }, line.speed);
+    };
+    
+    fillNextBlock();
   };
 
   return (
     <AnimatePresence>
       {!isBooted && (
         <motion.div
-          className="fixed inset-0 z-[100] bg-[#000800] p-8 font-mono text-[var(--terminal-green)] flex flex-col overflow-hidden"
-          exit={{ opacity: 0, transition: { duration: 0.5 } }}
+          className="fixed inset-0 z-[100] bg-[#0d0d0d] p-4 sm:p-12 font-mono text-[var(--terminal-green)] flex flex-col"
+          exit={{ opacity: 0, y: -50, scale: 1.05, filter: 'blur(10px)' }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
         >
-          <div className="max-w-2xl mx-auto w-full text-[10px] sm:text-xs">
+          <div 
+            ref={scrollRef}
+            className="w-full h-full overflow-hidden text-sm sm:text-base md:text-lg"
+          >
             {lines.map((line, i) => (
-              <div key={i} className="mb-0.5 whitespace-pre leading-tight">
-                {line}
-              </div>
+              <motion.div 
+                key={i} 
+                className="mb-1 whitespace-pre-wrap break-all"
+                style={{ color: line.color, opacity: line.opacity }}
+                animate={i === lines.length - 1 && isBooted ? {
+                  opacity: [1, 0, 1, 0, 1],
+                  transition: { duration: 0.5 }
+                } : {}}
+              >
+                {line.text}
+              </motion.div>
             ))}
           </div>
         </motion.div>

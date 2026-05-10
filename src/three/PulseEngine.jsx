@@ -2,7 +2,10 @@ import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const PULSE_COUNT = 8;
+const PULSE_COUNT = 12;
+
+// Snap to grid function to simulate precise trace routing
+const snapToTrace = (val, gridSize) => Math.round(val / gridSize) * gridSize;
 
 const PulseEngine = () => {
   const pulsesRef = useRef([]);
@@ -10,23 +13,40 @@ const PulseEngine = () => {
   const paths = useMemo(() => {
     return Array.from({ length: PULSE_COUNT }).map(() => {
       const points = [];
-      // Generate paths in XY plane at Z=0.08
-      let currentPos = new THREE.Vector3((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, 0.08);
+      const gridSize = 4.0; // Trace spacing grid
+      
+      // Start on a trace intersection
+      let currentPos = new THREE.Vector3(
+        snapToTrace((Math.random() - 0.5) * 60, gridSize), 
+        snapToTrace((Math.random() - 0.5) * 60, gridSize), 
+        0.08
+      );
       points.push(currentPos.clone());
       
-      for (let i = 0; i < 4; i++) {
+      // Manhattan routing along the grid
+      for (let i = 0; i < 5; i++) {
         const nextPos = currentPos.clone();
-        if (i % 2 === 0) nextPos.x += (Math.random() - 0.5) * 20;
-        else nextPos.y += (Math.random() - 0.5) * 20;
-        points.push(nextPos);
-        currentPos = nextPos;
+        const dist = snapToTrace((Math.random() - 0.5) * 30, gridSize);
+        
+        if (i % 2 === 0) {
+          nextPos.x += dist;
+        } else {
+          nextPos.y += dist;
+        }
+        
+        // Prevent 0-length segments
+        if (nextPos.distanceTo(currentPos) > 0) {
+          points.push(nextPos);
+          currentPos = nextPos;
+        }
       }
       
       return {
-        curve: new THREE.CatmullRomCurve3(points),
-        speed: 0.003 + Math.random() * 0.004,
+        // CurveType: centripetal makes nice rounded 90-degree corners
+        curve: new THREE.CatmullRomCurve3(points, false, 'centripetal'),
+        speed: 0.002 + Math.random() * 0.004,
         offset: Math.random(),
-        color: '#88ff44'
+        color: '#00ccff' // Electric blue pulse
       };
     });
   }, []);
@@ -40,10 +60,18 @@ const PulseEngine = () => {
       if (!pulse) return;
       const path = paths[i];
       const progress = (path.offset + t * path.speed) % 1;
-      path.curve.getPointAt(progress, tempPos);
-      pulse.position.copy(tempPos);
       
-      pulse.intensity = 2.0 + Math.sin(t * 10 + i) * 1.5;
+      try {
+        path.curve.getPointAt(progress, tempPos);
+        pulse.position.copy(tempPos);
+        
+        // Gaussian falloff pulse intensity
+        const distFromCenter = Math.abs(progress - 0.5) * 2; // 0 to 1
+        const gaussian = Math.exp(-distFromCenter * distFromCenter * 10);
+        pulse.intensity = 1.0 + gaussian * 6.0;
+      } catch (e) {
+        // Ignore curve calculation errors
+      }
     });
   });
 
@@ -54,7 +82,7 @@ const PulseEngine = () => {
           key={i}
           ref={(el) => (pulsesRef.current[i] = el)}
           color={path.color}
-          distance={5}
+          distance={8}
           decay={2}
         />
       ))}
