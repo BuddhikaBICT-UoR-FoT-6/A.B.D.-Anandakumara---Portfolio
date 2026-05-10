@@ -2,17 +2,18 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const SKILLS = [
-  { component: 'React 18', spec: 'v18.2.0', status: 'ACTIVE', level: 82 },
-  { component: 'Spring Boot', spec: 'v3.2.0', status: 'ACTIVE', level: 74 },
-  { component: 'Arduino/ESP32', spec: 'C++ Embedded', status: 'ACTIVE', level: 80 },
-  { component: 'Java 21', spec: 'Production', status: 'ACTIVE', level: 84 },
-  { component: 'PostgreSQL', spec: 'Relational', status: 'ACTIVE', level: 78 },
-  { component: 'Docker', spec: 'Containerized', status: 'ACTIVE', level: 70 }
+  { component: 'Spring Boot / Java', spec: 'Backend Core', status: 'ACTIVE', level: 88 },
+  { component: 'React / Flutter', spec: 'Frontend/Mobile', status: 'ACTIVE', level: 87 },
+  { component: 'Node.js / Express', spec: 'Runtime/Web', status: 'ACTIVE', level: 88 },
+  { component: 'JavaScript / TypeScript', spec: 'Logic Layer', status: 'ACTIVE', level: 90 },
+  { component: 'Kotlin / Android', spec: 'Mobile Native', status: 'ACTIVE', level: 80 },
+  { component: 'MongoDB / MySQL', spec: 'Persistence', status: 'ACTIVE', level: 83 }
 ];
 
 const CERTS = [
-  { name: 'Oracle Certified Associate', issuer: 'Oracle', date: '2023' },
-  { name: 'Full Stack Development', issuer: 'University', date: '2024' }
+  { name: 'Back End Development & APIs', issuer: 'freeCodeCamp', date: 'Oct 2025' },
+  { name: 'OCI Foundations Associate', issuer: 'Oracle', date: 'Sep 2025' },
+  { name: 'Front End Development Libraries', issuer: 'freeCodeCamp', date: 'Sep 2025' }
 ];
 
 const SkillBar = ({ level }) => (
@@ -69,7 +70,7 @@ const Skills = () => {
             <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
               CERTIFICATIONS_REGISTRY
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {CERTS.map((cert, i) => (
                 <div key={i} className="pcb-card p-4 group perspective-1000">
                   <div className="flex items-start justify-between mb-4">

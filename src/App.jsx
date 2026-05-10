@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PCBScene from './three/PCBScene';
 import BootSequence from './components/BootSequence';
 import NavBar from './components/NavBar';
@@ -15,6 +15,19 @@ const App = () => {
   const [bootCompleted, setBootCompleted] = useState(false);
   
   useScrollReveal();
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Restore hidden admin shortcut: Ctrl+Shift+A
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        window.location.href = '/admin.html';
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleBootComplete = () => {
     setBootCompleted(true);

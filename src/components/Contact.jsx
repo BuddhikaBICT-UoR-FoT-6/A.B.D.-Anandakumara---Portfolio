@@ -101,17 +101,17 @@ const Contact = () => {
             <div>
               <h3 className="text-[10px] font-mono text-[var(--pcb-green-light)] mb-4">I²C_DEVICE_ADDRESSES</h3>
               <div className="space-y-4">
-                <a href="#" className="flex flex-col group">
+                <a href="https://github.com/BuddhikaBICT-UoR-FoT-6" target="_blank" rel="noreferrer" className="flex flex-col group">
                   <span className="text-[10px] font-mono text-[var(--terminal-green)]">I²C[0x01]</span>
-                  <span className="text-xs font-mono opacity-60 group-hover:opacity-100 group-hover:text-white transition-all">github.com/abdanandakumara</span>
+                  <span className="text-xs font-mono opacity-60 group-hover:opacity-100 group-hover:text-white transition-all">github.com/BuddhikaBICT</span>
                 </a>
-                <a href="#" className="flex flex-col group">
+                <a href="https://www.linkedin.com/in/buddhika-darshan-9b9168252/" target="_blank" rel="noreferrer" className="flex flex-col group">
                   <span className="text-[10px] font-mono text-[var(--terminal-green)]">I²C[0x02]</span>
-                  <span className="text-xs font-mono opacity-60 group-hover:opacity-100 group-hover:text-white transition-all">linkedin.com/in/abd</span>
+                  <span className="text-xs font-mono opacity-60 group-hover:opacity-100 group-hover:text-white transition-all">linkedin.com/in/buddhika-darshan</span>
                 </a>
-                <a href="#" className="flex flex-col group">
+                <a href="mailto:buddhikadarshan1475@gmail.com" className="flex flex-col group">
                   <span className="text-[10px] font-mono text-[var(--terminal-green)]">I²C[0x03]</span>
-                  <span className="text-xs font-mono opacity-60 group-hover:opacity-100 group-hover:text-white transition-all">engineer@abd.dev</span>
+                  <span className="text-xs font-mono opacity-60 group-hover:opacity-100 group-hover:text-white transition-all">buddhikadarshan1475@gmail.com</span>
                 </a>
               </div>
             </div>
