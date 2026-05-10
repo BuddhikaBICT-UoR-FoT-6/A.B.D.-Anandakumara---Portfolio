@@ -11,45 +11,14 @@ import Shockwave from './Shockwave';
 const Board = () => {
   const meshRef = useRef();
 
-  // Procedural trace texture, kept to 512x512 for performance
-  const traceTexture = useMemo(() => {
-    const size = 512;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    
-    // Deep FR4 Green
-    ctx.fillStyle = '#0a2a0a'; 
-    ctx.fillRect(0, 0, size, size);
-    
-    // Copper traces
-    ctx.strokeStyle = '#b8860b';
-    ctx.lineWidth = 2;
-    ctx.globalAlpha = 0.6;
-    
-    // Draw grid-like Manhattan routing
-    for (let i = 0; i < 50; i++) {
-      const x = Math.random() * size;
-      const y = Math.random() * size;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + (Math.random() > 0.5 ? 100 : -100), y);
-      ctx.lineTo(x + (Math.random() > 0.5 ? 100 : -100), y + (Math.random() > 0.5 ? 100 : -100));
-      ctx.stroke();
-    }
-    
-    // Draw some connection pads
-    ctx.fillStyle = '#b8860b';
-    for (let i = 0; i < 30; i++) {
-      ctx.beginPath();
-      ctx.arc(Math.random() * size, Math.random() * size, 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    
-    const tex = new THREE.CanvasTexture(canvas);
+  // Load the realistic PCB texture image
+  const pcbTexture = useMemo(() => {
+    const loader = new THREE.TextureLoader();
+    const tex = loader.load('/background.jpg');
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(4, 4);
+    // Tweak the repeat depending on the aspect ratio and scale of the background image
+    tex.repeat.set(3, 3);
+    tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
   }, []);
 
@@ -58,15 +27,11 @@ const Board = () => {
       {/* Plane is in XY space facing +Z */}
       <planeGeometry args={[150, 150]} />
       <meshStandardMaterial 
-        color="#1a4a1a"
-        map={traceTexture}
-        roughness={0.7}
-        metalness={0.4}
-        emissive="#051a05"
-        emissiveIntensity={1.2}
+        color="#ffffff" // White so the image colors come through naturally
+        map={pcbTexture}
+        roughness={0.6}
+        metalness={0.5} // High metalness to catch light glints on the solder
       />
-      {/* Subtle grid in XY space slightly above the board */}
-      <gridHelper args={[150, 150, '#1a4a1a', '#0a2a0a']} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.01]} />
     </mesh>
   );
 };

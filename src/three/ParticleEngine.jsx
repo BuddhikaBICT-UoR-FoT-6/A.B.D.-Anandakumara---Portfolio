@@ -14,7 +14,7 @@ const ParticleEngine = () => {
     const data = [];
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       data.push({
-        position: new THREE.Vector3((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, 0.05),
+        position: new THREE.Vector3((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, 3.0),
         velocity: new THREE.Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, 0),
         state: 'idle',
         size: 1.5,
