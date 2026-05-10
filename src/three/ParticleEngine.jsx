@@ -7,7 +7,7 @@ const PARTICLE_COUNT = 200;
 
 const ParticleEngine = () => {
   const pointsRef = useRef();
-  const { mouse, raycaster, camera, scene } = useThree();
+  const { mouse, raycaster, camera } = useThree();
   
   // Particle data pool
   const particles = useMemo(() => {
@@ -33,12 +33,10 @@ const ParticleEngine = () => {
     return [pos, sz, col];
   }, []);
 
-  const dummy = new THREE.Vector3();
   const cursorWorldPos = new THREE.Vector3();
 
   useFrame((state) => {
-    const { clock } = state;
-    const time = clock.getElapsedTime();
+    const t = performance.now() * 0.001;
 
     // Update cursor world position
     raycaster.setFromCamera(mouse, camera);

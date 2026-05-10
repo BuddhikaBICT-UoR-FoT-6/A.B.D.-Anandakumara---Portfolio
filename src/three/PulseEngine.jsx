@@ -31,8 +31,8 @@ const PulseEngine = () => {
     });
   }, []);
 
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
+  useFrame(() => {
+    const t = performance.now() * 0.001;
     
     pulsesRef.current.forEach((pulse, i) => {
       if (!pulse) return;

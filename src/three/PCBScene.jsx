@@ -10,7 +10,6 @@ import Shockwave from './Shockwave';
 
 const Board = () => {
   const meshRef = useRef();
-  const { size } = useThree();
 
   // Create a procedural normal map for the fiberglass texture
   const normalMap = useMemo(() => {
@@ -48,10 +47,10 @@ const Board = () => {
     
     ctx.strokeStyle = '#b8860b'; // Gold copper
     ctx.lineWidth = 1;
-    ctx.globalAlpha = 0.4;
+    ctx.globalAlpha = 0.6; // Increased opacity for visibility
     
     // Draw Manhattan traces
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 60; i++) {
       const x = Math.random() * size;
       const y = Math.random() * size;
       ctx.beginPath();
@@ -71,23 +70,23 @@ const Board = () => {
 
   return (
     <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
-      <planeGeometry args={[100, 100]} />
+      <planeGeometry args={[120, 120]} />
       <meshStandardMaterial 
         color="#1a4a1a"
         map={traceTexture}
         normalMap={normalMap}
-        roughness={0.6}
-        metalness={0.2}
+        roughness={0.4}
+        metalness={0.3}
+        emissive="#0a1a0a"
+        emissiveIntensity={0.2}
       />
     </mesh>
   );
 };
 
 const Components3D = () => {
-  // Place 6 capacitors and 4 resistors
   const components = useMemo(() => {
     const items = [];
-    // Capacitors (Cylinders)
     for (let i = 0; i < 6; i++) {
       items.push({
         type: 'capacitor',
@@ -95,7 +94,6 @@ const Components3D = () => {
         args: [0.4, 0.4, 1.2, 32]
       });
     }
-    // Resistors (Boxes)
     for (let i = 0; i < 4; i++) {
       items.push({
         type: 'resistor',
@@ -130,11 +128,12 @@ const Components3D = () => {
 const PCBScene = () => {
   return (
     <div className="fixed inset-0 z-0 bg-[#000800]">
-      <Canvas shadows gl={{ antialias: true, alpha: true }}>
-        <PerspectiveCamera makeDefault position={[0, 15, 20]} fov={50} />
+      <Canvas shadows gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
+        <PerspectiveCamera makeDefault position={[0, 18, 22]} fov={45} />
         
-        <ambientLight intensity={0.2} />
-        <pointLight position={[10, 10, 10]} intensity={1.5} color="#ffffff" />
+        <ambientLight intensity={0.5} />
+        <pointLight position={[15, 15, 15]} intensity={2.5} color="#ffffff" />
+        <pointLight position={[-15, 15, -15]} intensity={1.5} color="#00ff44" />
         
         <Board />
         <Components3D />
@@ -146,10 +145,10 @@ const PCBScene = () => {
 
         <EffectComposer disableNormalPass>
           <Bloom 
-            intensity={1.8} 
-            luminanceThreshold={0.05} 
-            luminanceSmoothing={0.5} 
-            radius={0.5} 
+            intensity={1.5} 
+            luminanceThreshold={0.01} 
+            luminanceSmoothing={0.9} 
+            radius={0.6} 
           />
         </EffectComposer>
       </Canvas>

@@ -67,7 +67,7 @@ const LightSystem = () => {
   }, []);
 
   useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
+    const t = performance.now() * 0.001;
 
     // Animate LEDs
     lightsRef.current.forEach((light, i) => {
