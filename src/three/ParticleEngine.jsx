@@ -1,127 +1,164 @@
 import React, { useRef, useMemo, useEffect } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { audio } from '../utils/AudioManager';
 
 const PARTICLE_COUNT = 80;
-
-// Logical pin locations for the primary microcontroller (DIP-28 style layout)
-// Configurable base offset to align with the background image
-const CHIP_OFFSET_X = -4.0;
-const CHIP_OFFSET_Y = 2.0;
-
-const CHIP_PINS = Array.from({ length: 28 }).map((_, i) => {
-  const isLeft = i < 14;
-  const pinIndex = isLeft ? i : 27 - i;
-  return new THREE.Vector3(
-    CHIP_OFFSET_X + (isLeft ? -2 : 2),
-    CHIP_OFFSET_Y + (pinIndex - 6.5) * 0.8,
-    3.0
-  );
-});
+const SWARM_RADIUS = 30.0;
+const ORBIT_RADIUS = 8.0;
 
 const ParticleEngine = () => {
   const pointsRef = useRef();
-  const { mouse, raycaster, camera } = useThree();
-  const lastGatherState = useRef(false);
-  
+
+  // We are not using useThree().mouse because we removed pointer-events from Canvas.
+  // We'll track mouse manually.
+  const mouseWorldPos = useRef(new THREE.Vector3(0, 0, 0));
+  const isHovering = useRef(false);
+
+  useEffect(() => {
+    const onMouseMove = (e) => {
+      // Convert normalized device coordinates to world space roughly based on orthographic zoom
+      const aspect = window.innerWidth / window.innerHeight;
+      const nx = (e.clientX / window.innerWidth) * 2 - 1;
+      const ny = -(e.clientY / window.innerHeight) * 2 + 1;
+      
+      mouseWorldPos.current.x = nx * 38 * aspect;
+      mouseWorldPos.current.y = ny * 38;
+      isHovering.current = true;
+    };
+    
+    const onMouseLeave = () => {
+      isHovering.current = false;
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseleave', onMouseLeave);
+    
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseleave', onMouseLeave);
+    };
+  }, []);
+
   const particles = useMemo(() => {
-    const data = [];
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      // Assign each particle to a "home" pin
-      const targetPin = CHIP_PINS[i % CHIP_PINS.length];
-      data.push({
-        position: new THREE.Vector3((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, 3.0),
-        velocity: new THREE.Vector3(0, 0, 0),
-        targetPin: targetPin,
-        state: 'idle',
-        size: 1.5,
-        brightness: 0.15
-      });
-    }
-    return data;
+    return Array.from({ length: PARTICLE_COUNT }, () => ({
+      x: (Math.random() - 0.5) * 80,
+      y: (Math.random() - 0.5) * 80,
+      vx: 0, 
+      vy: 0,
+      state: 'idle', // 'idle' | 'swarming' | 'dispersing'
+      life: 1,
+      wanderAngle: Math.random() * Math.PI * 2
+    }));
   }, []);
 
   const [positions, sizes, colors] = useMemo(() => {
-    const pos = new Float32Array(PARTICLE_COUNT * 3);
-    const sz = new Float32Array(PARTICLE_COUNT);
-    const col = new Float32Array(PARTICLE_COUNT * 3);
-    return [pos, sz, col];
+    return [
+      new Float32Array(PARTICLE_COUNT * 3),
+      new Float32Array(PARTICLE_COUNT),
+      new Float32Array(PARTICLE_COUNT * 3)
+    ];
   }, []);
 
-  const cursorWorldPos = useMemo(() => new THREE.Vector3(), []);
-  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
-  const baseColor = useMemo(() => new THREE.Color('#00ff88'), []);
-  const tempColor = useMemo(() => new THREE.Color(), []);
+  useEffect(() => {
+    const onClick = () => {
+      // Disperse swarming particles
+      particles.forEach(p => {
+        if (p.state === 'swarming') {
+          const angle = Math.atan2(p.y - mouseWorldPos.current.y, p.x - mouseWorldPos.current.x);
+          const speed = 0.5 + Math.random() * 1.5;
+          p.vx = Math.cos(angle) * speed;
+          p.vy = Math.sin(angle) * speed;
+          p.state = 'dispersing';
+          p.life = 1;
+        }
+      });
+    };
+    window.addEventListener('click', onClick);
+    return () => window.removeEventListener('click', onClick);
+  }, [particles]);
 
   useFrame(() => {
-    raycaster.setFromCamera(mouse, camera);
-    raycaster.ray.intersectPlane(plane, cursorWorldPos);
-
-    let isAnyGathering = false;
+    const t = performance.now() * 0.001;
+    const mx = mouseWorldPos.current.x;
+    const my = mouseWorldPos.current.y;
+    const hovering = isHovering.current;
 
     particles.forEach((p, i) => {
-      const dx = cursorWorldPos.x - p.position.x;
-      const dy = cursorWorldPos.y - p.position.y;
-      const distToCursor = Math.sqrt(dx * dx + dy * dy);
+      const dx = mx - p.x;
+      const dy = my - p.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
 
-      if (distToCursor < 8) {
-        p.state = 'gathering';
-        isAnyGathering = true;
-      } else if (p.state === 'gathering') {
-        p.state = 'returning';
-      }
-
-      if (p.state === 'gathering') {
-        // Attract to cursor
-        p.velocity.x += dx * 0.005;
-        p.velocity.y += dy * 0.005;
-        p.velocity.x += -dy * 0.002;
-        p.velocity.y += dx * 0.002;
-        p.velocity.multiplyScalar(0.85);
-        p.size = THREE.MathUtils.lerp(p.size, 5, 0.1);
-        p.brightness = THREE.MathUtils.lerp(p.brightness, 1.0, 0.1);
-      } else {
-        // Attract to target pin (idle/returning state)
-        const pDx = p.targetPin.x - p.position.x;
-        const pDy = p.targetPin.y - p.position.y;
-        p.velocity.x += pDx * 0.002;
-        p.velocity.y += pDy * 0.002;
+      if (hovering && dist < SWARM_RADIUS) {
+        if (p.state === 'idle') audio.playHover();
+        p.state = 'swarming';
         
-        // Add some jitter
-        p.velocity.x += (Math.random() - 0.5) * 0.02;
-        p.velocity.y += (Math.random() - 0.5) * 0.02;
+        // Spring toward orbit radius (not cursor itself)
+        const targetDist = ORBIT_RADIUS + Math.sin(t * 2 + i) * 2;
+        const pull = (dist - targetDist) / dist;
+        p.vx += dx * pull * 0.02;
+        p.vy += dy * pull * 0.02;
         
-        p.velocity.multiplyScalar(0.92); // Damping
+        // Tangential orbit force (creates circular swarm)
+        p.vx += -dy / dist * 0.03;
+        p.vy += dx / dist * 0.03;
         
-        p.brightness -= 0.02;
-        if (p.brightness <= 0.15) {
-          p.brightness = 0.15;
-          p.size = 1.5;
+        // Cohesion: repel from other nearby particles
+        particles.forEach((other, j) => {
+          if (i === j) return;
+          const ox = p.x - other.x;
+          const oy = p.y - other.y;
+          const od = Math.sqrt(ox * ox + oy * oy);
+          if (od < 3.0 && od > 0) {
+            p.vx += (ox / od) * 0.015;
+            p.vy += (oy / od) * 0.015;
+          }
+        });
+      } else if (p.state === 'dispersing') {
+        // Fade and slow
+        p.life -= 0.02;
+        if (p.life <= 0) {
+          // Respawn at random board position
+          p.x = (Math.random() - 0.5) * 100;
+          p.y = (Math.random() - 0.5) * 100;
+          p.vx = 0; 
+          p.vy = 0; 
+          p.life = 1; 
+          p.state = 'idle';
         }
+      } else {
+        // Idle: gentle wander
+        p.wanderAngle += (Math.random() - 0.5) * 0.2;
+        p.vx += Math.cos(p.wanderAngle) * 0.005;
+        p.vy += Math.sin(p.wanderAngle) * 0.005;
+        p.state = 'idle';
       }
 
-      p.position.add(p.velocity);
-      
-      const i3 = i * 3;
-      positions[i3] = p.position.x;
-      positions[i3 + 1] = p.position.y;
-      positions[i3 + 2] = p.position.z;
-      
-      sizes[i] = p.size;
-      
-      tempColor.copy(baseColor).multiplyScalar(p.brightness);
-      colors[i3] = tempColor.r;
-      colors[i3 + 1] = tempColor.g;
-      colors[i3 + 2] = tempColor.b;
-    });
+      // Damping
+      p.vx *= 0.92; 
+      p.vy *= 0.92;
+      p.x += p.vx;  
+      p.y += p.vy;
 
-    if (isAnyGathering && !lastGatherState.current) {
-      audio.playHover();
-      lastGatherState.current = true;
-    } else if (!isAnyGathering && lastGatherState.current) {
-      lastGatherState.current = false;
-    }
+      // Boundary wrap
+      if (p.x > 75) p.x = -75;
+      if (p.x < -75) p.x = 75;
+      if (p.y > 75) p.y = -75;
+      if (p.y < -75) p.y = 75;
+
+      // Write to BufferGeometry
+      positions[i * 3] = p.x;
+      positions[i * 3 + 1] = p.y;
+      positions[i * 3 + 2] = 2.0;
+      
+      sizes[i] = p.state === 'swarming' ? 6 + (Math.sin(t * 3 + i) * 2) : 2.5;
+      
+      // Color: brighter blue-white when swarming
+      const bright = p.state === 'swarming' ? 1.0 : (p.state === 'dispersing' ? p.life : 0.35);
+      colors[i * 3] = 0.27 * bright;     // R
+      colors[i * 3 + 1] = 0.67 * bright; // G
+      colors[i * 3 + 2] = 1.0 * bright;  // B (blue-white)
+    });
 
     if (pointsRef.current) {
       pointsRef.current.geometry.attributes.position.needsUpdate = true;
@@ -129,20 +166,6 @@ const ParticleEngine = () => {
       pointsRef.current.geometry.attributes.color.needsUpdate = true;
     }
   });
-
-  useEffect(() => {
-    const handleClick = () => {
-      particles.forEach(p => {
-        if (p.state === 'gathering') {
-          const dir = p.position.clone().sub(cursorWorldPos).normalize();
-          p.velocity.add(dir.multiplyScalar(0.6));
-          p.state = 'returning';
-        }
-      });
-    };
-    window.addEventListener('click', handleClick);
-    return () => window.removeEventListener('click', handleClick);
-  }, [particles, cursorWorldPos]);
 
   return (
     <points ref={pointsRef}>

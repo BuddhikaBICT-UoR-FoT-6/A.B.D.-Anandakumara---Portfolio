@@ -3,19 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { audio } from '../utils/AudioManager';
 
 const BOOT_SCRIPT = [
-  { text: '> Initializing Arduino Build Environment...' },
-  { type: 'bar', label: '> avr-gcc 7.3.0 — Compiling sketch...', length: 10, totalTime: 800 },
-  { type: 'bar', label: '> Linking .elf binary...', length: 10, totalTime: 600 },
-  { type: 'bar', label: '> Flashing to ATmega328P...', length: 10, totalTime: 1200 },
-  { text: '> [INFO] Bootloader handshake: OK' },
-  { type: 'bar', label: '> Loading React 18.2 module...', length: 10, totalTime: 900 },
-  { type: 'bar', label: '> Mounting Spring Boot context...', length: 10, totalTime: 1000 },
-  { type: 'bar', label: '> Establishing MQTT broker...', length: 10, totalTime: 700 },
-  { text: '> [WARN] High voltage detected on PIN_A3 — monitoring', color: '#ffcc00' },
-  { type: 'bar', label: '> Calibrating ESP32 sensor array...', length: 10, totalTime: 1100 },
-  { text: '> [SYS] All systems nominal. Ping: 19ms' },
-  { type: 'bar', label: '> Booting portfolio instance v2.0...', length: 10, totalTime: 800 },
-  { text: '> ABD://ANANDAKUMARA — READY ✓' }
+  { text: '> Initializing Arduino Build Environment...', color: '#88aacc' },
+  { type: 'bar', label: '> avr-gcc 7.3.0 — Compiling sketch...', length: 10, totalTime: 800, color: '#88aacc' },
+  { type: 'bar', label: '> Linking .elf binary...', length: 10, totalTime: 600, color: '#88aacc' },
+  { type: 'bar', label: '> Flashing to ATmega328P...', length: 10, totalTime: 1200, color: '#88aacc' },
+  { text: '> [INFO] Bootloader handshake: OK', color: '#44ffaa' },
+  { type: 'bar', label: '> Loading React 18.2 module...', length: 10, totalTime: 900, color: '#88aacc' },
+  { type: 'bar', label: '> Mounting Spring Boot context...', length: 10, totalTime: 1000, color: '#88aacc' },
+  { type: 'bar', label: '> Establishing MQTT broker...', length: 10, totalTime: 700, color: '#88aacc' },
+  { text: '> [WARN] High voltage detected on PIN_A3 — monitoring', color: '#ff8844' },
+  { type: 'bar', label: '> Calibrating ESP32 sensor array...', length: 10, totalTime: 1100, color: '#88aacc' },
+  { text: '> [SYS] All systems nominal. Ping: 19ms', color: '#44ffaa' },
+  { type: 'bar', label: '> Booting portfolio instance v2.0...', length: 10, totalTime: 800, color: '#88aacc' },
+  { text: '> ABD://ANANDAKUMARA — READY ✓', color: '#ffffff' }
 ];
 
 const BootSequence = ({ onComplete }) => {
@@ -64,8 +64,8 @@ const BootSequence = ({ onComplete }) => {
         setLines(prev => {
           const newLines = [...prev];
           newLines[currentLineIndex] = {
-            text: line.text.slice(0, i) + '█',
-            color: line.color || '#00ff41',
+            text: line.text.slice(0, i) + '▌',
+            color: line.color || '#88aacc',
             opacity: 1
           };
           
@@ -111,9 +111,10 @@ const BootSequence = ({ onComplete }) => {
         
         setLines(prev => {
           const newLines = [...prev];
+          // Use #4488ff for fill, #88ccff for percentage
           newLines[currentLineIndex] = {
-            text: `${line.label.padEnd(38)} ${filled}${empty} ${percent}% █`,
-            color: '#00ff41',
+            text: `${line.label.padEnd(38)} ${filled}${empty} ${percent}% ▌`,
+            color: '#4488ff',
             opacity: 1
           };
           
@@ -146,7 +147,7 @@ const BootSequence = ({ onComplete }) => {
     <AnimatePresence>
       {!isBooted && (
         <motion.div
-          className="fixed inset-0 z-[100] bg-[#0d0d0d] p-4 sm:p-12 font-mono text-[var(--terminal-green)] flex flex-col"
+          className="fixed inset-0 z-[100] bg-[#001428] p-4 sm:p-12 font-mono flex flex-col"
           exit={{ opacity: 0, y: -50, scale: 1.05, filter: 'blur(10px)' }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
         >

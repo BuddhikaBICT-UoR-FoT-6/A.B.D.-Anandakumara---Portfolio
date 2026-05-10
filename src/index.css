@@ -3,27 +3,51 @@
 @tailwind utilities;
 
 :root {
-  --pcb-green-dark: #0a1a0a;
-  --pcb-green: #1a4a1a;
-  --pcb-green-light: #2d5a2d;
-  --copper-gold: #b8860b;
-  --active-gold: #ffd700;
-  --terminal-green: #00ff44;
-  --terminal-yellow: #ffcc00;
-  --terminal-red: #ff2200;
-  --shockwave-blue: #aaccff;
+  --board-blue: #0055a5;
+  --copper-gold: #c8a850;
+  --silkscreen-white: #e8f0ff;
+  --solder-mask: #003d7a;
+  --via-cyan: #00aadd;
+  --led-green: #00ff44;
+  --led-yellow: #ffdd00;
+  --led-red: #ff2200;
+  --shockwave-blue: #88ccff;
+  --particle-blue: #44aaff;
+  --ui-accent: #4488ff;
+  --bg-navy: #000d1a;
+  --text-primary: #c8e0ff;
+  --text-secondary: #5588aa;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+html {
+  overflow-y: scroll;   /* force scrollbar, never hidden */
+  scroll-behavior: smooth;
+}
 
-html, body, #root {
-  width: 100%;
-  height: 100%;
-  background: transparent !important;
+body {
+  margin: 0; padding: 0; box-sizing: border-box;
+  min-height: 100vh;
+  background: var(--bg-navy);
   overflow-x: hidden;
   font-family: var(--font-mono);
-  color: #e0e0e0;
+  color: var(--text-primary);
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Canvas must be fixed but NEVER intercept scroll */
+canvas#pcb-canvas {
+  position: fixed !important;
+  top: 0 !important; 
+  left: 0 !important;
+  width: 100vw !important; 
+  height: 100vh !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
 }
 
 @layer base {
@@ -32,48 +56,43 @@ html, body, #root {
   }
 }
 
-/* UI content layer — sits ABOVE canvas */
+/* UI content layer */
 .ui-layer {
   position: relative;
   z-index: 10;
-  pointer-events: none;
-}
-
-/* Re-enable pointer events only on interactive elements */
-.ui-layer a,
-.ui-layer button,
-.ui-layer input,
-.ui-layer textarea,
-.ui-layer select,
-.ui-layer nav,
-.ui-layer .pcb-card {
-  pointer-events: auto;
+  /* UI layer allows pointer events natively */
 }
 
 @layer components {
   .terminal-text {
-    @apply font-mono text-sm leading-relaxed;
+    @apply font-mono text-sm leading-relaxed text-[#88ccff];
   }
 
   .pcb-card {
-    @apply relative bg-[var(--pcb-green-dark)] border border-[var(--pcb-green-light)] p-6 overflow-hidden;
+    @apply relative p-6 overflow-hidden;
+    background: rgba(0,20,50,0.88);
+    border: 1px solid rgba(68,136,255,0.25);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
   }
 
   .pcb-trace-border {
-    @apply absolute inset-0 pointer-events-none;
-    border: 1px solid var(--copper-gold);
+    @apply absolute inset-0 pointer-events-none transition-all duration-500;
+    border: 1px solid var(--ui-accent);
     opacity: 0.3;
+  }
+
+  .btn-terminal {
+    @apply px-4 py-2 bg-transparent border border-[var(--ui-accent)] text-[var(--text-primary)] font-mono text-xs uppercase tracking-widest transition-all duration-300;
+  }
+  
+  .btn-terminal:hover {
+    background: rgba(68,136,255,0.15);
   }
 
   .led-dot {
     @apply inline-block w-2 h-2 rounded-full;
     box-shadow: 0 0 8px currentColor;
     animation: blink 2s infinite;
-  }
-
-  .btn-terminal {
-    @apply px-4 py-2 bg-transparent border border-[var(--terminal-green)] text-[var(--terminal-green)] font-mono text-xs uppercase tracking-widest transition-all duration-300 hover:bg-[var(--terminal-green)] hover:text-black hover:shadow-[0_0_15px_rgba(0,255,68,0.5)];
   }
 }
 
@@ -82,7 +101,6 @@ html, body, #root {
   50% { opacity: 0.3; }
 }
 
-/* Scanline Reveal Animation */
 .scanline-reveal {
   position: relative;
   overflow: hidden;
@@ -95,8 +113,8 @@ html, body, #root {
   left: 0;
   width: 100%;
   height: 2px;
-  background: var(--terminal-green);
-  box-shadow: 0 0 10px var(--terminal-green);
+  background: var(--ui-accent);
+  box-shadow: 0 0 10px var(--ui-accent);
   z-index: 20;
   animation: scanline-move 0.6s linear forwards;
 }
@@ -106,45 +124,32 @@ html, body, #root {
   to { top: 100%; }
 }
 
-/* Glassmorphism Navigation */
 .nav-glass {
-  background: rgba(0, 15, 0, 0.85);
+  background: rgba(0, 20, 50, 0.85);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(0, 255, 68, 0.2);
+  border-bottom: 1px solid rgba(68, 136, 255, 0.2);
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--pcb-green-dark);
+  background: var(--bg-navy);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--pcb-green);
-  border-radius: 3px;
+  background: #0a3a7a;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--pcb-green-light);
+  background: var(--ui-accent);
 }
 
 /* Cert Card Flip */
-.perspective-1000 {
-  perspective: 1000px;
-}
-.preserve-3d {
-  transform-style: preserve-3d;
-  transition: transform 0.6s;
-}
-.group:hover .preserve-3d {
-  transform: rotateY(180deg);
-}
-.backface-hidden {
-  backface-visibility: hidden;
-}
-.rotate-y-180 {
-  transform: rotateY(180deg);
-}
+.perspective-1000 { perspective: 1000px; }
+.preserve-3d { transform-style: preserve-3d; transition: transform 0.6s; }
+.group:hover .preserve-3d { transform: rotateY(180deg); }
+.backface-hidden { backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }

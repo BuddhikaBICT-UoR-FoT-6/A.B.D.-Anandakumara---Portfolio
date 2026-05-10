@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrthographicCamera } from '@react-three/drei';
 import { Bloom, EffectComposer } from '@react-three/postprocessing';
@@ -11,38 +11,73 @@ import Shockwave from './Shockwave';
 const Board = () => {
   const meshRef = useRef();
 
-  // Load the realistic PCB texture image
-  const pcbTexture = useMemo(() => {
-    const loader = new THREE.TextureLoader();
-    const tex = loader.load('/background.jpg');
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    // Tweak the repeat depending on the aspect ratio and scale of the background image
-    tex.repeat.set(3, 3);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  }, []);
-
   return (
     <mesh ref={meshRef} position={[0, 0, 0]} receiveShadow>
       {/* Plane is in XY space facing +Z */}
       <planeGeometry args={[150, 150]} />
       <meshStandardMaterial 
-        color="#ffffff" // White so the image colors come through naturally
-        map={pcbTexture}
-        roughness={0.6}
-        metalness={0.5} // High metalness to catch light glints on the solder
+        color="#0055a5" // Exact Arduino Uno vivid blue
+        roughness={0.75}
+        metalness={0.1}
       />
     </mesh>
   );
 };
 
+const Traces = () => {
+  const traceCount = 120;
+  const meshRef = useRef();
+
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  useEffect(() => {
+    if (!meshRef.current) return;
+    
+    // Generate 120 Manhattan traces on the XY plane
+    for (let i = 0; i < traceCount; i++) {
+      const isHorizontal = Math.random() > 0.5;
+      const length = 5 + Math.random() * 20;
+      
+      dummy.position.set(
+        (Math.random() - 0.5) * 80,
+        (Math.random() - 0.5) * 80,
+        0.01 // Just above the board
+      );
+      
+      // Width, Height, Depth for a trace
+      if (isHorizontal) {
+        dummy.scale.set(length, 0.4, 1);
+      } else {
+        dummy.scale.set(0.4, length, 1);
+      }
+      
+      dummy.rotation.set(0, 0, 0);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  }, [dummy]);
+
+  return (
+    <instancedMesh ref={meshRef} args={[null, null, traceCount]}>
+      <planeGeometry args={[1, 1]} />
+      <meshStandardMaterial 
+        color="#c8a850" // Copper gold
+        metalness={0.9} 
+        roughness={0.2} 
+      />
+    </instancedMesh>
+  );
+};
+
 const Components3D = () => {
+  // SMD Resistors/Caps
   const components = useMemo(() => {
     const items = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 15; i++) {
       items.push({
-        position: [(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, 0.125],
-        args: [0.2, 0.2, 0.25, 16] // RadiusTop, RadiusBottom, Height, RadialSegments
+        position: [(Math.random() - 0.5) * 60, (Math.random() - 0.5) * 60, 0.125],
+        args: [0.4, 0.4, 0.5, 8] // Low poly cylinder
       });
     }
     return items;
@@ -51,57 +86,75 @@ const Components3D = () => {
   return (
     <group>
       {components.map((c, i) => (
-        <mesh key={i} position={c.position} rotation={[Math.PI / 2, 0, 0]}>
+        <mesh key={`cap-${i}`} position={c.position} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={c.args} />
-          <meshStandardMaterial color="#333" roughness={0.3} metalness={0.8} />
+          <meshStandardMaterial color="#ccddee" roughness={0.3} metalness={0.8} />
         </mesh>
       ))}
       
       {/* IC Chips */}
-      {[[-5, 5], [10, -5], [-12, -8]].map(([x, y], i) => (
+      {[[-10, 10], [20, -10], [-25, -15]].map(([x, y], i) => (
         <mesh key={`ic-${i}`} position={[x, y, 0.05]}>
-          <boxGeometry args={[3, 2, 0.1]} />
-          <meshStandardMaterial color="#111" roughness={0.9} />
+          <boxGeometry args={[6, 4, 0.4]} />
+          <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
         </mesh>
       ))}
+
+      {/* Main ATmega328P DIP */}
+      <mesh position={[0, 0, 0.05]}>
+        <boxGeometry args={[8, 24, 0.6]} />
+        <meshStandardMaterial color="#0a0a0a" roughness={0.8} />
+      </mesh>
     </group>
   );
 };
 
 const PCBScene = () => {
-  return (
-    <div className="fixed top-0 left-0 w-full h-full z-0">
-      <Canvas 
-        shadows={false} 
-        gl={{ antialias: false, alpha: true, powerPreference: "default" }}
-        dpr={1.5}
-      >
-        <OrthographicCamera makeDefault position={[0, 0, 20]} zoom={25} />
-        
-        <ambientLight intensity={1.5} />
-        {/* Lights close to the board */}
-        <pointLight position={[10, 10, 5]} intensity={4} color="#ffffff" distance={50} />
-        <pointLight position={[-10, -10, 5]} intensity={3} color="#00ff44" distance={50} />
-        
-        <Board />
-        <Components3D />
-        
-        <LightSystem />
-        <PulseEngine />
-        <ParticleEngine />
-        <Shockwave />
+  // Pass mouse events directly since Canvas pointer-events are disabled
+  useEffect(() => {
+    // We will let R3F handle events globally via standard pointer events on document
+    // OR we could just pass pointer events to the canvas.
+    // Actually, R3F's raycaster can attach to a target element.
+    // For now, the user requested: window.addEventListener('mousemove', onMouseMove)
+    // R3F handles this via `events={{ compute: ... }}` or globally.
+    // However, the simplest fix without breaking R3F hooks is to NOT put pointer-events: none on the canvas itself if we want useThree().mouse to work,
+    // OR manually update mouse state in ParticleEngine. 
+    // We will do that in ParticleEngine/Shockwave.
+  }, []);
 
-        <EffectComposer disableNormalPass>
-          <Bloom 
-            intensity={1.2} 
-            luminanceThreshold={0.2} 
-            luminanceSmoothing={0.9} 
-            resolutionX={256}
-            resolutionY={256}
-          />
-        </EffectComposer>
-      </Canvas>
-    </div>
+  return (
+    <Canvas 
+      shadows={false} 
+      gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
+      dpr={Math.min(window.devicePixelRatio, 1.5)}
+    >
+      <OrthographicCamera makeDefault position={[0, 0, 20]} zoom={25} />
+      
+      {/* Low, warm blue-white ambient */}
+      <ambientLight intensity={0.4} color="#112244" />
+      
+      {/* Directional light to show component depth */}
+      <directionalLight position={[-10, 10, 15]} intensity={0.6} color="#aaccff" />
+      
+      <Board />
+      <Traces />
+      <Components3D />
+      
+      <LightSystem />
+      <PulseEngine />
+      <ParticleEngine />
+      <Shockwave />
+
+      <EffectComposer disableNormalPass>
+        <Bloom 
+          intensity={1.0} 
+          luminanceThreshold={0.2} 
+          luminanceSmoothing={0.9} 
+          resolutionX={256} // Hard limited resolution for performance
+          resolutionY={256}
+        />
+      </EffectComposer>
+    </Canvas>
   );
 };
 
