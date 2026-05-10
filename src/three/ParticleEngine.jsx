@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { audio } from '../utils/AudioManager';
 
-const PARTICLE_COUNT = 150;
+const PARTICLE_COUNT = 80;
 
 const ParticleEngine = () => {
   const pointsRef = useRef();
