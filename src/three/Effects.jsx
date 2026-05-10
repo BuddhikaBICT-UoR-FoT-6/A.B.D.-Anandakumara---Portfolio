@@ -4,10 +4,10 @@ export default function Effects() {
   return (
     <EffectComposer disableNormalPass multisampling={4}>
       <Bloom 
-        luminanceThreshold={0.1} 
+        luminanceThreshold={0.9} 
         mipmapBlur 
-        intensity={1.5} 
-        radius={0.4}
+        intensity={0.4} 
+        radius={0.2}
       />
     </EffectComposer>
   );

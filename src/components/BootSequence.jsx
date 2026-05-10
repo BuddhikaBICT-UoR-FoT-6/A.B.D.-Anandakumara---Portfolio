@@ -1,178 +1,93 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { audio } from '../utils/AudioManager';
 
-const BOOT_SCRIPT = [
-  { text: '> Initializing Arduino Build Environment...', color: '#88aacc' },
-  { type: 'bar', label: '> avr-gcc 7.3.0 — Compiling sketch...', length: 10, totalTime: 800, color: '#88aacc' },
-  { type: 'bar', label: '> Linking .elf binary...', length: 10, totalTime: 600, color: '#88aacc' },
-  { type: 'bar', label: '> Flashing to ATmega328P...', length: 10, totalTime: 1200, color: '#88aacc' },
-  { text: '> [INFO] Bootloader handshake: OK', color: '#44ffaa' },
-  { type: 'bar', label: '> Loading React 18.2 module...', length: 10, totalTime: 900, color: '#88aacc' },
-  { type: 'bar', label: '> Mounting Spring Boot context...', length: 10, totalTime: 1000, color: '#88aacc' },
-  { type: 'bar', label: '> Establishing MQTT broker...', length: 10, totalTime: 700, color: '#88aacc' },
-  { text: '> [WARN] High voltage detected on PIN_A3 — monitoring', color: '#ff8844' },
-  { type: 'bar', label: '> Calibrating ESP32 sensor array...', length: 10, totalTime: 1100, color: '#88aacc' },
-  { text: '> [SYS] All systems nominal. Ping: 19ms', color: '#44ffaa' },
-  { type: 'bar', label: '> Booting portfolio instance v2.0...', length: 10, totalTime: 800, color: '#88aacc' },
-  { text: '> ABD://ANANDAKUMARA — READY ✓', color: '#ffffff' }
+const BOOT_LOGS = [
+  { text: "> Initializing Fusion Board v2.1...", color: "#00FF41" },
+  { text: "> avr-gcc 7.3.0 — Compiling sketch...", color: "#00FF41", hasProgress: true },
+  { text: "> Linking .elf binary...", color: "#00FF41", hasProgress: true },
+  { text: "> Flashing ATmega328P @ 16MHz...", color: "#00FF41", hasProgress: true, isDone: true },
+  { text: "> [INFO] Bootloader handshake: OK", color: "#00FFFF" },
+  { text: "> Loading React 18.2.0...", color: "#00FF41", hasProgress: true },
+  { text: "> Mounting Spring Boot 3.2 context...", color: "#00FF41", hasProgress: true },
+  { text: "> [INFO] Application context loaded in 1.2s", color: "#00FFFF" },
+  { text: "> Establishing MQTT broker connection...", color: "#00FF41", hasProgress: true, isDone: true },
+  { text: "> [WARN] Thermal spike on CENTRAL_HEX — monitoring", color: "#FFD700" },
+  { text: "> Calibrating ESP32 GPIO array...", color: "#00FF41", hasProgress: true },
+  { text: "> Loading IoT AI Engine...", color: "#00FF41", hasProgress: true, isDone: true },
+  { text: "> [SYS] All modules nominal. Latency: 19ms", color: "#FFFFFF" },
+  { text: "> [SYS] 0b01001011 / 75% — Systems ready", color: "#FFFFFF" },
+  { text: "> ABD://ANANDAKUMARA — ONLINE", color: "#00FF41", isFinal: true },
 ];
 
-const BootSequence = ({ onComplete }) => {
-  const [currentLineIndex, setCurrentLineIndex] = useState(0);
-  const [lines, setLines] = useState([]);
-  const [isBooted, setIsBooted] = useState(false);
-  const scrollRef = useRef(null);
+export default function BootSequence({ onComplete }) {
+  const [currentLine, setCurrentLine] = useState(0);
+  const [displayedLogs, setDisplayedLogs] = useState([]);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (sessionStorage.getItem('booted')) {
-      onComplete();
-      return;
-    }
-
-    if (currentLineIndex < BOOT_SCRIPT.length) {
-      const line = BOOT_SCRIPT[currentLineIndex];
-      if (line.type === 'bar') {
-        renderLoadingBar(line);
-      } else {
-        typeLine(line);
-      }
-    } else {
-      // Flash final line then dissolve
-      setTimeout(() => {
-        setIsBooted(true);
-        sessionStorage.setItem('booted', 'true');
-        setTimeout(onComplete, 1200); // Wait for dissolve animation
-      }, 800);
-    }
-    
-    // Auto-scroll
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [currentLineIndex]);
-
-  const typeLine = (line) => {
-    let i = 0;
-    
-    const typeNextChar = () => {
-      if (i === 1) audio.unlock();
+    if (currentLine < BOOT_LOGS.length) {
+      const log = BOOT_LOGS[currentLine];
       
-      if (i <= line.text.length) {
-        if (i % 2 === 0) audio.playKey();
+      const timer = setTimeout(() => {
+        setDisplayedLogs(prev => [...prev, log]);
         
-        setLines(prev => {
-          const newLines = [...prev];
-          newLines[currentLineIndex] = {
-            text: line.text.slice(0, i) + '▌',
-            color: line.color || '#88aacc',
-            opacity: 1
-          };
-          
-          // Fade older lines
-          for (let j = 0; j < currentLineIndex; j++) {
-            if (newLines[j]) newLines[j].opacity = 0.4;
-          }
-          
-          return newLines;
-        });
-        i++;
-        
-        // Variable typing speed 20-80ms
-        const delay = 20 + Math.random() * 60;
-        setTimeout(typeNextChar, delay);
-      } else {
-        setLines(prev => {
-          const newLines = [...prev];
-          newLines[currentLineIndex] = {
-            text: line.text,
-            color: line.color || '#00ff41',
-            opacity: 1
-          };
-          return newLines;
-        });
-        setCurrentLineIndex(prev => prev + 1);
-      }
-    };
-    
-    typeNextChar();
-  };
+        if (log.hasProgress) {
+          let p = 0;
+          const pInterval = setInterval(() => {
+            p += Math.random() * 20;
+            if (p >= 100) {
+              p = 100;
+              clearInterval(pInterval);
+              setCurrentLine(prev => prev + 1);
+            }
+            setProgress(p);
+          }, 100);
+        } else {
+          setCurrentLine(prev => prev + 1);
+        }
+      }, 150 + Math.random() * 100);
 
-  const renderLoadingBar = (line) => {
-    let currentBlocks = 0;
-    const intervalTime = line.totalTime / line.length;
-    
-    const fillNextBlock = () => {
-      if (currentBlocks <= line.length) {
-        audio.playKey();
-        const percent = Math.floor((currentBlocks / line.length) * 100);
-        const filled = '█'.repeat(currentBlocks);
-        const empty = '░'.repeat(line.length - currentBlocks);
-        
-        setLines(prev => {
-          const newLines = [...prev];
-          // Use #4488ff for fill, #88ccff for percentage
-          newLines[currentLineIndex] = {
-            text: `${line.label.padEnd(38)} ${filled}${empty} ${percent}% ▌`,
-            color: '#4488ff',
-            opacity: 1
-          };
-          
-          for (let j = 0; j < currentLineIndex; j++) {
-            if (newLines[j]) newLines[j].opacity = 0.4;
-          }
-          
-          return newLines;
-        });
-        currentBlocks++;
-        setTimeout(fillNextBlock, intervalTime);
-      } else {
-        setLines(prev => {
-          const newLines = [...prev];
-          newLines[currentLineIndex] = {
-            text: newLines[currentLineIndex].text.replace(' █', ' ✓'),
-            color: '#00ff41',
-            opacity: 1
-          };
-          return newLines;
-        });
-        setCurrentLineIndex(prev => prev + 1);
-      }
-    };
-    
-    fillNextBlock();
-  };
+      return () => clearTimeout(timer);
+    } else {
+      // Sequence complete
+      setTimeout(() => onComplete(), 1000);
+    }
+  }, [currentLine, onComplete]);
 
   return (
-    <AnimatePresence>
-      {!isBooted && (
-        <motion.div
-          className="fixed inset-0 z-[100] bg-[#001428] p-4 sm:p-12 font-mono flex flex-col"
-          exit={{ opacity: 0, y: -50, scale: 1.05, filter: 'blur(10px)' }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
-        >
-          <div 
-            ref={scrollRef}
-            className="w-full h-full overflow-hidden text-sm sm:text-base md:text-lg"
-          >
-            {lines.map((line, i) => (
-              <motion.div 
-                key={i} 
-                className="mb-1 whitespace-pre-wrap break-all"
-                style={{ color: line.color, opacity: line.opacity }}
-                animate={i === lines.length - 1 && isBooted ? {
-                  opacity: [1, 0, 1, 0, 1],
-                  transition: { duration: 0.5 }
-                } : {}}
-              >
-                {line.text}
-              </motion.div>
-            ))}
+    <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center font-mono p-4">
+      <div className="max-w-2xl w-full">
+        <div className="bg-[#001100] border border-[#004400] p-6 rounded-lg shadow-[0_0_30px_rgba(0,68,0,0.5)] overflow-hidden">
+          <div className="flex items-center gap-2 mb-4 border-b border-[#004400] pb-2">
+            <div className="w-3 h-3 rounded-full bg-[#ff5555]" />
+            <div className="w-3 h-3 rounded-full bg-[#ffaa00]" />
+            <div className="w-3 h-3 rounded-full bg-[#00ff41]" />
+            <span className="text-[10px] text-[#004400] ml-2">SYSTEM CONSOLE - v2.1.4</span>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
 
-export default BootSequence;
+          <div className="space-y-1.5 h-[400px] overflow-y-auto">
+            {displayedLogs.map((log, i) => (
+              <div key={i} style={{ color: log.color, opacity: i < displayedLogs.length - 1 ? 0.6 : 1 }}>
+                <span className="mr-2">{log.text}</span>
+                {log.hasProgress && i === displayedLogs.length - 1 && (
+                  <span className="text-[#004400]">
+                    [{'█'.repeat(Math.floor(progress / 10))}{'░'.repeat(10 - Math.floor(progress / 10))}] {Math.floor(progress)}%
+                    {progress === 100 && " ✓"}
+                  </span>
+                )}
+                {log.isDone && progress === 100 && i !== displayedLogs.length - 1 && <span className="text-[#00FF41]"> ✓</span>}
+              </div>
+            ))}
+            {currentLine < BOOT_LOGS.length && (
+              <motion.span
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity }}
+                className="inline-block w-2 h-4 bg-[#00FF41] ml-1 align-middle"
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

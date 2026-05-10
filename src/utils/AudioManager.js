@@ -1,108 +1,49 @@
-class AudioEngine {
+class AudioManager {
   constructor() {
     this.ctx = null;
-    this.buffers = {};
-    this.masterGain = null;
-    this.unlocked = false;
-    this.humNode = null;
+    this.enabled = false;
   }
 
-  async unlock() {
-    if (this.unlocked) return;
+  init() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.enabled = true;
+  }
+
+  playClick() {
+    if (!this.enabled || !this.ctx) return;
     
-    // Create AudioContext on first user gesture
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    this.ctx = new AudioContext();
-    await this.ctx.resume();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
     
-    this.masterGain = this.ctx.createGain();
-    this.masterGain.gain.value = 0.7;
-    this.masterGain.connect(this.ctx.destination);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
     
-    await this.preloadAudio();
+    osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(220, this.ctx.currentTime + 0.08);
     
-    this.unlocked = true;
-    this.startHum(); // Begin ambient after unlock
-  }
-
-  async preloadAudio() {
-    const audioFiles = ['typewriter-key', 'circuit-hum', 'pulse-dispatch'];
+    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
     
-    for (const name of audioFiles) {
-      try {
-        // Fallback mapping since user mentioned specific files in the prompt, 
-        // but the actual files in /public/sounds might be named differently from our previous iteration.
-        // I'll map them to the likely filenames we used before if fetch fails.
-        let url = `/sounds/${name}.wav`;
-        if (name === 'typewriter-key') url = '/sounds/typewriter.wav';
-        if (name === 'circuit-hum') url = '/sounds/ambient-hum.wav';
-        if (name === 'pulse-dispatch') url = '/sounds/pulse-dispatch.wav';
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.1);
 
-        const res = await fetch(url);
-        if (!res.ok) {
-           console.warn(`Failed to fetch audio: ${url}`);
-           continue;
-        }
-        const buf = await res.arrayBuffer();
-        this.buffers[name] = await this.ctx.decodeAudioData(buf);
-      } catch (err) {
-        console.error("Audio preload error:", err);
-      }
-    }
-  }
-
-  play(name, volume = 1, pitchShift = 1) {
-    if (!this.unlocked || !this.buffers[name]) return;
-    try {
-      const src = this.ctx.createBufferSource();
-      const gain = this.ctx.createGain();
-      
-      src.buffer = this.buffers[name];
-      src.playbackRate.value = pitchShift;
-      
-      gain.gain.value = volume;
-      
-      src.connect(gain);
-      gain.connect(this.masterGain);
-      
-      src.start();
-    } catch (e) {
-      console.error("Play error", e);
-    }
-  }
-
-  playKey() {
-    // Randomize pitch for organic typewriter feel
-    this.play('typewriter-key', 0.5, 0.92 + Math.random() * 0.18);
-  }
-
-  startHum() {
-    if (!this.unlocked || !this.buffers['circuit-hum']) return;
-    try {
-      this.humNode = this.ctx.createBufferSource();
-      this.humNode.buffer = this.buffers['circuit-hum'];
-      this.humNode.loop = true;
-      
-      const humGain = this.ctx.createGain();
-      humGain.gain.value = 0.12;
-      
-      this.humNode.connect(humGain);
-      humGain.connect(this.masterGain);
-      
-      this.humNode.start();
-    } catch (e) {
-      console.error("Hum start error", e);
-    }
-  }
-
-  playPulse() { 
-    this.play('pulse-dispatch', 0.8);
-  }
-
-  playHover() {
-    // Optional hover sound, reuse pulse with lower volume and higher pitch
-    this.play('pulse-dispatch', 0.2, 1.5);
+    // Add noise burst
+    const bufLen = this.ctx.sampleRate * 0.05;
+    const buf = this.ctx.createBuffer(1, bufLen, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+    
+    const noise = this.ctx.createBufferSource();
+    const noiseGain = this.ctx.createGain();
+    noise.buffer = buf;
+    noise.connect(noiseGain);
+    noiseGain.connect(this.ctx.destination);
+    
+    noiseGain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+    noise.start();
   }
 }
 
-export const audio = new AudioEngine();
+export const audioManager = new AudioManager();
