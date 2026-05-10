@@ -1,6 +1,6 @@
 import React, { useRef, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { PerspectiveCamera } from '@react-three/drei';
+import { OrthographicCamera } from '@react-three/drei';
 import { Bloom, EffectComposer } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import LightSystem from './LightSystem';
@@ -54,7 +54,8 @@ const Board = () => {
   }, []);
 
   return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
+    <mesh ref={meshRef} position={[0, 0, 0]} receiveShadow>
+      {/* Plane is in XY space facing +Z */}
       <planeGeometry args={[150, 150]} />
       <meshStandardMaterial 
         color="#1a4a1a"
@@ -64,9 +65,41 @@ const Board = () => {
         emissive="#051a05"
         emissiveIntensity={1.2}
       />
-      {/* Subtle grid to reinforce the tech vibe */}
-      <gridHelper args={[150, 150, '#1a4a1a', '#0a2a0a']} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.05, 0]} />
+      {/* Subtle grid in XY space slightly above the board */}
+      <gridHelper args={[150, 150, '#1a4a1a', '#0a2a0a']} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.01]} />
     </mesh>
+  );
+};
+
+const Components3D = () => {
+  const components = useMemo(() => {
+    const items = [];
+    for (let i = 0; i < 10; i++) {
+      items.push({
+        position: [(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, 0.125],
+        args: [0.2, 0.2, 0.25, 16] // RadiusTop, RadiusBottom, Height, RadialSegments
+      });
+    }
+    return items;
+  }, []);
+
+  return (
+    <group>
+      {components.map((c, i) => (
+        <mesh key={i} position={c.position} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={c.args} />
+          <meshStandardMaterial color="#333" roughness={0.3} metalness={0.8} />
+        </mesh>
+      ))}
+      
+      {/* IC Chips */}
+      {[[-5, 5], [10, -5], [-12, -8]].map(([x, y], i) => (
+        <mesh key={`ic-${i}`} position={[x, y, 0.05]}>
+          <boxGeometry args={[3, 2, 0.1]} />
+          <meshStandardMaterial color="#111" roughness={0.9} />
+        </mesh>
+      ))}
+    </group>
   );
 };
 
@@ -76,23 +109,23 @@ const PCBScene = () => {
       <Canvas 
         shadows={false} 
         gl={{ antialias: false, alpha: true, powerPreference: "default" }}
-        dpr={1.5} /* Capped pixel ratio as requested */
+        dpr={1.5}
       >
-        <PerspectiveCamera makeDefault position={[0, 20, 25]} fov={45} />
+        <OrthographicCamera makeDefault position={[0, 0, 20]} zoom={25} />
         
         <ambientLight intensity={1.5} />
-        {/* Fill lights to make the board visible */}
-        <pointLight position={[10, 20, 10]} intensity={4} color="#ffffff" distance={100} />
-        <pointLight position={[-10, 20, -10]} intensity={3} color="#00ff44" distance={100} />
+        {/* Lights close to the board */}
+        <pointLight position={[10, 10, 5]} intensity={4} color="#ffffff" distance={50} />
+        <pointLight position={[-10, -10, 5]} intensity={3} color="#00ff44" distance={50} />
         
         <Board />
+        <Components3D />
         
         <LightSystem />
         <PulseEngine />
         <ParticleEngine />
         <Shockwave />
 
-        {/* Low-res optimized Bloom for glowing effects */}
         <EffectComposer disableNormalPass>
           <Bloom 
             intensity={1.2} 

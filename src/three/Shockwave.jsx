@@ -10,14 +10,13 @@ const Shockwave = () => {
   const impactLightRef = useRef();
   const pulseLightsRef = useRef([]);
   
-  // Manage pulse state directly without React state to avoid 60fps re-renders
   const pulsesData = useRef([]);
   const flashFrame = useRef(0);
 
-  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.5), []);
+  // Raycast against the XY plane (z=0)
+  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
   const pos = useMemo(() => new THREE.Vector3(), []);
 
-  // Impact light handling
   useFrame((state, delta) => {
     if (flashFrame.current > 0) {
       if (impactLightRef.current) impactLightRef.current.intensity = 20;
@@ -26,14 +25,12 @@ const Shockwave = () => {
       if (impactLightRef.current) impactLightRef.current.intensity = 0;
     }
 
-    // Pulse movement logic
     pulsesData.current = pulsesData.current.filter(p => {
       p.progress += delta * p.speed;
       if (p.progress > 1) return false;
       return true;
     });
 
-    // Update point lights
     for (let i = 0; i < MAX_PULSES; i++) {
       const light = pulseLightsRef.current[i];
       const p = pulsesData.current[i];
@@ -41,7 +38,7 @@ const Shockwave = () => {
         if (p) {
           p.curve.getPointAt(p.progress, pos);
           light.position.copy(pos);
-          light.intensity = 10 * (1 - p.progress); // Fade out
+          light.intensity = 10 * (1 - p.progress);
           light.visible = true;
         } else {
           light.visible = false;
@@ -54,22 +51,22 @@ const Shockwave = () => {
     const handleClick = () => {
       audio.playPulse();
       
-      // Impact flash position
       raycaster.setFromCamera(mouse, camera);
       raycaster.ray.intersectPlane(plane, pos);
       
       if (impactLightRef.current) impactLightRef.current.position.copy(pos);
       flashFrame.current = 2;
 
-      // Inject 3 new blue-white pulses
       const newPulses = [];
       for (let j = 0; j < 3; j++) {
         const points = [pos.clone()];
         let currentPos = pos.clone();
         for (let i = 0; i < 3; i++) {
           const nextPos = currentPos.clone();
+          // Move in XY plane, fix Z slightly above board
           nextPos.x += (Math.random() - 0.5) * 15;
-          nextPos.z += (Math.random() - 0.5) * 15;
+          nextPos.y += (Math.random() - 0.5) * 15;
+          nextPos.z = 0.1;
           points.push(nextPos);
           currentPos = nextPos;
         }
@@ -80,7 +77,6 @@ const Shockwave = () => {
         });
       }
       
-      // Keep only up to MAX_PULSES
       pulsesData.current = [...pulsesData.current, ...newPulses].slice(-MAX_PULSES);
     };
 

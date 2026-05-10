@@ -10,13 +10,12 @@ const ParticleEngine = () => {
   const { mouse, raycaster, camera } = useThree();
   const lastGatherState = useRef(false);
   
-  // Particle data pool
   const particles = useMemo(() => {
     const data = [];
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       data.push({
-        position: new THREE.Vector3((Math.random() - 0.5) * 40, -1.5, (Math.random() - 0.5) * 40),
-        velocity: new THREE.Vector3((Math.random() - 0.5) * 0.02, 0, (Math.random() - 0.5) * 0.02),
+        position: new THREE.Vector3((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, 0.05),
+        velocity: new THREE.Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, 0),
         state: 'idle',
         size: 1.5,
         brightness: 0.15
@@ -25,7 +24,6 @@ const ParticleEngine = () => {
     return data;
   }, []);
 
-  // Buffer attributes
   const [positions, sizes, colors] = useMemo(() => {
     const pos = new Float32Array(PARTICLE_COUNT * 3);
     const sz = new Float32Array(PARTICLE_COUNT);
@@ -33,41 +31,40 @@ const ParticleEngine = () => {
     return [pos, sz, col];
   }, []);
 
-  // Reusable vectors/colors to prevent garbage collection pauses
   const cursorWorldPos = useMemo(() => new THREE.Vector3(), []);
-  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.5), []);
+  // Raycast against the XY plane (z=0)
+  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
   const baseColor = useMemo(() => new THREE.Color('#00ff88'), []);
   const tempColor = useMemo(() => new THREE.Color(), []);
   const tempVel = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(() => {
-    // Update cursor world position
     raycaster.setFromCamera(mouse, camera);
     raycaster.ray.intersectPlane(plane, cursorWorldPos);
 
     let isAnyGathering = false;
 
     particles.forEach((p, i) => {
-      const distToCursor = p.position.distanceTo(cursorWorldPos);
+      // Calculate distance in XY plane
+      const dx = cursorWorldPos.x - p.position.x;
+      const dy = cursorWorldPos.y - p.position.y;
+      const distToCursor = Math.sqrt(dx * dx + dy * dy);
 
-      // State transitions
       if (distToCursor < 6) {
         p.state = 'gathering';
         isAnyGathering = true;
       } else if (p.state === 'gathering') {
         p.state = 'dispersing';
-        tempVel.set((Math.random() - 0.5) * 0.1, 0, (Math.random() - 0.5) * 0.1);
+        tempVel.set((Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1, 0);
         p.velocity.add(tempVel);
       }
 
-      // Physics logic
       if (p.state === 'gathering') {
-        const dx = cursorWorldPos.x - p.position.x;
-        const dz = cursorWorldPos.z - p.position.z;
         p.velocity.x += dx * 0.005;
-        p.velocity.z += dz * 0.005;
-        p.velocity.x += -dz * 0.002;
-        p.velocity.z += dx * 0.002;
+        p.velocity.y += dy * 0.005;
+        // Swirl force in XY
+        p.velocity.x += -dy * 0.002;
+        p.velocity.y += dx * 0.002;
         p.velocity.multiplyScalar(0.85);
         p.size = THREE.MathUtils.lerp(p.size, 5, 0.1);
         p.brightness = THREE.MathUtils.lerp(p.brightness, 1.0, 0.1);
@@ -81,13 +78,12 @@ const ParticleEngine = () => {
         }
       } else {
         p.velocity.x += (Math.random() - 0.5) * 0.001;
-        p.velocity.z += (Math.random() - 0.5) * 0.001;
+        p.velocity.y += (Math.random() - 0.5) * 0.001;
         p.velocity.multiplyScalar(0.99);
       }
 
       p.position.add(p.velocity);
       
-      // Update buffers
       const i3 = i * 3;
       positions[i3] = p.position.x;
       positions[i3 + 1] = p.position.y;

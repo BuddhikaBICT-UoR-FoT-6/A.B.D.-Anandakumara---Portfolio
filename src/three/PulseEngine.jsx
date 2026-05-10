@@ -7,17 +7,17 @@ const PULSE_COUNT = 8;
 const PulseEngine = () => {
   const pulsesRef = useRef([]);
 
-  // Create random trace paths (CatmullRomCurve3)
   const paths = useMemo(() => {
     return Array.from({ length: PULSE_COUNT }).map(() => {
       const points = [];
-      let currentPos = new THREE.Vector3((Math.random() - 0.5) * 40, -1.8, (Math.random() - 0.5) * 40);
+      // Generate paths in XY plane at Z=0.08
+      let currentPos = new THREE.Vector3((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, 0.08);
       points.push(currentPos.clone());
       
       for (let i = 0; i < 4; i++) {
         const nextPos = currentPos.clone();
         if (i % 2 === 0) nextPos.x += (Math.random() - 0.5) * 20;
-        else nextPos.z += (Math.random() - 0.5) * 20;
+        else nextPos.y += (Math.random() - 0.5) * 20;
         points.push(nextPos);
         currentPos = nextPos;
       }
@@ -31,6 +31,8 @@ const PulseEngine = () => {
     });
   }, []);
 
+  const tempPos = useMemo(() => new THREE.Vector3(), []);
+
   useFrame(() => {
     const t = performance.now() * 0.001;
     
@@ -38,10 +40,9 @@ const PulseEngine = () => {
       if (!pulse) return;
       const path = paths[i];
       const progress = (path.offset + t * path.speed) % 1;
-      const pos = path.curve.getPointAt(progress);
-      pulse.position.copy(pos);
+      path.curve.getPointAt(progress, tempPos);
+      pulse.position.copy(tempPos);
       
-      // Flickering intensity
       pulse.intensity = 2.0 + Math.sin(t * 10 + i) * 1.5;
     });
   });
