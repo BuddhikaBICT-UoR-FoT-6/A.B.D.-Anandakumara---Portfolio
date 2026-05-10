@@ -1,3 +1,5 @@
+import forms from '@tailwindcss/forms'
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -7,12 +9,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        'circuit-bg': '#02040a',
-        'neon-violet': '#8b5cf6',
-        'electric-purple': '#a855f7',
-        'amethyst': '#7e22ce',
-      }
+        'pcb-green': '#1a4a1a',
+        'pcb-dark': '#0a1a0a',
+        'terminal': '#00ff44',
+      },
+      fontFamily: {
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    forms,
+  ],
 }

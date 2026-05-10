@@ -1,0 +1,156 @@
+import React, { useRef, useMemo, useEffect } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import * as THREE from 'three';
+import { audio } from '../utils/AudioManager';
+
+const PARTICLE_COUNT = 200;
+
+const ParticleEngine = () => {
+  const pointsRef = useRef();
+  const { mouse, raycaster, camera, scene } = useThree();
+  
+  // Particle data pool
+  const particles = useMemo(() => {
+    const data = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      data.push({
+        position: new THREE.Vector3((Math.random() - 0.5) * 40, -1.5, (Math.random() - 0.5) * 40),
+        velocity: new THREE.Vector3((Math.random() - 0.5) * 0.02, 0, (Math.random() - 0.5) * 0.02),
+        state: 'idle',
+        size: 1.5,
+        brightness: 0.15,
+        life: 1.0
+      });
+    }
+    return data;
+  }, []);
+
+  // Buffer attributes
+  const [positions, sizes, colors] = useMemo(() => {
+    const pos = new Float32Array(PARTICLE_COUNT * 3);
+    const sz = new Float32Array(PARTICLE_COUNT);
+    const col = new Float32Array(PARTICLE_COUNT * 3);
+    return [pos, sz, col];
+  }, []);
+
+  const dummy = new THREE.Vector3();
+  const cursorWorldPos = new THREE.Vector3();
+
+  useFrame((state) => {
+    const { clock } = state;
+    const time = clock.getElapsedTime();
+
+    // Update cursor world position
+    raycaster.setFromCamera(mouse, camera);
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.5);
+    raycaster.ray.intersectPlane(plane, cursorWorldPos);
+
+    let isAnyGathering = false;
+
+    particles.forEach((p, i) => {
+      const distToCursor = p.position.distanceTo(cursorWorldPos);
+
+      // State transitions
+      if (distToCursor < 5) {
+        if (p.state !== 'gathering') {
+          isAnyGathering = true;
+        }
+        p.state = 'gathering';
+      } else if (p.state === 'gathering') {
+        p.state = 'dispersing';
+        p.velocity.add(new THREE.Vector3((Math.random() - 0.5) * 0.2, 0, (Math.random() - 0.5) * 0.2));
+      }
+
+      // Physics logic
+      if (p.state === 'gathering') {
+        const dx = cursorWorldPos.x - p.position.x;
+        const dz = cursorWorldPos.z - p.position.z;
+        p.velocity.x += dx * 0.006;
+        p.velocity.z += dz * 0.006;
+        p.velocity.x += -dz * 0.003;
+        p.velocity.z += dx * 0.003;
+        p.velocity.multiplyScalar(0.82);
+        p.size = THREE.MathUtils.lerp(p.size, 6, 0.1);
+        p.brightness = THREE.MathUtils.lerp(p.brightness, 1.0, 0.1);
+      } else if (p.state === 'dispersing') {
+        p.velocity.multiplyScalar(0.95);
+        p.brightness -= 0.02;
+        if (p.brightness <= 0.15) {
+          p.state = 'idle';
+          p.brightness = 0.15;
+          p.size = 1.5;
+        }
+      } else {
+        p.velocity.x += (Math.random() - 0.5) * 0.001;
+        p.velocity.z += (Math.random() - 0.5) * 0.001;
+        p.velocity.multiplyScalar(0.99);
+      }
+
+      p.position.add(p.velocity);
+      positions[i * 3] = p.position.x;
+      positions[i * 3 + 1] = p.position.y;
+      positions[i * 3 + 2] = p.position.z;
+      sizes[i] = p.size;
+      const c = new THREE.Color('#00ff88').multiplyScalar(p.brightness);
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
+    });
+
+    if (isAnyGathering) {
+      audio.playHover();
+    }
+
+    pointsRef.current.geometry.attributes.position.needsUpdate = true;
+    pointsRef.current.geometry.attributes.size.needsUpdate = true;
+    pointsRef.current.geometry.attributes.color.needsUpdate = true;
+  });
+
+  useEffect(() => {
+    const handleClick = () => {
+      particles.forEach(p => {
+        if (p.state === 'gathering') {
+          const dir = p.position.clone().sub(cursorWorldPos).normalize();
+          p.velocity.add(dir.multiplyScalar(0.3 + Math.random() * 0.2));
+          p.state = 'dispersing';
+        }
+      });
+    };
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
+  }, [particles, cursorWorldPos]);
+
+  return (
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={PARTICLE_COUNT}
+          array={positions}
+          itemSize={3}
+        />
+        <bufferAttribute
+          attach="attributes-size"
+          count={PARTICLE_COUNT}
+          array={sizes}
+          itemSize={1}
+        />
+        <bufferAttribute
+          attach="attributes-color"
+          count={PARTICLE_COUNT}
+          array={colors}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={1}
+        vertexColors
+        transparent
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </points>
+  );
+};
+
+export default ParticleEngine;
