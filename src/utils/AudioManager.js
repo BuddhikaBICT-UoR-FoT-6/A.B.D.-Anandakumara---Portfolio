@@ -1,10 +1,10 @@
 class AudioManager {
   constructor() {
     this.sounds = {
-      typewriter: new Audio('/sounds/typewriter.wav'),
-      hum: new Audio('/sounds/ambient-hum.wav'),
-      pulse: new Audio('/sounds/pulse-dispatch.wav'),
-      hover: new Audio('/sounds/data-flow.wav')
+      typewriter: new Audio('/sounds/380138__yottasounds__typewriter-single-key-type-1.wav'),
+      hum: new Audio('/sounds/gregorquendel-sci-fi-sound-effect-designed-circuits-hum-01-200817.mp3'),
+      pulse: new Audio('/sounds/alex_jauk-electronic-pulse-8bit-293075.mp3'),
+      hover: new Audio('/sounds/rescopicsound-ui-abstract-electricity-glitch-228341.mp3')
     };
 
     // Preload and configure
