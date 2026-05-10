@@ -66,7 +66,7 @@ const LightSystem = () => {
     }));
   }, []);
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     const t = performance.now() * 0.001;
 
     // Animate LEDs

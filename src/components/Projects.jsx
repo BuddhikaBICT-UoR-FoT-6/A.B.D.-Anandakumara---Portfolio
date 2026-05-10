@@ -67,16 +67,14 @@ const ProjectCard = ({ project }) => {
       {/* Trace Border Animation */}
       <div className="pcb-trace-border group-hover:border-[var(--active-gold)] group-hover:opacity-100 transition-all duration-500" />
 
-      <div className="flex justify-between items-start mb-6">
+      <div className="flex justify-between items-start mb-6 border-b border-[var(--pcb-green-light)] pb-4">
         <div>
-          <h3 className="text-lg font-mono text-[var(--terminal-green)] group-hover:text-white transition-colors">
-            {project.name}
-          </h3>
-          <span className="bg-[var(--pcb-green)] text-[8px] font-mono px-1.5 py-0.5 rounded border border-[var(--pcb-green-light)]">
-            {project.category}
-          </span>
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`led-dot ${project.status === 'complete' ? 'text-[var(--terminal-green)]' : 'text-[var(--terminal-yellow)]'}`} />
+            <h3 className="text-xl font-mono text-white">{project.name}</h3>
+          </div>
+          <span className="text-[10px] font-mono text-[var(--pcb-green-light)]">{project.category}</span>
         </div>
-        <div className={`led-indicator ${project.status === 'complete' ? 'bg-[var(--terminal-green)]' : 'bg-[var(--terminal-yellow)]'} animate-pulse`} />
       </div>
 
       <p className="text-xs opacity-70 mb-6 h-10 line-clamp-2">

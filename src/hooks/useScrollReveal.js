@@ -3,10 +3,11 @@ import { useEffect } from 'react';
 export const useScrollReveal = () => {
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('scanline-reveal');
-          // Optional: trigger child animations or text typing here
+          entry.target.classList.add('animate'); // Added to trigger CSS animations inside the element
+          observer.unobserve(entry.target);
         }
       });
     }, { threshold: 0.1 });

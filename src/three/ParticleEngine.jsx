@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { audio } from '../utils/AudioManager';
 
-const PARTICLE_COUNT = 150; // Slightly reduced for performance
+const PARTICLE_COUNT = 150;
 
 const ParticleEngine = () => {
   const pointsRef = useRef();
@@ -33,14 +33,16 @@ const ParticleEngine = () => {
     return [pos, sz, col];
   }, []);
 
-  const cursorWorldPos = new THREE.Vector3();
+  // Reusable vectors/colors to prevent garbage collection pauses
+  const cursorWorldPos = useMemo(() => new THREE.Vector3(), []);
+  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.5), []);
+  const baseColor = useMemo(() => new THREE.Color('#00ff88'), []);
+  const tempColor = useMemo(() => new THREE.Color(), []);
+  const tempVel = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame((state, delta) => {
-    const t = performance.now() * 0.001;
-
+  useFrame(() => {
     // Update cursor world position
     raycaster.setFromCamera(mouse, camera);
-    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.5);
     raycaster.ray.intersectPlane(plane, cursorWorldPos);
 
     let isAnyGathering = false;
@@ -54,7 +56,8 @@ const ParticleEngine = () => {
         isAnyGathering = true;
       } else if (p.state === 'gathering') {
         p.state = 'dispersing';
-        p.velocity.add(new THREE.Vector3((Math.random() - 0.5) * 0.1, 0, (Math.random() - 0.5) * 0.1));
+        tempVel.set((Math.random() - 0.5) * 0.1, 0, (Math.random() - 0.5) * 0.1);
+        p.velocity.add(tempVel);
       }
 
       // Physics logic
@@ -83,17 +86,21 @@ const ParticleEngine = () => {
       }
 
       p.position.add(p.velocity);
-      positions[i * 3] = p.position.x;
-      positions[i * 3 + 1] = p.position.y;
-      positions[i * 3 + 2] = p.position.z;
+      
+      // Update buffers
+      const i3 = i * 3;
+      positions[i3] = p.position.x;
+      positions[i3 + 1] = p.position.y;
+      positions[i3 + 2] = p.position.z;
+      
       sizes[i] = p.size;
-      const c = new THREE.Color('#00ff88').multiplyScalar(p.brightness);
-      colors[i * 3] = c.r;
-      colors[i * 3 + 1] = c.g;
-      colors[i * 3 + 2] = c.b;
+      
+      tempColor.copy(baseColor).multiplyScalar(p.brightness);
+      colors[i3] = tempColor.r;
+      colors[i3 + 1] = tempColor.g;
+      colors[i3 + 2] = tempColor.b;
     });
 
-    // CRITICAL PERFORMANCE FIX: Only play audio on transition
     if (isAnyGathering && !lastGatherState.current) {
       audio.playHover();
       lastGatherState.current = true;
@@ -101,9 +108,11 @@ const ParticleEngine = () => {
       lastGatherState.current = false;
     }
 
-    pointsRef.current.geometry.attributes.position.needsUpdate = true;
-    pointsRef.current.geometry.attributes.size.needsUpdate = true;
-    pointsRef.current.geometry.attributes.color.needsUpdate = true;
+    if (pointsRef.current) {
+      pointsRef.current.geometry.attributes.position.needsUpdate = true;
+      pointsRef.current.geometry.attributes.size.needsUpdate = true;
+      pointsRef.current.geometry.attributes.color.needsUpdate = true;
+    }
   });
 
   useEffect(() => {
@@ -123,32 +132,11 @@ const ParticleEngine = () => {
   return (
     <points ref={pointsRef}>
       <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={PARTICLE_COUNT}
-          array={positions}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-size"
-          count={PARTICLE_COUNT}
-          array={sizes}
-          itemSize={1}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          count={PARTICLE_COUNT}
-          array={colors}
-          itemSize={3}
-        />
+        <bufferAttribute attach="attributes-position" count={PARTICLE_COUNT} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-size" count={PARTICLE_COUNT} array={sizes} itemSize={1} />
+        <bufferAttribute attach="attributes-color" count={PARTICLE_COUNT} array={colors} itemSize={3} />
       </bufferGeometry>
-      <pointsMaterial
-        size={1}
-        vertexColors
-        transparent
-        blending={THREE.AdditiveBlending}
-        depthWrite={false}
-      />
+      <pointsMaterial size={1} vertexColors transparent blending={THREE.AdditiveBlending} depthWrite={false} />
     </points>
   );
 };
