@@ -1,58 +1,8 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-
-const PROJECTS = [
-  {
-    name: 'HomeCanvas',
-    category: 'IoT_CONTROL_v1',
-    description: 'IoT home automation system with ESP32, React, and Spring Boot. Real-time sensor dashboard.',
-    tags: ['React', 'ESP32', 'MQTT'],
-    status: 'complete',
-    github: '#'
-  },
-  {
-    name: 'CrowdFlow',
-    category: 'ML_ANALYTICS_v2',
-    description: 'Computer vision powered crowd analytics using Node.js and React.',
-    tags: ['ML', 'Node.js', 'React'],
-    status: 'complete',
-    github: '#'
-  },
-  {
-    name: 'BoutiqueFlow',
-    category: 'E-COMM_CORE',
-    description: 'Full-stack e-commerce platform with Spring Boot and Stripe/PayPal integration.',
-    tags: ['Spring Boot', 'Stripe', 'React'],
-    status: 'complete',
-    github: '#'
-  },
-  {
-    name: 'Cypher-UI',
-    category: 'LIB_COMPONENT',
-    description: 'A premium React component library built with Tailwind CSS.',
-    tags: ['React', 'Tailwind', 'Framework'],
-    status: 'active',
-    github: '#'
-  },
-  {
-    name: 'Smart Campus',
-    category: 'IoT_INFRA_v3',
-    description: 'Comprehensive campus management with ESP32 and MQTT protocols.',
-    tags: ['ESP32', 'MQTT', 'Spring Boot'],
-    status: 'complete',
-    github: '#'
-  },
-  {
-    name: 'Secure Vault',
-    category: 'SEC_UTIL',
-    description: 'Desktop security tool for encrypted environment variable management.',
-    tags: ['Java', 'Security', 'Desktop'],
-    status: 'complete',
-    github: '#'
-  }
-];
+import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const ProjectCard = ({ project }) => {
+  const isComplete = project.status !== 'active'; // Admin data doesn't have status, default to complete unless specified
+
   return (
     <motion.div 
       whileHover={{ y: -8 }}
@@ -70,10 +20,10 @@ const ProjectCard = ({ project }) => {
       <div className="flex justify-between items-start mb-6 border-b border-[var(--pcb-green-light)] pb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className={`led-dot ${project.status === 'complete' ? 'text-[var(--terminal-green)]' : 'text-[var(--terminal-yellow)]'}`} />
-            <h3 className="text-xl font-mono text-white">{project.name}</h3>
+            <span className={`led-dot ${isComplete ? 'text-[var(--terminal-green)]' : 'text-[var(--terminal-yellow)]'}`} />
+            <h3 className="text-xl font-mono text-white">{project.title}</h3>
           </div>
-          <span className="text-[10px] font-mono text-[var(--pcb-green-light)]">{project.category}</span>
+          <span className="text-[10px] font-mono text-[var(--pcb-green-light)]">{project.badge}</span>
         </div>
       </div>
 
@@ -82,26 +32,32 @@ const ProjectCard = ({ project }) => {
       </p>
 
       <div className="flex flex-wrap gap-2 mb-8">
-        {project.tags.map(tag => (
-          <span key={tag} className="text-[10px] font-mono border border-[var(--pcb-green-light)] px-2 py-0.5 opacity-60">
-            {tag}
+        {project.tech.map(t => (
+          <span key={t} className="text-[10px] font-mono border border-[var(--pcb-green-light)] px-2 py-0.5 opacity-60">
+            {t}
           </span>
         ))}
       </div>
 
       <div className="flex gap-4 border-t border-[var(--pcb-green-light)] pt-4">
-        <a href={project.github} className="text-[10px] font-mono text-[var(--terminal-green)] hover:underline">
-          → GITHUB
-        </a>
-        <a href="#" className="text-[10px] font-mono text-[var(--terminal-yellow)] hover:underline">
-          ⬡ LIVE_DEMO
-        </a>
+        {project.codeUrl && (
+          <a href={project.codeUrl} target="_blank" rel="noreferrer" className="text-[10px] font-mono text-[var(--terminal-green)] hover:underline">
+            → GITHUB
+          </a>
+        )}
+        {project.liveUrl && (
+          <a href={project.liveUrl} target="_blank" rel="noreferrer" className="text-[10px] font-mono text-[var(--terminal-yellow)] hover:underline">
+            ⬡ LIVE_DEMO
+          </a>
+        )}
       </div>
     </motion.div>
   );
 };
 
 const Projects = () => {
+  const { projects } = usePortfolioData();
+  
   return (
     <section id="projects" className="content-section py-32 px-8 max-w-7xl mx-auto relative z-10">
       <div className="section-header flex items-center gap-4 mb-12">
@@ -112,7 +68,7 @@ const Projects = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {PROJECTS.map((p, i) => (
+        {projects.map((p, i) => (
           <ProjectCard key={i} project={p} />
         ))}
       </div>

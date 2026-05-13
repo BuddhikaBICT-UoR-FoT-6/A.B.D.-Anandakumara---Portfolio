@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll } from 'framer-motion';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const ROLES = [
   "Spring Boot Developer",
@@ -105,7 +106,8 @@ const TypewriterRole = () => {
 };
 
 const Hero = () => {
-  const name = "A.B.D. Anandakumara";
+  const { personal } = usePortfolioData();
+  const name = personal.fullName;
   
   return (
     <section style={{
@@ -149,15 +151,7 @@ const Hero = () => {
           maxWidth: '520px',
           marginTop: '16px'
         }}>
-          I build systems where silicon meets software — from
-          <span style={{color:'#00ff88'}}> React </span>
-          frontends to
-          <span style={{color:'#6db33f'}}> Spring Boot </span>
-          APIs, connected through
-          <span style={{color:'#44ccff'}}> MQTT </span>
-          and
-          <span style={{color:'#ffaa44'}}> GPIO </span>
-          protocols. Specialist in IoT automation and embedded systems.
+          {personal.heroSubtitle}
         </p>
 
         <div className="flex gap-6 pt-6">

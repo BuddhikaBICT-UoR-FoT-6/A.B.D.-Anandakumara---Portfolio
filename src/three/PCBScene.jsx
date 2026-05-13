@@ -8,6 +8,7 @@ import { audioManager } from '../utils/AudioManager';
 
 import LEDSystem from './LEDSystem';
 import PulseSystem from './PulseSystem';
+import ParticleEngine from './ParticleEngine';
 
 function PCBPlane() {
   const texture = useTexture('/background.jpg');
@@ -78,6 +79,7 @@ function SceneContent() {
         <PCBPlane />
         <LEDSystem />
         <PulseSystem />
+        <ParticleEngine />
       </Suspense>
     </>
   );

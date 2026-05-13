@@ -1,5 +1,4 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const DossierLine = ({ label, value }) => (
   <div className="flex gap-4 font-mono text-xs mb-2 group">
@@ -9,6 +8,8 @@ const DossierLine = ({ label, value }) => (
 );
 
 const About = () => {
+  const { about } = usePortfolioData();
+
   return (
     <section id="about" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
       <div className="section-header flex items-center gap-4 mb-12">
@@ -47,8 +48,8 @@ const About = () => {
         <div className="pcb-card">
           <div className="mb-6 border-b border-[var(--pcb-green-light)] pb-4">
             <h3 className="text-lg font-mono text-[var(--terminal-green)] mb-2">ENGINEER_PROFILE_DATA</h3>
-            <p className="text-sm opacity-70">
-              Biographical summary and technical background retrieved from secure archives...
+            <p className="text-sm opacity-70 leading-relaxed">
+              {about.profile}
             </p>
           </div>
 
@@ -61,22 +62,12 @@ const About = () => {
           </div>
 
           <div className="mt-8 space-y-4">
-            <div className="flex items-center gap-2 text-xs font-mono text-[var(--terminal-yellow)]">
-              <span className="w-1.5 h-1.5 bg-[var(--terminal-yellow)] rounded-full" />
-              HIGHLIGHT_01: Oracle Certified Foundations Associate
-            </div>
-            <div className="flex items-center gap-2 text-xs font-mono text-[var(--terminal-yellow)]">
-              <span className="w-1.5 h-1.5 bg-[var(--terminal-yellow)] rounded-full" />
-              HIGHLIGHT_02: Built HomeCanvas — IoT home automation (ESP32 + React)
-            </div>
-            <div className="flex items-center gap-2 text-xs font-mono text-[var(--terminal-yellow)]">
-              <span className="w-1.5 h-1.5 bg-[var(--terminal-yellow)] rounded-full" />
-              HIGHLIGHT_03: CrowdFlow — ML-powered crowd analytics
-            </div>
-            <div className="flex items-center gap-2 text-xs font-mono text-[var(--terminal-yellow)]">
-              <span className="w-1.5 h-1.5 bg-[var(--terminal-yellow)] rounded-full" />
-              HIGHLIGHT_04: Top-rank course completion · Cypher-UI framework
-            </div>
+            {about.highlights.map((h, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs font-mono text-[var(--terminal-yellow)]">
+                <span className="w-1.5 h-1.5 bg-[var(--terminal-yellow)] rounded-full" />
+                HIGHLIGHT_{String(i+1).padStart(2, '0')}: {h}
+              </div>
+            ))}
           </div>
         </div>
       </div>

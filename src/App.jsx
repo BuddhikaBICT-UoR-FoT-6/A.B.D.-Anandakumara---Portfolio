@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import PCBScene from './three/PCBScene';
+import AdminLogin from './components/AdminLogin';
 import BootSequence from './components/BootSequence';
 import NavBar from './components/NavBar';
 import Hero from './components/Hero';
@@ -95,6 +96,7 @@ function App() {
 
   return (
     <div className="min-h-screen text-[var(--text-primary)] font-mono selection:bg-[#004499] selection:text-white" style={{ backgroundColor: '#000d1a' }}>
+      <AdminLogin />
       {booting && <BootSequence onComplete={handleBootComplete} />}
 
       {!booting && (

@@ -10,34 +10,13 @@ const ORBIT_RADIUS = 8.0;
 const ParticleEngine = () => {
   const pointsRef = useRef();
 
-  // We are not using useThree().mouse because we removed pointer-events from Canvas.
-  // We'll track mouse manually.
-  const mouseWorldPos = useRef(new THREE.Vector3(0, 0, 0));
+  const cursor = useSimStore(state => state.cursor);
+  const phase = useSimStore(state => state.phase);
   const isHovering = useRef(false);
 
   useEffect(() => {
-    const onMouseMove = (e) => {
-      // Convert normalized device coordinates to world space roughly based on orthographic zoom
-      const aspect = window.innerWidth / window.innerHeight;
-      const nx = (e.clientX / window.innerWidth) * 2 - 1;
-      const ny = -(e.clientY / window.innerHeight) * 2 + 1;
-      
-      mouseWorldPos.current.x = nx * 38 * aspect;
-      mouseWorldPos.current.y = ny * 38;
-      isHovering.current = true;
-    };
-    
-    const onMouseLeave = () => {
-      isHovering.current = false;
-    };
-
-    window.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseleave', onMouseLeave);
-    
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseleave', onMouseLeave);
-    };
+    isHovering.current = true;
+    return () => { isHovering.current = false; };
   }, []);
 
   const particles = useMemo(() => {
@@ -61,27 +40,26 @@ const ParticleEngine = () => {
   }, []);
 
   useEffect(() => {
-    const onClick = () => {
-      // Disperse swarming particles
+    if (phase === 'CLICK') {
       particles.forEach(p => {
         if (p.state === 'swarming') {
-          const angle = Math.atan2(p.y - mouseWorldPos.current.y, p.x - mouseWorldPos.current.x);
-          const speed = 0.5 + Math.random() * 1.5;
-          p.vx = Math.cos(angle) * speed;
-          p.vy = Math.sin(angle) * speed;
+          const dx = p.x - cursor.world.x;
+          const dy = p.y - cursor.world.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const speed = 0.8 + Math.random() * 2.0;
+          p.vx = (dx / dist) * speed;
+          p.vy = (dy / dist) * speed;
           p.state = 'dispersing';
           p.life = 1;
         }
       });
-    };
-    window.addEventListener('click', onClick);
-    return () => window.removeEventListener('click', onClick);
-  }, [particles]);
+    }
+  }, [phase, cursor.world, particles]);
 
   useFrame(() => {
     const t = performance.now() * 0.001;
-    const mx = mouseWorldPos.current.x;
-    const my = mouseWorldPos.current.y;
+    const mx = cursor.world.x;
+    const my = cursor.world.y;
     const hovering = isHovering.current;
 
     particles.forEach((p, i) => {
