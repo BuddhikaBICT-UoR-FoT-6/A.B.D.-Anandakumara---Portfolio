@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const SKILLS = [
   { component: 'Spring Boot / Java', spec: 'Backend Core', status: 'ACTIVE', level: 88 },
@@ -56,11 +57,11 @@ const SOFT_SKILLS = [
 
 const SkillBar = ({ level }) => (
   <div className="flex items-center gap-1 font-mono text-[10px]">
-    <span className="text-[var(--terminal-green)]">
+    <span className="text-[var(--terminal-green)] liquid-animate">
       {'█'.repeat(Math.floor(level / 10))}
-      <span className="opacity-30">{'░'.repeat(10 - Math.floor(level / 10))}</span>
+      <span className="opacity-20">{'░'.repeat(10 - Math.floor(level / 10))}</span>
     </span>
-    <span className="ml-2">{level}%</span>
+    <span className="ml-2 percentage-glow">{level}%</span>
   </div>
 );
 
@@ -75,34 +76,52 @@ const Skills = () => {
       </div>
 
       <div className="grid md:grid-cols-2 gap-16">
-        <div className="pcb-card h-fit">
-          <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
-            TECHNICAL_SPECIFICATIONS
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full font-mono text-[10px] text-left">
-              <thead className="border-b border-[var(--pcb-green-light)]">
-                <tr>
-                  <th className="pb-2 text-[var(--pcb-green-light)]">COMPONENT</th>
-                  <th className="pb-2 text-[var(--pcb-green-light)]">SPEC</th>
-                  <th className="pb-2 text-[var(--pcb-green-light)]">STATUS</th>
-                  <th className="pb-2 text-[var(--pcb-green-light)]">PROFICIENCY</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--pcb-green-light)]/20">
-                {SKILLS.map((skill, i) => (
-                  <tr key={i} className="group">
-                    <td className="py-3 text-[var(--terminal-green)]">{skill.component}</td>
-                    <td className="py-3 opacity-60">{skill.spec}</td>
-                    <td className="py-3 text-[var(--terminal-yellow)]">{skill.status}</td>
-                    <td className="py-3"><SkillBar level={skill.level} /></td>
+        {/* Left Column: Tech Specs + Soft Skills */}
+        <div className="space-y-12">
+          <div className="pcb-card h-fit">
+            <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
+              TECHNICAL_SPECIFICATIONS
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full font-mono text-[10px] text-left">
+                <thead className="border-b border-[var(--pcb-green-light)]">
+                  <tr>
+                    <th className="pb-2 text-[var(--pcb-green-light)]">COMPONENT</th>
+                    <th className="pb-2 text-[var(--pcb-green-light)]">SPEC</th>
+                    <th className="pb-2 text-[var(--pcb-green-light)]">STATUS</th>
+                    <th className="pb-2 text-[var(--pcb-green-light)]">PROFICIENCY</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[var(--pcb-green-light)]/20">
+                  {SKILLS.map((skill, i) => (
+                    <tr key={i} className="group">
+                      <td className="py-3 text-[var(--terminal-green)]">{skill.component}</td>
+                      <td className="py-3 opacity-60">{skill.spec}</td>
+                      <td className="py-3 text-[var(--terminal-yellow)]">{skill.status}</td>
+                      <td className="py-3"><SkillBar level={skill.level} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
+              PIN_HEADER_PROTOCOLS
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {SOFT_SKILLS.map(item => (
+                <div key={item.tag} className="bg-[#111] border border-[var(--pcb-green-light)] px-3 py-1.5 font-mono text-[10px] text-[var(--terminal-green)] shadow-[4px_4px_0_var(--pcb-green-dark)] hover:text-white hover:border-[var(--terminal-green)] transition-all duration-300 cursor-default flex items-center gap-2 group hover:-translate-y-1">
+                  <span className="opacity-70 group-hover:scale-125 transition-transform">{item.emoji}</span>
+                  {item.tag.toUpperCase().replace(/ /g, '_')}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
+        {/* Right Column: Certifications */}
         <div className="space-y-8">
           <div>
             <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
@@ -134,20 +153,6 @@ const Skills = () => {
                       → VERIFY_CREDENTIAL
                     </a>
                   )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
-              PIN_HEADER_PROTOCOLS
-            </h3>
-            <div className="flex flex-wrap gap-3">
-              {SOFT_SKILLS.map(item => (
-                <div key={item.tag} className="bg-[#111] border border-[var(--pcb-green-light)] px-3 py-1.5 font-mono text-[10px] text-[var(--terminal-green)] shadow-[4px_4px_0_var(--pcb-green-dark)] hover:text-white hover:border-[var(--terminal-green)] transition-colors cursor-default flex items-center gap-2">
-                  <span className="opacity-70">{item.emoji}</span>
-                  {item.tag.toUpperCase().replace(/ /g, '_')}
                 </div>
               ))}
             </div>
