@@ -109,10 +109,16 @@ const Hero = () => {
           <TraceOverlay />
           {/* Live Electricity Traces */}
           <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ zIndex: -1 }}>
-            <path d="M 10 10 L 100 10 L 120 30" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
-            <path d="M 10 10 L 100 10 L 120 30" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" />
-            <path d="M 580 400 L 500 400 L 480 380" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
-            <path d="M 580 400 L 500 400 L 480 380" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" />
+            <defs>
+              <filter id="hero-glow-internal">
+                <feGaussianBlur stdDeviation="1.2" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+            <path d="M 10 10 L 100 10 L 120 30" fill="none" stroke="rgba(0, 255, 65, 0.25)" strokeWidth="1" />
+            <path d="M 10 10 L 100 10 L 120 30" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" filter="url(#hero-glow-internal)" />
+            <path d="M 580 400 L 500 400 L 480 380" fill="none" stroke="rgba(0, 255, 65, 0.25)" strokeWidth="1" />
+            <path d="M 580 400 L 500 400 L 480 380" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" filter="url(#hero-glow-internal)" />
           </svg>
 
           <div className="screw-head top-3 left-3 screw-blink" />
