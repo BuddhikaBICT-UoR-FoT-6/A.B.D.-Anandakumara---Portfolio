@@ -108,6 +108,28 @@ const TypewriterRole = () => {
 const Hero = () => {
   const { personal } = usePortfolioData();
   const name = personal.fullName;
+
+  const handleDownloadCV = (e) => {
+    e.preventDefault();
+    const resumeData = localStorage.getItem('resumeData');
+    const resumeName = localStorage.getItem('resumeName') || 'Resume.pdf';
+
+    if (resumeData) {
+      try {
+        const link = document.createElement('a');
+        link.href = resumeData;
+        link.download = resumeName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (err) {
+        console.error('Download failed:', err);
+      }
+    } else {
+      alert('No resume uploaded yet. Please upload one via the Admin Panel.');
+    }
+  };
+
   
   return (
     <section style={{
@@ -167,7 +189,11 @@ const Hero = () => {
             />
           </motion.a>
           
-          <a href="/cv.pdf" className="flex items-center gap-2 text-xs font-mono text-white/50 hover:text-white transition-colors">
+          <a 
+            href="#" 
+            onClick={handleDownloadCV}
+            className="flex items-center gap-2 text-xs font-mono text-white/50 hover:text-white transition-colors"
+          >
             ↓ DOWNLOAD_CV_MANIFEST
           </a>
         </div>
