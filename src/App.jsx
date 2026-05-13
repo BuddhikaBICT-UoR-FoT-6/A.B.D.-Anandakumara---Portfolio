@@ -177,42 +177,36 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen text-[var(--text-primary)] font-mono selection:bg-[#004499] selection:text-white" style={{ backgroundColor: '#000d1a' }}>
-      <AdminLogin />
-      {booting && <BootSequence onComplete={handleBootComplete} />}
-
-      {!booting && (
-        <div style={{ position: 'relative', zIndex: 10, pointerEvents: 'auto' }}>
-          <NavBar />
-          <main className="ui-layer" style={{ pointerEvents: 'auto' }}>
+    <div className="app-container">
+      {booting ? (
+        <BootSequence onComplete={handleBootComplete} />
+      ) : (
+        <>
+          {webglOk && showCanvas && (
+            <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
+              <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                <PCBScene />
+              </Canvas>
+            </div>
+          )}
+          {showCanvas && <SwarmCanvas />}
+          
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <NavBar />
             <Hero />
             <About />
             <Skills />
             <Projects />
             <Contact />
-          </main>
-        </div>
+          </div>
+        </>
       )}
 
-      {/* Single canvas — PCB + particles together */}
-      {showCanvas && webglOk && (
-        <Canvas
-          orthographic
-          camera={{ position: [0, 0, 10], zoom: 1 }}
-          style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 1, pointerEvents: 'none' }}
-          gl={{ alpha: false, antialias: false, powerPreference: 'high-performance' }}
-          onCreated={({ gl }) => { gl.setClearColor('#000d1a', 1); }}
-        >
-          <PCBScene />
-        </Canvas>
-      )}
-
-      {/* Swarm canvas — plain Canvas2D, always on top */}
-      {!booting && <SwarmCanvas />}
-      
       {(!webglOk || !showCanvas) && !booting && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: '#000d1a' }} />
       )}
+
+      <AdminLogin />
     </div>
   );
 }
