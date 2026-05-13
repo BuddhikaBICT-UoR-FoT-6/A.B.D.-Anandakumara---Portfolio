@@ -384,6 +384,15 @@ canvas {
   z-index: 20;
 }
 
+.screw-blink {
+  animation: screw-glow 2s ease-in-out infinite;
+}
+
+@keyframes screw-glow {
+  0%, 100% { box-shadow: inset 0 0 5px #000, 0 0 5px rgba(0, 255, 65, 0.2); }
+  50% { box-shadow: inset 0 0 5px #000, 0 0 15px rgba(0, 255, 65, 0.8); background: #3a4a3a; }
+}
+
 .screw-head::after {
   content: '';
   width: 8px;
@@ -400,6 +409,16 @@ canvas {
   background: #111;
   position: absolute;
   transform: rotate(-45deg);
+}
+
+.live-trace {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: trace-flow 3s linear infinite;
+}
+
+@keyframes trace-flow {
+  to { stroke-dashoffset: -100; }
 }
 
 .shadow-glow {

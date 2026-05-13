@@ -145,9 +145,40 @@ const Hero = () => {
     }} className="flex-col md:flex-row">
       <div style={{ flex: '1', maxWidth: '640px', pointerEvents: 'auto' }} className="relative">
         <div className="hero-plate relative">
+          {/* Live Electricity Traces */}
+          <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ zIndex: -1 }}>
+            <path 
+              d="M 10 10 L 100 10 L 120 30" 
+              fill="none" 
+              stroke="rgba(0, 255, 65, 0.2)" 
+              strokeWidth="1" 
+            />
+            <path 
+              d="M 10 10 L 100 10 L 120 30" 
+              className="live-trace" 
+              fill="none" 
+              stroke="white" 
+              strokeWidth="1.5" 
+            />
+            
+            <path 
+              d="M 580 400 L 500 400 L 480 380" 
+              fill="none" 
+              stroke="rgba(0, 255, 65, 0.2)" 
+              strokeWidth="1" 
+            />
+            <path 
+              d="M 580 400 L 500 400 L 480 380" 
+              className="live-trace" 
+              fill="none" 
+              stroke="white" 
+              strokeWidth="1.5" 
+            />
+          </svg>
+
           {/* Hardware Fasteners */}
-          <div className="screw-head top-3 left-3" />
-          <div className="screw-head bottom-3 right-3" />
+          <div className="screw-head top-3 left-3 screw-blink" />
+          <div className="screw-head bottom-3 right-3 screw-blink" />
 
           <div className="space-y-6">
             <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2 emissive-pulse">
