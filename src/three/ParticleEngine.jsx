@@ -1,7 +1,8 @@
 import React, { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { audio } from '../utils/AudioManager';
+import { useSimStore } from '../store/useSimStore';
+import { audioManager } from '../utils/AudioManager';
 
 const PARTICLE_COUNT = 80;
 const SWARM_RADIUS = 30.0;
@@ -68,7 +69,7 @@ const ParticleEngine = () => {
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       if (hovering && dist < SWARM_RADIUS) {
-        if (p.state === 'idle') audio.playHover();
+        if (p.state === 'idle') audioManager.playHover();
         p.state = 'swarming';
         
         // Spring toward orbit radius (not cursor itself)
