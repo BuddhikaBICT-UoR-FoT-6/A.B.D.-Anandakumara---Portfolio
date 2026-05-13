@@ -38,11 +38,6 @@ const About = () => {
             </div>
           </div>
           
-          <div className="p-4 border border-[var(--pcb-green-light)] bg-black/20 text-center">
-            <div className="text-[10px] font-mono text-[var(--pcb-green-light)] mb-1">UNIVERSITY_BADGE</div>
-            <div className="text-xs font-mono">B.Sc. BICT (Hons)</div>
-            <div className="text-[10px] font-mono text-[var(--pcb-green-light)] mt-1">UoR FoT</div>
-          </div>
         </div>
 
         <div className="pcb-card">
