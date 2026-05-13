@@ -74,22 +74,28 @@ function SwarmCanvas() {
     window.addEventListener('mousedown', handleMouseDown);
 
     let rotation = 0;
+    let dmx = mx; // Delayed mouse X (for lag/weight)
+    let dmy = my; // Delayed mouse Y
 
     const loop = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       rotation += 0.01;
+      
+      // LAG EFFECT: delayed center follows mouse with inertia
+      dmx += (mx - dmx) * 0.08;
+      dmy += (my - dmy) * 0.08;
 
       pts.forEach((p, i) => {
         p.angle += p.speed;
-        let tx = mx;
-        let ty = my;
+        let tx = dmx;
+        let ty = dmy;
 
         const orbitWidth = 45;
         const orbitHeight = 15;
 
         if (p.type === 'nucleus') {
-          tx = mx + Math.cos(p.angle) * (5 + Math.sin(rotation * 2 + i) * 3);
-          ty = my + Math.sin(p.angle) * (5 + Math.cos(rotation * 2 + i) * 3);
+          tx = dmx + Math.cos(p.angle) * (5 + Math.sin(rotation * 2 + i) * 3);
+          ty = dmy + Math.sin(p.angle) * (5 + Math.cos(rotation * 2 + i) * 3);
         } else {
           let orbitAngle = 0;
           if (p.type === 'orbit1') orbitAngle = 0;
@@ -101,8 +107,8 @@ function SwarmCanvas() {
           const rx = ex * Math.cos(orbitAngle) - ey * Math.sin(orbitAngle);
           const ry = ex * Math.sin(orbitAngle) + ey * Math.cos(orbitAngle);
 
-          tx = mx + rx;
-          ty = my + ry;
+          tx = dmx + rx;
+          ty = dmy + ry;
         }
 
         // PHYSICS LAYER

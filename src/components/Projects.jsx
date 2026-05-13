@@ -2,12 +2,12 @@ import { motion } from 'framer-motion';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const ProjectCard = ({ project }) => {
-  const isComplete = project.status !== 'active'; // Admin data doesn't have status, default to complete unless specified
+  const isComplete = project.status !== 'active';
 
   return (
     <motion.div 
       whileHover={{ y: -8 }}
-      className="pcb-card group cursor-pointer border-[var(--pcb-green-light)]"
+      className="pcb-card group cursor-pointer border-[var(--pcb-green-light)] flex flex-col h-full"
     >
       {/* Corner Mounting Holes */}
       <div className="absolute top-2 left-2 w-2 h-2 rounded-full border border-[var(--pcb-green-light)]" />
@@ -28,11 +28,11 @@ const ProjectCard = ({ project }) => {
         </div>
       </div>
 
-      <p className="text-xs opacity-70 mb-6 h-10 line-clamp-2">
+      <p className="text-xs opacity-70 mb-6">
         {project.description}
       </p>
 
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="flex flex-wrap gap-2 mb-8 flex-grow content-start">
         {project.tech.map(t => (
           <span key={t} className="text-[10px] font-mono border border-[var(--pcb-green-light)] px-2 py-0.5 opacity-60">
             {t}
@@ -40,7 +40,7 @@ const ProjectCard = ({ project }) => {
         ))}
       </div>
 
-      <div className="flex gap-4 border-t border-[var(--pcb-green-light)] pt-4">
+      <div className="flex gap-4 border-t border-[var(--pcb-green-light)] pt-4 mt-auto">
         {project.codeUrl && (
           <a href={project.codeUrl} target="_blank" rel="noreferrer" className="text-[10px] font-mono text-[var(--terminal-green)] hover:underline">
             → GITHUB

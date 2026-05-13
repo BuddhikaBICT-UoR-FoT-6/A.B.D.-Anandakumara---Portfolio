@@ -6,32 +6,15 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    let keys = { ctrl: false, shift: false, a: false };
-    
     const onDown = (e) => {
-      if (e.ctrlKey) keys.ctrl = true;
-      if (e.shiftKey) keys.shift = true;
-      if (e.key.toLowerCase() === 'a') keys.a = true;
-
-      if (keys.ctrl && keys.shift && keys.a) {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
         setIsOpen(true);
-        keys = { ctrl: false, shift: false, a: false };
       }
     };
 
-    const onUp = (e) => {
-      if (!e.ctrlKey) keys.ctrl = false;
-      if (!e.shiftKey) keys.shift = false;
-      if (e.key.toLowerCase() === 'a') keys.a = false;
-    };
-
     window.addEventListener('keydown', onDown);
-    window.addEventListener('keyup', onUp);
-    return () => {
-      window.removeEventListener('keydown', onDown);
-      window.removeEventListener('keyup', onUp);
-    };
+    return () => window.removeEventListener('keydown', onDown);
   }, []);
 
   const handleLogin = () => {
