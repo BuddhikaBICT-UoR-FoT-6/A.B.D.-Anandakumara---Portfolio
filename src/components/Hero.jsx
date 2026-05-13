@@ -144,22 +144,26 @@ const Hero = () => {
       pointerEvents: 'none'
     }} className="flex-col md:flex-row">
       <div style={{ flex: '1', maxWidth: '520px', pointerEvents: 'auto' }} className="space-y-6">
-        <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2">
+        <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2 shadow-glow">
           <div className="w-2 h-2 rounded-full bg-[#00FF41] animate-ping" />
           [ ABD_CORE // SESSION_ACTIVE // AVAILABLE_FOR_OPPORTUNITIES ]
         </div>
 
-        <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-8">
-          {name.split("").map((char, i) => (
-            <motion.span
-              key={i}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03, duration: 0.5 }}
-              className="inline-block hover:text-[#00FF41] transition-colors cursor-default"
-            >
-              {char === " " ? "\u00A0" : char}
-            </motion.span>
+        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8 shadow-glow" style={{ textShadow: '0 0 10px rgba(0, 255, 65, 0.3), 0 0 20px black' }}>
+          {name.split(" ").map((word, wi) => (
+            <span key={wi} className="inline-block whitespace-nowrap mr-4">
+              {word.split("").map((char, i) => (
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: (wi * 10 + i) * 0.03, duration: 0.5 }}
+                  className="inline-block hover:text-[#00FF41] transition-colors cursor-default"
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </span>
           ))}
         </h1>
 
@@ -168,10 +172,11 @@ const Hero = () => {
         <p style={{
           fontFamily: 'monospace',
           fontSize: '14px',
-          color: '#88aa88',
+          color: '#E0FFEA',
           lineHeight: '1.8',
           maxWidth: '520px',
-          marginTop: '16px'
+          marginTop: '16px',
+          textShadow: '0 0 10px black, 0 0 4px black'
         }}>
           {personal.heroSubtitle}
         </p>

@@ -182,9 +182,9 @@ function App() {
       {booting && <BootSequence onComplete={handleBootComplete} />}
 
       {!booting && (
-        <div style={{ position: 'relative', zIndex: 10, pointerEvents: 'none' }}>
+        <div style={{ position: 'relative', zIndex: 10, pointerEvents: 'auto' }}>
           <NavBar />
-          <main className="ui-layer" style={{ pointerEvents: 'none' }}>
+          <main className="ui-layer" style={{ pointerEvents: 'auto' }}>
             <Hero />
             <About />
             <Skills />

@@ -236,9 +236,89 @@ canvas {
   background: var(--pcb-green);
 }
 
-/* Cert Card Flip */
-.perspective-1000 { perspective: 1000px; }
-.preserve-3d { transform-style: preserve-3d; transition: transform 0.6s; }
-.group:hover .preserve-3d { transform: rotateY(180deg); }
-.backface-hidden { backface-visibility: hidden; }
-.rotate-y-180 { transform: rotateY(180deg); }
+/* Admin Modal */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.admin-modal-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.admin-modal {
+  background: #000d1a;
+  border: 1px solid var(--pcb-green);
+  padding: 2rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 0 50px rgba(0, 255, 65, 0.2);
+  font-family: var(--font-mono);
+}
+
+.admin-modal-title {
+  font-size: 1.5rem;
+  color: var(--pcb-green);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.admin-modal-sub {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  margin-bottom: 1.5rem;
+}
+
+.admin-modal-field {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.admin-modal-input {
+  width: 100%;
+  background: rgba(0, 255, 65, 0.05);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  padding: 0.75rem 1rem;
+  color: white;
+  border-radius: 4px;
+  outline: none;
+}
+
+.admin-modal-input:focus {
+  border-color: var(--pcb-green);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+}
+
+.admin-modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.admin-modal-eye {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  opacity: 0.5;
+}
+
+.admin-modal-eye:hover { opacity: 1; }
+
+.shadow-glow {
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 2px black;
+}
