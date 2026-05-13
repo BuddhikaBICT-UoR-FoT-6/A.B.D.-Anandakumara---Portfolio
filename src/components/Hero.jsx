@@ -143,13 +143,13 @@ const Hero = () => {
       zIndex: 10,
       pointerEvents: 'none'
     }} className="flex-col md:flex-row">
-      <div style={{ flex: '1', maxWidth: '520px', pointerEvents: 'auto' }} className="space-y-6">
-        <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2 shadow-glow">
+      <div style={{ flex: '1', maxWidth: '540px', pointerEvents: 'auto' }} className="space-y-6">
+        <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2 emissive-pulse">
           <div className="w-2 h-2 rounded-full bg-[#00FF41] animate-ping" />
           [ ABD_CORE // SESSION_ACTIVE // AVAILABLE_FOR_OPPORTUNITIES ]
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8 shadow-glow" style={{ textShadow: '0 0 10px rgba(0, 255, 65, 0.3), 0 0 20px black' }}>
+        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8 emissive-pulse" style={{ textShadow: '0 0 10px rgba(0, 255, 65, 0.3), 0 0 20px black' }}>
           {name.split(" ").map((word, wi) => (
             <span key={wi} className="inline-block whitespace-nowrap mr-4">
               {word.split("").map((char, i) => (
@@ -169,7 +169,7 @@ const Hero = () => {
 
         <TypewriterRole />
 
-        <p style={{
+        <p className="emissive-pulse" style={{
           fontFamily: 'monospace',
           fontSize: '14px',
           color: '#E0FFEA',
@@ -184,23 +184,22 @@ const Hero = () => {
         <div className="flex gap-6 pt-6">
           <motion.a 
             href="#projects" 
-            className="btn-terminal border border-[#00FF41] px-6 py-3 relative overflow-hidden group"
+            className="btn-solid px-6 py-3 font-mono text-xs uppercase tracking-widest transition-all duration-300 relative overflow-hidden group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span className="relative z-10 text-[#00FF41] group-hover:text-black transition-colors">→ EXPLORE_SYSTEMS</span>
-            <motion.div 
-              className="absolute inset-0 bg-[#00FF41] translate-y-full group-hover:translate-y-0 transition-transform duration-300" 
-            />
+            <span className="relative z-10 group-hover:text-black transition-colors">→ EXPLORE_SYSTEMS</span>
           </motion.a>
           
-          <a 
+          <motion.a 
             href="#" 
             onClick={handleDownloadCV}
-            className="flex items-center gap-2 text-xs font-mono text-white/50 hover:text-white transition-colors"
+            className="btn-solid btn-secondary-solid px-6 py-3 font-mono text-xs uppercase tracking-widest transition-all duration-300 relative overflow-hidden group"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            ↓ DOWNLOAD_CV_MANIFEST
-          </a>
+            <span className="relative z-10 group-hover:text-black transition-colors">↓ DOWNLOAD_CV_MANIFEST</span>
+          </motion.a>
         </div>
       </div>
 
