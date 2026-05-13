@@ -51,18 +51,18 @@ const TypewriterRole = () => {
 const TraceOverlay = () => (
   <svg className="trace-pattern-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
     {/* Static Traces */}
-    <path d="M 0 10 L 20 10 L 30 20 L 70 20 L 80 10 L 100 10" fill="none" stroke="#00A3FF" strokeWidth="2" opacity="0.6" />
-    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" fill="none" stroke="#00A3FF" strokeWidth="2" opacity="0.6" />
-    <path d="M 90 0 L 90 40 L 80 50 L 80 70 L 90 80 L 90 100" fill="none" stroke="#00A3FF" strokeWidth="2" opacity="0.6" />
+    <path d="M 0 10 L 20 10 L 30 20 L 70 20 L 80 10 L 100 10" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
+    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
+    <path d="M 90 0 L 90 40 L 80 50 L 80 70 L 90 80 L 90 100" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
     
     {/* Live Pulses */}
-    <path d="M 0 10 L 20 10 L 30 20 L 70 20 L 80 10 L 100 10" className="live-trace" fill="none" stroke="#ffffff" strokeWidth="2.5" />
-    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" className="live-trace" fill="none" stroke="#ffffff" strokeWidth="2.5" style={{ animationDelay: '1.5s' }} />
+    <path d="M 0 10 L 20 10 L 30 20 L 70 20 L 80 10 L 100 10" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" />
+    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" style={{ animationDelay: '1.5s' }} />
     
-    <circle cx="20" cy="10" r="3" fill="#00FF41" />
-    <circle cx="80" cy="10" r="3" fill="#00FF41" />
-    <circle cx="20" cy="80" r="3" fill="#00FF41" />
-    <circle cx="80" cy="70" r="3" fill="#00FF41" />
+    <circle cx="20" cy="10" r="1.5" fill="rgba(0, 255, 65, 0.4)" />
+    <circle cx="80" cy="10" r="1.5" fill="rgba(0, 255, 65, 0.4)" />
+    <circle cx="20" cy="80" r="1.5" fill="rgba(0, 255, 65, 0.4)" />
+    <circle cx="80" cy="70" r="1.5" fill="rgba(0, 255, 65, 0.4)" />
   </svg>
 );
 
@@ -109,10 +109,10 @@ const Hero = () => {
           <TraceOverlay />
           {/* Live Electricity Traces */}
           <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ zIndex: -1 }}>
-            <path d="M 10 10 L 100 10 L 120 30" fill="none" stroke="rgba(0, 163, 255, 0.4)" strokeWidth="1.8" />
-            <path d="M 10 10 L 100 10 L 120 30" className="live-trace" fill="none" stroke="white" strokeWidth="2.2" />
-            <path d="M 580 400 L 500 400 L 480 380" fill="none" stroke="rgba(0, 163, 255, 0.4)" strokeWidth="1.8" />
-            <path d="M 580 400 L 500 400 L 480 380" className="live-trace" fill="none" stroke="white" strokeWidth="2.2" />
+            <path d="M 10 10 L 100 10 L 120 30" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
+            <path d="M 10 10 L 100 10 L 120 30" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" />
+            <path d="M 580 400 L 500 400 L 480 380" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
+            <path d="M 580 400 L 500 400 L 480 380" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" />
           </svg>
 
           <div className="screw-head top-3 left-3 screw-blink" />
