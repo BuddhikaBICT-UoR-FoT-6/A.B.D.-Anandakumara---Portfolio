@@ -33,6 +33,11 @@ export default function BootSequence({ onComplete }) {
   }, [displayedLogs, progress]);
 
   useEffect(() => {
+    // Fail-safe timer to ensure boot screen clears in 7 seconds
+    const failsafe = setTimeout(() => {
+      onComplete();
+    }, 7000);
+
     if (currentLine < BOOT_LOGS.length) {
       const log = BOOT_LOGS[currentLine];
       
@@ -49,16 +54,22 @@ export default function BootSequence({ onComplete }) {
               setCurrentLine(prev => prev + 1);
             }
             setProgress(p);
-          }, 100);
+          }, 80); // Slightly faster to fit 7s
         } else {
           setCurrentLine(prev => prev + 1);
         }
-      }, 150 + Math.random() * 100);
+      }, 100 + Math.random() * 50);
 
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(failsafe);
+      };
     } else {
-      // Sequence complete
-      setTimeout(() => onComplete(), 1000);
+      const finalTimer = setTimeout(() => onComplete(), 500);
+      return () => {
+        clearTimeout(finalTimer);
+        clearTimeout(failsafe);
+      };
     }
   }, [currentLine, onComplete]);
 

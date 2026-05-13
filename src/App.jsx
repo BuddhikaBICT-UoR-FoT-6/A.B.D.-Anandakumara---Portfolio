@@ -133,19 +133,6 @@ function SwarmCanvas() {
         ctx.shadowBlur = 8;
         ctx.shadowColor = p.color;
         ctx.fill();
-        
-        // Connecting lines - intensity based on speed (shattering)
-        const currentSpeed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        if (i % 8 === 0 && p.type !== 'nucleus') {
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(mx, my);
-          ctx.strokeStyle = p.color;
-          ctx.lineWidth = 0.2 + (currentSpeed * 0.1);
-          ctx.globalAlpha = 0.1 + (currentSpeed * 0.05);
-          ctx.stroke();
-          ctx.globalAlpha = 1.0;
-        }
       });
 
       requestAnimationFrame(loop);
