@@ -1,82 +1,49 @@
-import { Suspense, useRef, useMemo } from 'react';
+import { Suspense, useRef, useMemo, useEffect } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
-import { COMPONENT_REGISTRY } from './Registry';
 import { PCBShader } from './shaders/PCBShader';
 import { useSimStore } from '../store/useSimStore';
 import { audioManager } from '../utils/AudioManager';
 
-// Systems
 import LEDSystem from './LEDSystem';
-import HeatSystem from './HeatSystem';
 import PulseSystem from './PulseSystem';
-import GPUParticleSystem from './GPUParticleSystem';
-import Effects from './Effects';
-
-const DEBUG_UV_OVERLAY = false;
 
 function PCBPlane() {
   const texture = useTexture('/background.jpg');
   const meshRef = useRef();
-  const { viewport } = useThree();
+  const { viewport, size } = useThree();
   const updateCursor = useSimStore(state => state.updateCursor);
 
-  // Calculate scaling for "cover" behavior
-  const { aspect, offset } = useMemo(() => {
-    if (!texture.image) return { aspect: 1, offset: [0,0] };
-    const imageAspect = texture.image.width / texture.image.height;
-    const viewportAspect = viewport.width / viewport.height;
-    
-    let scaleX = 1;
-    let scaleY = 1;
-    if (imageAspect > viewportAspect) {
-      scaleX = viewportAspect / imageAspect;
-    } else {
-      scaleY = imageAspect / viewportAspect;
-    }
-    return { 
-      aspect: imageAspect,
-      scale: [scaleX, scaleY]
-    };
-  }, [texture, viewport]);
-
-  const shaderMaterial = useMemo(() => {
+  const material = useMemo(() => {
+    if (!texture?.image) return null;
     return new THREE.ShaderMaterial({
       ...PCBShader,
       uniforms: {
         ...PCBShader.uniforms,
-        uTexture: { value: texture },
+        uTexture:    { value: texture },
         uResolution: { value: new THREE.Vector2(viewport.width, viewport.height) },
-        uImageRes: { value: new THREE.Vector2(
-          texture.image?.width || 2048, 
-          texture.image?.height || 1024
-        )}
-      }
+        uImageRes:   { value: new THREE.Vector2(texture.image.width, texture.image.height) },
+      },
     });
-  }, [texture, viewport]);
+  }, [texture, viewport.width, viewport.height]);
 
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.material.uniforms.uTime.value = state.clock.getElapsedTime();
-    }
+  useFrame(({ clock }) => {
+    if (meshRef.current?.material?.uniforms?.uTime)
+      meshRef.current.material.uniforms.uTime.value = clock.getElapsedTime();
   });
 
-  const handlePointerMove = (e) => {
-    const uv = e.uv;
-    if (uv) {
-      updateCursor({ uv: [uv.x, uv.y] });
-      if (meshRef.current) {
-        meshRef.current.material.uniforms.uMouse.value.set(uv.x, uv.y);
-      }
-    }
-  };
+  if (!material) return null;
 
   return (
-    <mesh 
-      ref={meshRef} 
-      material={shaderMaterial}
-      onPointerMove={handlePointerMove}
+    <mesh
+      ref={meshRef}
+      material={material}
+      onPointerMove={(e) => {
+        if (!e.uv || !e.point) return;
+        updateCursor({ uv: [e.uv.x, e.uv.y], world: { x: e.point.x, y: e.point.y } });
+        if (meshRef.current) meshRef.current.material.uniforms.uMouse.value.set(e.uv.x, e.uv.y);
+      }}
       onClick={(e) => {
         audioManager.init();
         audioManager.playClick();
@@ -88,21 +55,34 @@ function PCBPlane() {
   );
 }
 
-export default function PCBScene() {
+function SceneContent() {
+  const { viewport, camera } = useThree();
+
+  // Set up orthographic camera to match viewport exactly
+  useEffect(() => {
+    if (camera.isOrthographicCamera) {
+      camera.left   = viewport.width  / -2;
+      camera.right  = viewport.width  /  2;
+      camera.top    = viewport.height /  2;
+      camera.bottom = viewport.height / -2;
+      camera.near   = 0.1;
+      camera.far    = 1000;
+      camera.position.set(0, 0, 10);
+      camera.updateProjectionMatrix();
+    }
+  }, [camera, viewport.width, viewport.height]);
+
   return (
-    <group>
+    <>
       <Suspense fallback={null}>
         <PCBPlane />
-        {/* Render systems in a specific order with Z offsets */}
-        <group position={[0, 0, 0.1]}>
-           <LEDSystem />
-           <HeatSystem />
-           <PulseSystem />
-           <GPUParticleSystem />
-        </group>
+        <LEDSystem />
+        <PulseSystem />
       </Suspense>
-
-      <Effects />
-    </group>
+    </>
   );
+}
+
+export default function PCBScene() {
+  return <SceneContent />;
 }

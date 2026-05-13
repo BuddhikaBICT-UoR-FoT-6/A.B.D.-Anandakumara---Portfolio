@@ -28,8 +28,8 @@ const SkillBar = ({ level }) => (
 
 const Skills = () => {
   return (
-    <section id="skills" className="py-32 px-8 max-w-6xl mx-auto relative z-10">
-      <div className="flex items-center gap-4 mb-12">
+    <section id="skills" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
+      <div className="section-header flex items-center gap-4 mb-12">
         <h2 className="text-2xl font-mono text-[var(--terminal-green)]">
           // SECTION_03 :: COMPONENT_DATASHEET
         </h2>

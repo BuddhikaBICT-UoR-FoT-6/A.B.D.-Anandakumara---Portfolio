@@ -5,7 +5,7 @@ export const useSimStore = create((set, get) => ({
   phase: 'BOOT',
   
   // Cursor Tracking
-  cursor: { x: 0, y: 0, worldX: 0, worldY: 0, uv: [0.5, 0.5] },
+  cursor: { x: 0, y: 0, uv: [0.5, 0.5], world: { x: 0, y: 0, z: 0 } },
   
   // Interactive Elements
   ledStates: {}, // led_id -> { intensity, color }
@@ -18,6 +18,7 @@ export const useSimStore = create((set, get) => ({
   
   // Particle Simulation Mode
   particleMode: 'AMBIENT', // 'AMBIENT' | 'HOVER' | 'EXPLODING' | 'SETTLING'
+  lastShockTime: 0,
 
   // Actions
   setPhase: (phase) => set({ phase }),
@@ -28,6 +29,7 @@ export const useSimStore = create((set, get) => ({
     set({ 
       phase: 'CLICK',
       particleMode: 'EXPLODING',
+      lastShockTime: performance.now() / 1000,
       activatedNodes: new Set(),
       pulseQueue: [{ uv: originUV, depth: 0 }]
     });

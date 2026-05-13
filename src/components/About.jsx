@@ -10,8 +10,8 @@ const DossierLine = ({ label, value }) => (
 
 const About = () => {
   return (
-    <section id="about" className="py-32 px-8 max-w-6xl mx-auto relative z-10">
-      <div className="flex items-center gap-4 mb-12">
+    <section id="about" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
+      <div className="section-header flex items-center gap-4 mb-12">
         <h2 className="text-2xl font-mono text-[var(--terminal-green)]">
           // SECTION_01 :: HARDWARE_DOSSIER
         </h2>

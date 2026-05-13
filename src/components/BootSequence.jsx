@@ -23,6 +23,14 @@ export default function BootSequence({ onComplete }) {
   const [currentLine, setCurrentLine] = useState(0);
   const [displayedLogs, setDisplayedLogs] = useState([]);
   const [progress, setProgress] = useState(0);
+  const scrollRef = React.useRef(null);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [displayedLogs, progress]);
 
   useEffect(() => {
     if (currentLine < BOOT_LOGS.length) {
@@ -65,7 +73,7 @@ export default function BootSequence({ onComplete }) {
             <span className="text-[10px] text-[#004400] ml-2">SYSTEM CONSOLE - v2.1.4</span>
           </div>
 
-          <div className="space-y-1.5 h-[400px] overflow-y-auto">
+          <div ref={scrollRef} className="space-y-1.5 h-[400px] overflow-y-auto scroll-smooth">
             {displayedLogs.map((log, i) => (
               <div key={i} style={{ color: log.color, opacity: i < displayedLogs.length - 1 ? 0.6 : 1 }}>
                 <span className="mr-2">{log.text}</span>

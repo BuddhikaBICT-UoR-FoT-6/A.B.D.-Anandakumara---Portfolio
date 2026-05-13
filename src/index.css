@@ -1,7 +1,7 @@
 @tailwind base;
 
 * {
-  background-color: initial;
+  background-color: transparent;
   color: inherit;
 }
 
@@ -50,7 +50,7 @@ body {
   z-index: 1 !important;
   width: 100% !important;
   min-height: 100vh !important;
-  background-color: #000d1a !important;
+  background-color: transparent !important;
 }
 
 /* Canvas must be fixed but NEVER intercept scroll */
@@ -61,13 +61,18 @@ canvas#pcb-canvas {
   width: 100vw !important; 
   height: 100vh !important;
   z-index: 0 !important;
-  pointer-events: none !important;
+  pointer-events: auto !important;
 }
 
-/* Force canvas element background */
+/* Canvas background handling */
 canvas {
-  background-color: #000d1a !important;
   display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#pcb-canvas canvas {
+  background-color: transparent !important;
 }
 
 /* Navigation Glass Effect */
@@ -75,6 +80,49 @@ canvas {
   background: rgba(0, 13, 26, 0.85);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+}
+
+/* Hero Section */
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 80px;
+}
+
+/* Content Sections - Semi-transparent panels */
+.content-section {
+  position: relative;
+  z-index: 10;
+  background: rgba(0, 10, 20, 0.85);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(0, 255, 65, 0.15);
+  border-radius: 16px;
+  padding: 80px 60px;
+  margin: 60px auto;
+  max-width: 1200px;
+  width: calc(100% - 40px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.9);
+  pointer-events: auto;
+}
+
+/* Section Headers */
+.section-header {
+  font-family: monospace;
+  font-size: 13px;
+  color: #00ff44;
+  letter-spacing: 0.15em;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(0, 255, 68, 0.2);
 }
 
 /* LED Indicator */
@@ -100,7 +148,7 @@ canvas {
 .ui-layer {
   position: relative;
   z-index: 10;
-  /* UI layer allows pointer events natively */
+  pointer-events: auto;
 }
 
 @layer components {
@@ -168,6 +216,7 @@ canvas {
   background: rgba(0, 8, 16, 0.9);
   backdrop-filter: blur(15px);
   border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+  pointer-events: auto;
 }
 
 ::-webkit-scrollbar {

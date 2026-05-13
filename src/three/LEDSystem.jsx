@@ -2,88 +2,71 @@ import { useRef, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { COMPONENT_REGISTRY } from './Registry';
-import { useSimStore } from '../store/useSimStore';
 
-function LED({ id, uv, color, type }) {
-  const meshRef = useRef();
-  const lightRef = useRef();
+// image is 2:1 (2048x1024) — map image UV to screen UV under "cover" fit
+function imageUvToWorld(uv, vw, vh) {
+  const rs = vw / vh;
+  const ri = 2.0;
+  let ux = uv[0], uy = uv[1];
+  if (rs > ri) uy = (uv[1] - 0.5) * (rs / ri) + 0.5;
+  else         ux = (uv[0] - 0.5) * (ri / rs) + 0.5;
+  return [(ux - 0.5) * vw, (uy - 0.5) * vh, 0.4];
+}
+
+function makeGlowTexture(color) {
+  const c = document.createElement('canvas');
+  c.width = 64; c.height = 64;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0,    '#ffffff');
+  g.addColorStop(0.15, color);
+  g.addColorStop(0.55, color);
+  g.addColorStop(1,    'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(c);
+}
+
+function LED({ uv, color, type }) {
+  const ref = useRef();
   const { viewport } = useThree();
-  const phaseOffset = useMemo(() => Math.random() * Math.PI * 2, []);
+  const phase = useMemo(() => Math.random() * Math.PI * 2, []);
+  const tex   = useMemo(() => makeGlowTexture(color), [color]);
+  const pos   = useMemo(() => imageUvToWorld(uv, viewport.width, viewport.height),
+    [uv, viewport.width, viewport.height]);
 
-  // Texture for the corona glow
-  const coronaTexture = useMemo(() => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 64; canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    grad.addColorStop(0.2, color);
-    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 64, 64);
-    return new THREE.CanvasTexture(canvas);
-  }, [color]);
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const t = clock.getElapsedTime();
+    let on;
+    if (type === 'status')   on = Math.sin(t * 3.5 + phase) > 0.3;
+    else if (type === 'activity') on = Math.floor((t + phase) * 5) % 3 !== 0;
+    else                     on = Math.floor((t + phase) * 4.5) % 2 === 0;
 
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    let intensity = 0.8;
-
-    if (type === 'status') {
-      // Breathing effect
-      intensity = 0.6 + 0.4 * Math.sin(t * 1.2 + phaseOffset);
-    } else if (type === 'activity') {
-      // Activity pulse (irregular)
-      const lastPulse = Math.floor(t / 1.5);
-      const subT = t % 1.5;
-      intensity = subT < 0.12 ? 2.0 : 0.6;
-    } else if (type === 'error') {
-      // Error blinking
-      const isBlink = Math.floor(t * 8) % 2 === 0;
-      intensity = isBlink ? 1.5 : 0.2;
-    }
-
-    if (lightRef.current) lightRef.current.intensity = intensity;
-    if (meshRef.current) meshRef.current.scale.setScalar(intensity * 0.15);
+    const size = viewport.width * 0.03 * (on ? 1.0 : 0.15);
+    ref.current.scale.setScalar(size);
+    ref.current.material.opacity = on ? 0.95 : 0.08;
   });
 
-  const position = [
-    (uv[0] - 0.5) * viewport.width,
-    (uv[1] - 0.5) * viewport.height,
-    0.2
-  ];
-
   return (
-    <group position={position}>
-      <pointLight 
-        ref={lightRef} 
-        color={color} 
-        distance={2.5} 
-        decay={2} 
+    <sprite ref={ref} position={pos}>
+      <spriteMaterial
+        map={tex}
+        transparent
+        opacity={0.9}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
       />
-      <sprite ref={meshRef}>
-        <spriteMaterial 
-          map={coronaTexture} 
-          transparent 
-          blending={THREE.AdditiveBlending} 
-          depthWrite={false}
-        />
-      </sprite>
-    </group>
+    </sprite>
   );
 }
 
 export default function LEDSystem() {
-  const leds = useMemo(() => {
-    return Object.entries(COMPONENT_REGISTRY.LEDS).map(([id, data]) => ({
-      id, ...data
-    }));
-  }, []);
-
+  const leds = useMemo(() =>
+    Object.entries(COMPONENT_REGISTRY.LEDS).map(([id, d]) => ({ id, ...d })), []);
   return (
     <group>
-      {leds.map(led => (
-        <LED key={led.id} {...led} />
-      ))}
+      {leds.map(l => <LED key={l.id} {...l} />)}
     </group>
   );
 }

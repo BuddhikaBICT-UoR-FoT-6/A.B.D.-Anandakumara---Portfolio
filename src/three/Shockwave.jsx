@@ -1,12 +1,12 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { audio } from '../utils/AudioManager';
+import { useSimStore } from '../store/useSimStore';
 
 const MAX_RINGS = 5;
 
 const Shockwave = () => {
-  const { camera } = useThree();
+  const { viewport } = useThree();
   const ringsRef = useRef([]);
   const flashRef = useRef();
   const sparksRef = useRef([]);
@@ -15,28 +15,24 @@ const Shockwave = () => {
   const sparkData = useRef([]);
   const flashData = useRef({ intensity: 0, life: 0 });
 
-  const mouseWorldPos = useRef(new THREE.Vector3(0, 0, 0));
+  const lastShockTime = useSimStore(state => state.lastShockTime);
+  const localLastShock = useRef(0);
 
-  useEffect(() => {
-    const onMouseMove = (e) => {
-      const aspect = window.innerWidth / window.innerHeight;
-      const nx = (e.clientX / window.innerWidth) * 2 - 1;
-      const ny = -(e.clientY / window.innerHeight) * 2 + 1;
-      mouseWorldPos.current.x = nx * 38 * aspect;
-      mouseWorldPos.current.y = ny * 38;
-    };
-    
-    const onClick = () => {
-      audio.playPulse();
-      
-      const px = mouseWorldPos.current.x;
-      const py = mouseWorldPos.current.y;
-      
-      // 1. White flash (PointLight)
+  useFrame((state, delta) => {
+    const t = state.clock.getElapsedTime();
+
+    // Detect new shock from store
+    if (lastShockTime > localLastShock.current) {
+      localLastShock.current = lastShockTime;
+      const { uv } = useSimStore.getState().cursor;
+      const px = (uv[0] - 0.5) * viewport.width;
+      const py = (uv[1] - 0.5) * viewport.height;
+
+      // 1. White flash
       if (flashRef.current) {
         flashRef.current.position.set(px, py, 1.0);
       }
-      flashData.current = { intensity: 20, life: 1.0 };
+      flashData.current = { intensity: 25, life: 1.0 };
 
       // 2. Expanding Ring
       ringData.current.push({
@@ -44,28 +40,21 @@ const Shockwave = () => {
         radius: 0.1,
         life: 1.0,
       });
+      if (ringData.current.length > MAX_RINGS) ringData.current.shift();
 
-      // 3. Electric Sparks (Jagged lines)
-      for (let i = 0; i < 4; i++) {
+      // 3. Electric Sparks
+      for (let i = 0; i < 6; i++) {
         const angle = Math.random() * Math.PI * 2;
         sparkData.current.push({
           x: px, y: py,
           angle: angle,
           life: 1.0,
-          speed: 10 + Math.random() * 20
+          speed: 15 + Math.random() * 25
         });
       }
-    };
+      if (sparkData.current.length > 12) sparkData.current.splice(0, sparkData.current.length - 12);
+    }
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('click', onClick);
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('click', onClick);
-    };
-  }, []);
-
-  useFrame((state, delta) => {
     // Update Flash
     if (flashData.current.life > 0) {
       flashData.current.life -= delta * 5;

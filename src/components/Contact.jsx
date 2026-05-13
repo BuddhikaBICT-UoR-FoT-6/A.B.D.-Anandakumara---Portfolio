@@ -23,8 +23,8 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-32 px-8 max-w-6xl mx-auto relative z-10">
-      <div className="flex items-center gap-4 mb-12">
+    <section id="contact" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
+      <div className="section-header flex items-center gap-4 mb-12">
         <h2 className="text-2xl font-mono text-[var(--terminal-green)]">
           // SECTION_04 :: SERIAL_MONITOR
         </h2>

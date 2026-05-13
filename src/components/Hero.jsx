@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import TechChip from './ui/TechChip';
 
 const ROLES = [
   "Spring Boot Developer",
@@ -29,7 +28,15 @@ const StatusWidget = () => {
   };
 
   return (
-    <div className="pcb-card bg-black/40 backdrop-blur-md border border-[#004400] p-4 rounded-lg font-mono">
+    <div className="pcb-card" style={{
+      background: 'rgba(0, 15, 5, 0.85)',
+      border: '1px solid rgba(0, 255, 68, 0.2)',
+      borderRadius: '8px',
+      padding: '14px 16px',
+      backdropFilter: 'blur(12px)',
+      fontFamily: 'monospace',
+      fontSize: '12px'
+    }}>
       <div className="text-[10px] text-[#00FF41] mb-2 border-b border-[#004400] pb-1">
         SYS_STATUS // FUSION_CORE_v2.1
       </div>
@@ -101,8 +108,18 @@ const Hero = () => {
   const name = "A.B.D. Anandakumara";
   
   return (
-    <section className="min-h-screen pt-32 px-8 flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
-      <div className="flex-1 space-y-6">
+    <section style={{
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      minHeight: '100vh',
+      padding: '100px 60px 60px',
+      gap: '40px',
+      position: 'relative',
+      zIndex: 10,
+      pointerEvents: 'none'
+    }} className="flex-col md:flex-row">
+      <div style={{ flex: '1', maxWidth: '520px', pointerEvents: 'auto' }} className="space-y-6">
         <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2">
           <div className="w-2 h-2 rounded-full bg-[#00FF41] animate-ping" />
           [ ABD_CORE // SESSION_ACTIVE ]
@@ -124,12 +141,24 @@ const Hero = () => {
 
         <TypewriterRole />
 
-        <div className="max-w-2xl text-base md:text-lg text-white/70 leading-relaxed mb-8">
-          Developing robust systems at the intersection of 
-          <TechChip name="React" />, <TechChip name="Spring Boot" />, 
-          and <TechChip name="Embedded Systems" />. Specialist in 
-          <TechChip name="MQTT" /> protocols and <TechChip name="GPIO" /> automation.
-        </div>
+        <p style={{
+          fontFamily: 'monospace',
+          fontSize: '14px',
+          color: '#88aa88',
+          lineHeight: '1.8',
+          maxWidth: '520px',
+          marginTop: '16px'
+        }}>
+          I build systems where silicon meets software — from
+          <span style={{color:'#00ff88'}}> React </span>
+          frontends to
+          <span style={{color:'#6db33f'}}> Spring Boot </span>
+          APIs, connected through
+          <span style={{color:'#44ccff'}}> MQTT </span>
+          and
+          <span style={{color:'#ffaa44'}}> GPIO </span>
+          protocols. Specialist in IoT automation and embedded systems.
+        </p>
 
         <div className="flex gap-6 pt-6">
           <motion.a 
@@ -150,7 +179,11 @@ const Hero = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center md:items-end w-full gap-4">
+      <div style={{
+        width: '260px',
+        flexShrink: 0,
+        pointerEvents: 'auto'
+      }} className="flex flex-col items-center md:items-end w-full gap-4">
         <StatusWidget />
         <div className="text-[8px] font-mono text-[#004400] text-right">
           0x0000_BOOT_SEC_OK<br />

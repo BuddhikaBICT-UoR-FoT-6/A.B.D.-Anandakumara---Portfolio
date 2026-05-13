@@ -1,180 +1,220 @@
 import { useRef, useMemo, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useSimStore } from '../store/useSimStore';
 
-const PARTICLE_COUNT = 3500;
+const COUNT        = 120;
+const ORBIT_RADIUS = 55;  // pixels — tight visible cluster around cursor
 
-const ParticleShader = {
-  uniforms: {
-    uTime: { value: 0 },
-    uMouse: { value: new THREE.Vector3() },
-    uClickPos: { value: new THREE.Vector3() },
-    uClickTime: { value: -10.0 },
-  },
-  vertexShader: `
-    uniform float uTime;
-    uniform vec3 uMouse;
-    uniform vec3 uClickPos;
-    uniform float uClickTime;
+const PALETTE = [
+  new THREE.Color('#00FF41'),
+  new THREE.Color('#66ffbb'),
+  new THREE.Color('#00ccff'),
+  new THREE.Color('#55ddff'),
+  new THREE.Color('#ffffff'),
+  new THREE.Color('#00aa33'),
+  new THREE.Color('#003399'),
+];
 
-    attribute vec3 aOrigin;
-    attribute float aSize;
-    attribute float aPhase;
-    attribute vec3 aColor;
+// ── Data pulse comet: click → processor centre (screen centre = 0,0) ─────────
+const PULSE_STEPS = 18;
 
-    varying vec3 vColor;
-    varying float vAlpha;
+function DataPulse({ stateRef }) {
+  const geoRef  = useRef();
+  const posArr  = useRef(new Float32Array(PULSE_STEPS * 3).fill(9999));
 
-    void main() {
-      vColor = aColor;
-      vec3 pos = aOrigin;
+  const fades = useMemo(() => {
+    const f = new Float32Array(PULSE_STEPS);
+    for (let i = 0; i < PULSE_STEPS; i++) f[i] = i / (PULSE_STEPS - 1);
+    return f;
+  }, []);
 
-      // 1. Ambient Drift
-      pos.x += sin(uTime * 0.3 + aPhase) * 0.15;
-      pos.y += cos(uTime * 0.4 + aPhase) * 0.15;
+  const sizes = useMemo(() => {
+    const s = new Float32Array(PULSE_STEPS);
+    for (let i = 0; i < PULSE_STEPS; i++) s[i] = 6.0 * (1 - i / PULSE_STEPS) + 1;
+    return s;
+  }, []);
 
-      // 2. Mouse Repulsion
-      float mouseDist = distance(pos, uMouse);
-      if (mouseDist < 1.8) {
-        vec3 dir = normalize(pos - uMouse);
-        float force = pow(1.0 - (mouseDist / 1.8), 2.0) * 0.8;
-        pos += dir * force;
-      }
-
-      // 3. Click Explosion
-      float tClick = uTime - uClickTime;
-      if (tClick >= 0.0 && tClick < 1.5) {
-        float clickDist = distance(pos, uClickPos);
-        vec3 clickDir = normalize(pos - uClickPos);
-        float wave = smoothstep(0.0, 0.15, tClick) * exp(-tClick * 3.0);
-        float force = exp(-clickDist * 1.5) * wave * 8.0;
-        pos += clickDir * force;
-      }
-
-      vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-      gl_PointSize = aSize * (400.0 / -mvPosition.z);
-      gl_Position = projectionMatrix * mvPosition;
-      
-      vAlpha = 1.0;
-    }
-  `,
-  fragmentShader: `
-    varying vec3 vColor;
-    varying float vAlpha;
-
-    void main() {
-      vec2 uv = gl_PointCoord - 0.5;
-      float d = length(uv);
-      if (d > 0.5) discard;
-      float strength = (1.0 - d * 2.0);
-      gl_FragColor = vec4(vColor + core * 0.5, strength * vAlpha);
-    }
-  `
-};
-
-export default function GPUParticleSystem() {
-  const meshRef = useRef();
-  const { viewport } = useThree();
-  const clickTimeRef = useRef(-10.0);
-  const clickPosRef = useRef(new THREE.Vector3());
-
-  const [positions, origins, colors, sizes, phases] = useMemo(() => {
-    const pos = new Float32Array(PARTICLE_COUNT * 3);
-    const orig = new Float32Array(PARTICLE_COUNT * 3);
-    const col = new Float32Array(PARTICLE_COUNT * 3);
-    const siz = new Float32Array(PARTICLE_COUNT);
-    const pha = new Float32Array(PARTICLE_COUNT);
-
-    const palette = [
-      new THREE.Color('#00FF41'), // Green
-      new THREE.Color('#FFD700'), // Gold
-      new THREE.Color('#00ccff'), // Blue
-      new THREE.Color('#ffffff'), // White
-    ];
-
-    const w = viewport.width || 10;
-    const h = viewport.height || 10;
-
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const x = (Math.random() - 0.5) * w * 1.5;
-      const y = (Math.random() - 0.5) * h * 1.5;
-      const z = (Math.random() - 0.5) * 0.5;
-
-      pos[i * 3] = x; pos[i * 3 + 1] = y; pos[i * 3 + 2] = z;
-      orig[i * 3] = x; orig[i * 3 + 1] = y; orig[i * 3 + 2] = z;
-
-      const c = palette[Math.floor(Math.random() * palette.length)];
-      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
-
-      siz[i] = 1.2 + Math.random() * 2.5;
-      pha[i] = Math.random() * Math.PI * 2;
-    }
-    return [pos, orig, col, siz, pha];
-  }, [viewport.width, viewport.height]);
-
-  const uniforms = useMemo(() => ({
-    uTime: { value: 0 },
-    uMouse: { value: new THREE.Vector3() },
-    uClickPos: { value: new THREE.Vector3() },
-    uClickTime: { value: -10.0 }
+  const mat = useMemo(() => new THREE.ShaderMaterial({
+    vertexShader: `
+      attribute float aFade; attribute float aSize; varying float vFade;
+      void main() {
+        vFade = aFade;
+        gl_PointSize = aSize * (1.0 - aFade * 0.88);
+        gl_Position  = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: `
+      varying float vFade;
+      void main() {
+        vec2 uv = gl_PointCoord - 0.5;
+        if (length(uv) > 0.5) discard;
+        float c = exp(-dot(uv,uv) * 18.0);
+        float a = pow(1.0 - vFade, 2.0) * c * 2.8;
+        vec3  col = mix(vec3(0.4, 0.8, 1.0), vec3(1.0), 1.0 - vFade);
+        gl_FragColor = vec4(col, clamp(a, 0.0, 1.0));
+      }`,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
   }), []);
 
-  // Listen to click event from store
-  useEffect(() => {
-    const unsubscribe = useSimStore.subscribe(
-      (state) => state.phase,
-      (phase) => {
-        if (phase === 'CLICK') {
-          const { uv } = useSimStore.getState().cursor;
-          clickPosRef.current.set(
-            (uv[0] - 0.5) * viewport.width,
-            (uv[1] - 0.5) * viewport.height,
-            0.3
-          );
-          clickTimeRef.current = performance.now() / 1000; // Store as seconds for shader
-          // Reset phase after a short delay to allow re-clicks
-          setTimeout(() => useSimStore.getState().setPhase('IDLE'), 100);
-        }
-      }
-    );
-    return unsubscribe;
-  }, [viewport.width, viewport.height]);
+  useFrame((_, delta) => {
+    const s = stateRef.current;
+    if (!s.pulseActive || !geoRef.current) return;
+    s.pulseT += delta * 1.1;
+    if (s.pulseT >= 1.0) { s.pulseActive = false; return; }
 
-  useFrame((state) => {
-    if (meshRef.current) {
-      const { uv } = useSimStore.getState().cursor;
-      const worldX = (uv[0] - 0.5) * viewport.width;
-      const worldY = (uv[1] - 0.5) * viewport.height;
-      
-      meshRef.current.material.uniforms.uTime.value = state.clock.getElapsedTime();
-      meshRef.current.material.uniforms.uMouse.value.set(worldX, worldY, 0.3);
-      meshRef.current.material.uniforms.uClickPos.value.copy(clickPosRef.current);
-      // Synchronize shader uClickTime with clock
-      // We need to map performance.now() back to the clock time
-      if (clickTimeRef.current > 0) {
-        const offset = performance.now() / 1000 - state.clock.getElapsedTime();
-        meshRef.current.material.uniforms.uClickTime.value = clickTimeRef.current - offset;
-      }
+    const attr = geoRef.current.attributes.position;
+    for (let i = 0; i < PULSE_STEPS; i++) {
+      const t = Math.max(0, s.pulseT - (i / PULSE_STEPS) * 0.22);
+      // lerp from click pos toward (0,0) = processor centre
+      attr.setXYZ(i, s.pulseX * (1 - t), s.pulseY * (1 - t), 1);
     }
+    attr.needsUpdate = true;
   });
 
   return (
-    <points ref={meshRef}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={PARTICLE_COUNT} array={positions} itemSize={3} />
-        <bufferAttribute attach="attributes-aOrigin" count={PARTICLE_COUNT} array={origins} itemSize={3} />
-        <bufferAttribute attach="attributes-aColor" count={PARTICLE_COUNT} array={colors} itemSize={3} />
-        <bufferAttribute attach="attributes-aSize" count={PARTICLE_COUNT} array={sizes} itemSize={1} />
-        <bufferAttribute attach="attributes-aPhase" count={PARTICLE_COUNT} array={phases} itemSize={1} />
+    <points material={mat}>
+      <bufferGeometry ref={geoRef}>
+        <bufferAttribute attach="attributes-position" array={posArr.current} count={PULSE_STEPS} itemSize={3} />
+        <bufferAttribute attach="attributes-aFade"    array={fades}          count={PULSE_STEPS} itemSize={1} />
+        <bufferAttribute attach="attributes-aSize"    array={sizes}          count={PULSE_STEPS} itemSize={1} />
       </bufferGeometry>
-      <shaderMaterial 
-        {...ParticleShader} 
-        uniforms={uniforms} 
-        transparent 
-        blending={THREE.AdditiveBlending} 
-        depthWrite={false} 
-      />
     </points>
+  );
+}
+
+// ── Swarm ─────────────────────────────────────────────────────────────────────
+export default function GPUParticleSystem() {
+  const { size } = useThree(); // size.width/height in pixels = world units at zoom:1
+
+  const stateRef = useRef({
+    mx: 9999, my: 9999,
+    scatter: 0,
+    pulseActive: false, pulseT: 0, pulseX: 0, pulseY: 0,
+  });
+
+  const data = useMemo(() => {
+    const pos = new Float32Array(COUNT * 3);
+    const vel = new Float32Array(COUNT * 3);
+    const col = new Float32Array(COUNT * 3);
+    const siz = new Float32Array(COUNT);
+    const pha = new Float32Array(COUNT);
+    const rad = new Float32Array(COUNT);
+
+    for (let i = 0; i < COUNT; i++) {
+      pos[i*3] = 9999; pos[i*3+1] = 9999; pos[i*3+2] = 0;
+      pha[i] = (i / COUNT) * Math.PI * 2;
+      rad[i] = ORBIT_RADIUS * (0.4 + Math.random() * 0.6);
+      const c = PALETTE[i % PALETTE.length];
+      col[i*3] = c.r; col[i*3+1] = c.g; col[i*3+2] = c.b;
+      siz[i] = 3.0 + Math.random() * 4.0;
+    }
+    return { pos, vel, col, siz, pha, rad };
+  }, []); // eslint-disable-line
+
+  const geoRef = useRef();
+
+  const mat = useMemo(() => new THREE.ShaderMaterial({
+    vertexShader: `
+      attribute vec3  aColor;
+      attribute float aSize;
+      varying vec3 vColor;
+      void main() {
+        vColor = aColor;
+        gl_PointSize = aSize;
+        gl_Position  = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: `
+      varying vec3 vColor;
+      void main() {
+        vec2  uv = gl_PointCoord - 0.5;
+        float d  = length(uv);
+        if (d > 0.5) discard;
+        float core = exp(-d * d * 10.0);
+        float glow = exp(-d * d * 2.5);
+        gl_FragColor = vec4(vColor * (1.5 + core * 3.0), glow * 0.92);
+      }`,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  }), []);
+
+  // mouse → pixel world coords (zoom:1 means 1 world unit = 1 CSS pixel)
+  useEffect(() => {
+    const onMove = (e) => {
+      // convert screen px to world px (origin at centre)
+      stateRef.current.mx =  e.clientX - window.innerWidth  / 2;
+      stateRef.current.my = -(e.clientY - window.innerHeight / 2);
+    };
+    window.addEventListener('mousemove', onMove, { passive: true });
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
+  // click → scatter + fire pulse
+  useEffect(() => {
+    const onClick = (e) => {
+      const s = stateRef.current;
+      s.scatter = 1.0;
+
+      for (let i = 0; i < COUNT; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const spd   = 200 + Math.random() * 300; // pixels/sec
+        data.vel[i*3]   = Math.cos(angle) * spd;
+        data.vel[i*3+1] = Math.sin(angle) * spd;
+      }
+
+      s.pulseActive = true;
+      s.pulseT      = 0;
+      s.pulseX      = s.mx;
+      s.pulseY      = s.my;
+    };
+    window.addEventListener('click', onClick);
+    return () => window.removeEventListener('click', onClick);
+  }, [data.vel]);
+
+  useFrame(({ clock }, delta) => {
+    if (!geoRef.current) return;
+    const s    = stateRef.current;
+    const t    = clock.getElapsedTime();
+    const attr = geoRef.current.attributes.position;
+    const scattering = s.scatter > 0;
+    if (scattering) s.scatter -= delta;
+
+    for (let i = 0; i < COUNT; i++) {
+      let x = attr.getX(i);
+      let y = attr.getY(i);
+
+      // snap to mouse on first frame
+      if (x > 1000) { x = s.mx; y = s.my; }
+
+      if (scattering) {
+        data.vel[i*3]   *= 0.88;
+        data.vel[i*3+1] *= 0.88;
+        x += data.vel[i*3]   * delta;
+        y += data.vel[i*3+1] * delta;
+      } else {
+        const angle = data.pha[i] + t * 0.6;
+        const tx = s.mx + Math.cos(angle) * data.rad[i];
+        const ty = s.my + Math.sin(angle) * data.rad[i];
+        x += (tx - x) * Math.min(delta * 8, 1);
+        y += (ty - y) * Math.min(delta * 8, 1);
+      }
+
+      attr.setXYZ(i, x, y, 0);
+    }
+    attr.needsUpdate = true;
+  });
+
+  return (
+    <group renderOrder={10}>
+      <points material={mat}>
+        <bufferGeometry ref={geoRef}>
+          <bufferAttribute attach="attributes-position" array={data.pos} count={COUNT} itemSize={3} />
+          <bufferAttribute attach="attributes-aColor"   array={data.col} count={COUNT} itemSize={3} />
+          <bufferAttribute attach="attributes-aSize"    array={data.siz} count={COUNT} itemSize={1} />
+        </bufferGeometry>
+      </points>
+      <DataPulse stateRef={stateRef} />
+    </group>
   );
 }
