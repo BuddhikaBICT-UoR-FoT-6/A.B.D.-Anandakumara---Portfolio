@@ -146,7 +146,7 @@ const Hero = () => {
       <div style={{ flex: '1', maxWidth: '520px', pointerEvents: 'auto' }} className="space-y-6">
         <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2">
           <div className="w-2 h-2 rounded-full bg-[#00FF41] animate-ping" />
-          [ ABD_CORE // SESSION_ACTIVE ]
+          [ ABD_CORE // SESSION_ACTIVE // AVAILABLE_FOR_OPPORTUNITIES ]
         </div>
 
         <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-8">

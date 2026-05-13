@@ -13,7 +13,26 @@ const SKILLS = [
 const CERTS = [
   { name: 'Back End Development & APIs', issuer: 'freeCodeCamp', date: 'Oct 2025' },
   { name: 'OCI Foundations Associate', issuer: 'Oracle', date: 'Sep 2025' },
-  { name: 'Front End Development Libraries', issuer: 'freeCodeCamp', date: 'Sep 2025' }
+  { name: 'Front End Development Libraries', issuer: 'freeCodeCamp', date: 'Sep 2025' },
+  { name: 'Responsive Web Design', issuer: 'freeCodeCamp', date: 'Jan 2025' },
+  { name: 'AutoCAD & 3Ds Max', issuer: 'Wijeya Graphics', date: 'Sep 2019' },
+  { name: 'Web Development', issuer: 'NAC Computer System', date: 'Sep 2015' },
+  { name: '3D Max', issuer: 'NAC Computer System', date: 'Feb 2014' },
+  { name: 'Computer Graphics', issuer: 'NAC Computer System', date: 'Feb 2013' },
+  { name: 'Computer Studies', issuer: 'NAC Computer System', date: 'Jul 2012' }
+];
+
+const SOFT_SKILLS = [
+  { tag: 'Git & GitHub', emoji: '🔧' },
+  { tag: 'Jest Testing', emoji: '🧪' },
+  { tag: 'REST API Design', emoji: '📦' },
+  { tag: 'UI/UX Thinking', emoji: '🎨' },
+  { tag: 'Teamwork', emoji: '🤝' },
+  { tag: 'Problem Solving', emoji: '🧩' },
+  { tag: 'Communication', emoji: '📢' },
+  { tag: 'Redis Caching', emoji: '⚡' },
+  { tag: 'Cryptography', emoji: '🔐' },
+  { tag: 'PDF Generation', emoji: '📄' }
 ];
 
 const SkillBar = ({ level }) => (
@@ -108,9 +127,10 @@ const Skills = () => {
               PIN_HEADER_PROTOCOLS
             </h3>
             <div className="flex flex-wrap gap-3">
-              {['PROBLEM_SOLVING', 'RAPID_LEARNING', 'COLLAB_PROTOCOL', 'AGILE_METHOD', 'TECH_LEADERSHIP'].map(tag => (
-                <div key={tag} className="bg-[#111] border border-[var(--pcb-green-light)] px-3 py-1.5 font-mono text-[10px] text-[var(--terminal-green)] shadow-[4px_4px_0_var(--pcb-green-dark)]">
-                  {tag}
+              {SOFT_SKILLS.map(item => (
+                <div key={item.tag} className="bg-[#111] border border-[var(--pcb-green-light)] px-3 py-1.5 font-mono text-[10px] text-[var(--terminal-green)] shadow-[4px_4px_0_var(--pcb-green-dark)] hover:text-white hover:border-[var(--terminal-green)] transition-colors cursor-default flex items-center gap-2">
+                  <span className="opacity-70">{item.emoji}</span>
+                  {item.tag.toUpperCase().replace(/ /g, '_')}
                 </div>
               ))}
             </div>

@@ -109,10 +109,22 @@ const Contact = () => {
                   <span className="text-[10px] font-mono text-[var(--terminal-green)]">I²C[0x02]</span>
                   <span className="text-xs font-mono opacity-60 group-hover:opacity-100 group-hover:text-white transition-all">linkedin.com/in/buddhika-darshan</span>
                 </a>
-                <a href="mailto:buddhikadarshan1475@gmail.com" className="flex flex-col group">
-                  <span className="text-[10px] font-mono text-[var(--terminal-green)]">I²C[0x03]</span>
-                  <span className="text-xs font-mono opacity-60 group-hover:opacity-100 group-hover:text-white transition-all">buddhikadarshan1475@gmail.com</span>
-                </a>
+                <div className="flex items-center justify-between group">
+                  <a href="mailto:buddhikadarshan1475@gmail.com" className="flex flex-col">
+                    <span className="text-[10px] font-mono text-[var(--terminal-green)]">I²C[0x03]</span>
+                    <span className="text-xs font-mono opacity-60 group-hover:opacity-100 group-hover:text-white transition-all">buddhikadarshan1475@gmail.com</span>
+                  </a>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText('buddhikadarshan1475@gmail.com');
+                      alert('Email copied to clipboard!');
+                    }}
+                    className="p-2 opacity-20 hover:opacity-100 hover:text-[var(--terminal-yellow)] transition-all"
+                    title="Copy Address"
+                  >
+                    📋
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -120,6 +132,10 @@ const Contact = () => {
               <div className="text-[8px] font-mono text-[var(--pcb-green-light)] mb-2">LAST_PACKET_INFO</div>
               <div className="text-[10px] font-mono text-[var(--terminal-yellow)] animate-pulse">
                 PACKET_SENT · ACK received · 12ms latency
+              </div>
+              <div className="text-[8px] font-mono opacity-40 mt-4">
+                NOTE: This form simulates a data transmission.<br/>
+                For urgent matters, use direct I²C channels.
               </div>
             </div>
           </div>
