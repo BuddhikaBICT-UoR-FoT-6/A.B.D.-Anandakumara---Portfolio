@@ -2,8 +2,8 @@ import React from 'react';
 
 const GlobalTraces = () => {
   return (
-    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: -1, opacity: 0.5 }}>
-      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-40">
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: -1, opacity: 0.7 }}>
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
         <defs>
           <filter id="trace-glow-filter">
             <feGaussianBlur stdDeviation="1.5" result="blur" />
@@ -37,8 +37,8 @@ const GlobalTraces = () => {
               {/* Background Copper Trace */}
               <path
                 d={d}
-                stroke="rgba(0, 163, 255, 0.08)"
-                strokeWidth="1"
+                stroke="rgba(0, 163, 255, 0.15)"
+                strokeWidth="1.5"
                 fill="none"
               />
               {/* Live Electricity Pulse */}
@@ -46,19 +46,19 @@ const GlobalTraces = () => {
                 d={d}
                 className="live-trace"
                 stroke={pulseColor}
-                strokeWidth="1.2"
+                strokeWidth="1.8"
                 fill="none"
                 filter="url(#trace-glow-filter)"
                 style={{
                   animationDelay: `${delay}s`,
                   animationDuration: `${duration}s`,
-                  opacity: 0.8
+                  opacity: 0.9
                 }}
               />
               {/* Component Pad */}
-              <circle cx={startX} cy={`${y}%`} r="1.5" fill="rgba(0, 255, 65, 0.3)" />
+              <circle cx={startX} cy={`${y}%`} r="2" fill="rgba(0, 163, 255, 0.4)" />
               {i % 4 === 0 && (
-                <rect x={startX + length - 2} y={`${y - 0.5}%`} width="4" height="1" fill="rgba(0, 163, 255, 0.3)" />
+                <rect x={startX + length - 2} y={`${y - 0.5}%`} width="5" height="1.5" fill="rgba(0, 163, 255, 0.4)" />
               )}
             </g>
           );
@@ -75,20 +75,20 @@ const GlobalTraces = () => {
             <g key={`v-${i}`}>
               <path
                 d={`M ${x}% ${startY} L ${x}% ${startY + 30} L ${x + 2}% ${startY + 50} L ${x + 2}% ${startY + length}`}
-                stroke="rgba(0, 163, 255, 0.08)"
-                strokeWidth="0.8"
+                stroke="rgba(0, 163, 255, 0.12)"
+                strokeWidth="1.2"
                 fill="none"
               />
               <path
                 d={`M ${x}% ${startY} L ${x}% ${startY + 30} L ${x + 2}% ${startY + 50} L ${x + 2}% ${startY + length}`}
                 className="live-trace"
                 stroke={i % 2 === 0 ? "#00A3FF" : "#ffffff"}
-                strokeWidth="1"
+                strokeWidth="1.5"
                 fill="none"
                 style={{
                   animationDelay: `${delay}s`,
                   animationDuration: '6s',
-                  opacity: 0.6
+                  opacity: 0.8
                 }}
               />
             </g>
