@@ -14,7 +14,7 @@ const About = () => {
     <section id="about" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
       <div className="section-header flex items-center gap-4 mb-12">
         <h2 className="text-2xl font-mono text-[var(--terminal-green)]">
-          // SECTION_01 :: HARDWARE_DOSSIER
+          // BIO_ENGINEER :: ABD_DOSSIER
         </h2>
         <div className="flex-1 h-[1px] bg-[var(--pcb-green-light)] opacity-30" />
       </div>

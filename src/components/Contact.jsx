@@ -26,7 +26,7 @@ const Contact = () => {
     <section id="contact" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
       <div className="section-header flex items-center gap-4 mb-12">
         <h2 className="text-2xl font-mono text-[var(--terminal-green)]">
-          // SECTION_04 :: SERIAL_MONITOR
+          // UPLINK :: COMMS_TERMINAL
         </h2>
         <div className="flex-1 h-[1px] bg-[var(--pcb-green-light)] opacity-30" />
       </div>
