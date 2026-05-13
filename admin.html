@@ -14,23 +14,40 @@
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
-        #circuit-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-            opacity: 0.5;
+        :root {
+            --bg: #02040a;
+            --bg-2: #050811;
+            --panel: rgba(10, 15, 30, 0.95);
+            --panel-2: rgba(20, 30, 50, 0.98);
+            --text: #e0f2fe;
+            --muted: #94a3b8;
+            --border-2: rgba(56, 189, 248, 0.3);
+            --accent: #00f2ff;
+            --accent-glow: rgba(0, 242, 255, 0.25);
+            --green: #10b981;
+            --radius-sm: 12px;
+            --radius-xs: 6px;
+            --transition: 0.2s ease;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 2px 2px, rgba(0, 242, 255, 0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            color: var(--text);
+            min-height: 100vh;
         }
 
         .admin-container {
             max-width: 900px;
-            margin: 2rem auto;
-            padding: 2rem;
+            margin: 0 auto;
+            padding: 40px 20px;
             position: relative;
-            z-index: 1;
+            z-index: 99999 !important;
+            pointer-events: auto !important;
         }
 
         .admin-header {
@@ -77,8 +94,6 @@
             color: var(--muted);
         }
 
-        /* Admin inputs inherit global input styles from styles.css.
-           Only override padding to match the compact admin layout. */
         .admin-field input,
         .admin-field textarea {
             padding: 12px 14px;
@@ -97,7 +112,6 @@
             flex-wrap: wrap;
         }
 
-        /* Use the same gradient-btn as the main site's .button */
         .btn-save {
             display: inline-flex;
             align-items: center;
@@ -122,11 +136,6 @@
             filter: brightness(1.08);
         }
 
-        .btn-save:active {
-            transform: translateY(0);
-        }
-
-        /* Danger button — consistent danger-red token */
         .btn-logout {
             display: inline-flex;
             align-items: center;
@@ -144,17 +153,6 @@
             transition: background var(--transition), border-color var(--transition), transform var(--transition);
         }
 
-        .btn-logout:hover {
-            transform: translateY(-2px);
-            background: rgba(248, 113, 113, 0.22);
-            border-color: #f87171;
-        }
-
-        .btn-logout:active {
-            transform: translateY(0);
-        }
-
-        /* Success message — uses green design token */
         .success-message {
             display: none;
             padding: 14px 18px;
@@ -167,26 +165,6 @@
             margin-bottom: 1rem;
         }
 
-        .success-message.show {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Project item — uses panel token (fixes undefined --card-bg) */
         .project-item {
             border: 1px solid var(--border-2);
             padding: 1rem;
@@ -194,12 +172,7 @@
             margin-bottom: 1rem;
             background: var(--panel);
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
             transition: border-color var(--transition);
-        }
-
-        .project-item:hover {
-            border-color: var(--accent);
         }
 
         .project-item h4 {
@@ -234,12 +207,6 @@
             transform: scale(1.02);
         }
 
-        .resume-upload-area p {
-            color: var(--muted);
-            font-size: 14px;
-            margin: 0;
-        }
-
         .resume-current {
             display: flex;
             align-items: center;
@@ -250,10 +217,6 @@
             border-radius: var(--radius-sm);
             color: var(--green);
             font-weight: 600;
-        }
-
-        .resume-current span:first-child {
-            font-size: 18px;
         }
 
         /* ── Admin Form Fields ── */
@@ -358,7 +321,6 @@
 </head>
 
 <body>
-    <canvas id="circuit-bg"></canvas>
     <div class="admin-container">
         <div class="admin-header">
             <h1>🔐 Admin Panel</h1>
@@ -490,126 +452,6 @@
     </div>
 
     <script type="module" src="admin.js"></script>
-    <script type="module">
-        // Minimal circuit bg for admin
-        class CircuitBackground {
-            constructor(canvas) {
-                this.canvas = canvas;
-                this.ctx = canvas.getContext('2d');
-                this.pulses = [];
-                this.particles = [];
-                this.gridSize = 60;
-                this.mouse = { x: -1000, y: -1000 };
-                this.mouseStopped = false;
-                this.mouseTimer = null;
-                
-                this.resize();
-                window.addEventListener('resize', () => this.resize());
-                window.addEventListener('mousemove', (e) => {
-                    this.mouse.x = e.clientX;
-                    this.mouse.y = e.clientY;
-                    this.mouseStopped = false;
-                    if (this.mouseTimer) clearTimeout(this.mouseTimer);
-                    this.mouseTimer = setTimeout(() => {
-                        this.mouseStopped = true;
-                    }, 150);
-                });
-                
-                this.init();
-                this.animate();
-            }
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-                this.init();
-            }
-            init() {
-                this.particles = [];
-                for (let i = 0; i < 40; i++) {
-                    this.particles.push({
-                        x: Math.random() * this.canvas.width,
-                        y: Math.random() * this.canvas.height,
-                        vx: (Math.random() - 0.5) * 1,
-                        vy: (Math.random() - 0.5) * 1,
-                        size: Math.random() * 2 + 1,
-                        alpha: Math.random() * 0.3 + 0.1
-                    });
-                }
-            }
-            createPulse() {
-                if (this.pulses.length > 8) return;
-                const x = Math.floor(Math.random() * (this.canvas.width / this.gridSize)) * this.gridSize;
-                const y = Math.floor(Math.random() * (this.canvas.height / this.gridSize)) * this.gridSize;
-                this.pulses.push({ x, y, tx: x, ty: y, speed: 1 + Math.random(), life: 1, dir: Math.floor(Math.random() * 4) });
-            }
-            update() {
-                if (Math.random() > 0.95) this.createPulse();
-                
-                // Update Particles
-                this.particles.forEach(p => {
-                    const dx = this.mouse.x - p.x;
-                    const dy = this.mouse.y - p.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (this.mouseStopped && dist < 200) {
-                        const force = (200 - dist) / 200;
-                        p.vx += (dx / dist) * force * 0.3;
-                        p.vy += (dy / dist) * force * 0.3;
-                    }
-                    p.vx *= 0.95; p.vy *= 0.95;
-                    p.x += p.vx; p.y += p.vy;
-                    if (p.x < 0) p.x = this.canvas.width;
-                    if (p.x > this.canvas.width) p.x = 0;
-                    if (p.y < 0) p.y = this.canvas.height;
-                    if (p.y > this.canvas.height) p.y = 0;
-                });
-
-                for (let i = this.pulses.length - 1; i >= 0; i--) {
-                    const p = this.pulses[i];
-                    if (Math.abs(p.x - p.tx) < 1 && Math.abs(p.y - p.ty) < 1) {
-                        p.dir = Math.floor(Math.random() * 4);
-                        if (p.dir === 0) p.ty -= this.gridSize;
-                        else if (p.dir === 1) p.tx += this.gridSize;
-                        else if (p.dir === 2) p.ty += this.gridSize;
-                        else p.tx -= this.gridSize;
-                        p.life -= 0.05;
-                    } else {
-                        p.x += (p.tx - p.x) * 0.05 * p.speed;
-                        p.y += (p.ty - p.y) * 0.05 * p.speed;
-                    }
-                    if (p.life <= 0) this.pulses.splice(i, 1);
-                }
-            }
-            draw() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                this.ctx.strokeStyle = 'rgba(0, 242, 255, 0.03)';
-                this.ctx.beginPath();
-                for (let i = 0; i < this.canvas.width; i += this.gridSize) { this.ctx.moveTo(i, 0); this.ctx.lineTo(i, this.canvas.height); }
-                for (let i = 0; i < this.canvas.height; i += this.gridSize) { this.ctx.moveTo(0, i); this.ctx.lineTo(this.canvas.width, i); }
-                this.ctx.stroke();
-                
-                // Draw Particles
-                this.particles.forEach(p => {
-                    this.ctx.fillStyle = `rgba(0, 242, 255, ${p.alpha})`;
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    this.ctx.fill();
-                });
-
-                this.pulses.forEach(p => {
-                    this.ctx.fillStyle = `rgba(0, 242, 255, ${p.life * 0.5})`;
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-                    this.ctx.fill();
-                });
-            }
-            animate() {
-                this.update();
-                this.draw();
-                requestAnimationFrame(() => this.animate());
-            }
-        }
-        new CircuitBackground(document.getElementById('circuit-bg'));
-    </script>
 </body>
 
 </html>
