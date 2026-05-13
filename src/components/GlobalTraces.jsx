@@ -29,7 +29,7 @@ const GlobalTraces = () => {
             d = `M ${startX} ${y}% L ${startX + 30} ${y}% L ${startX + 40} ${y - 3}% L ${startX + 100} ${y - 3}% L ${startX + 110} ${y}% L ${startX + length} ${y}%`;
           }
 
-          const colors = ["#ffffff", "#00FF41", "#00A3FF"];
+          const colors = ["#ffffff", "#00A3FF", "#E0F2FF"];
           const pulseColor = colors[i % colors.length];
 
           return (
@@ -37,7 +37,7 @@ const GlobalTraces = () => {
               {/* Background Copper Trace */}
               <path
                 d={d}
-                stroke="rgba(0, 255, 65, 0.08)"
+                stroke="rgba(0, 163, 255, 0.08)"
                 strokeWidth="1"
                 fill="none"
               />
@@ -75,7 +75,7 @@ const GlobalTraces = () => {
             <g key={`v-${i}`}>
               <path
                 d={`M ${x}% ${startY} L ${x}% ${startY + 30} L ${x + 2}% ${startY + 50} L ${x + 2}% ${startY + length}`}
-                stroke="rgba(0, 163, 255, 0.06)"
+                stroke="rgba(0, 163, 255, 0.08)"
                 strokeWidth="0.8"
                 fill="none"
               />

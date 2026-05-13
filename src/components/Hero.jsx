@@ -51,13 +51,13 @@ const TypewriterRole = () => {
 const TraceOverlay = () => (
   <svg className="trace-pattern-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
     {/* Static Traces */}
-    <path d="M 0 10 L 20 10 L 30 20 L 70 20 L 80 10 L 100 10" fill="none" stroke="#00FF41" strokeWidth="0.5" opacity="0.3" />
-    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" fill="none" stroke="#00FF41" strokeWidth="0.5" opacity="0.3" />
-    <path d="M 90 0 L 90 40 L 80 50 L 80 70 L 90 80 L 90 100" fill="none" stroke="#00FF41" strokeWidth="0.5" opacity="0.3" />
+    <path d="M 0 10 L 20 10 L 30 20 L 70 20 L 80 10 L 100 10" fill="none" stroke="#00A3FF" strokeWidth="0.5" opacity="0.3" />
+    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" fill="none" stroke="#00A3FF" strokeWidth="0.5" opacity="0.3" />
+    <path d="M 90 0 L 90 40 L 80 50 L 80 70 L 90 80 L 90 100" fill="none" stroke="#00A3FF" strokeWidth="0.5" opacity="0.3" />
     
     {/* Live Pulses */}
     <path d="M 0 10 L 20 10 L 30 20 L 70 20 L 80 10 L 100 10" className="live-trace" fill="none" stroke="#fff" strokeWidth="1" />
-    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" className="live-trace" fill="none" stroke="#fff" strokeWidth="1" style={{ animationDelay: '1.5s' }} />
+    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" className="live-trace" fill="none" stroke="#00A3FF" strokeWidth="1" style={{ animationDelay: '1.5s' }} />
     
     <circle cx="20" cy="10" r="1" fill="#00FF41" />
     <circle cx="80" cy="10" r="1" fill="#00FF41" />

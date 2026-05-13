@@ -412,13 +412,14 @@ canvas {
 }
 
 .live-trace {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: trace-flow 3s linear infinite;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: trace-flow 4s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(0, 163, 255, 0.8));
 }
 
 @keyframes trace-flow {
-  to { stroke-dashoffset: -100; }
+  to { stroke-dashoffset: -120; }
 }
 
 .trace-pattern-overlay {
