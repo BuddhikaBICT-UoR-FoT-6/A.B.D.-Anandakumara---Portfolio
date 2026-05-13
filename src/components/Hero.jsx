@@ -48,6 +48,18 @@ const TypewriterRole = () => {
   );
 };
 
+const TraceOverlay = () => (
+  <svg className="trace-pattern-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <path d="M 0 10 L 20 10 L 30 20 L 70 20 L 80 10 L 100 10" fill="none" stroke="#00FF41" strokeWidth="0.5" />
+    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" fill="none" stroke="#00FF41" strokeWidth="0.5" />
+    <path d="M 90 0 L 90 40 L 80 50 L 80 70 L 90 80 L 90 100" fill="none" stroke="#00FF41" strokeWidth="0.5" />
+    <circle cx="20" cy="10" r="1" fill="#00FF41" />
+    <circle cx="80" cy="10" r="1" fill="#00FF41" />
+    <circle cx="20" cy="80" r="1" fill="#00FF41" />
+    <circle cx="80" cy="70" r="1" fill="#00FF41" />
+  </svg>
+);
+
 const Hero = () => {
   const { personal, about } = usePortfolioData();
   const name = personal.fullName;
@@ -87,7 +99,8 @@ const Hero = () => {
     }} className="flex-col lg:flex-row">
       {/* Left Column: Core Identity */}
       <div style={{ flex: '1.2', maxWidth: '640px', pointerEvents: 'auto' }} className="relative">
-        <div className="hero-plate relative">
+        <div className="hero-plate relative overflow-hidden">
+          <TraceOverlay />
           {/* Live Electricity Traces */}
           <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ zIndex: -1 }}>
             <path d="M 10 10 L 100 10 L 120 30" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
@@ -99,7 +112,7 @@ const Hero = () => {
           <div className="screw-head top-3 left-3 screw-blink" />
           <div className="screw-head bottom-3 right-3 screw-blink" />
 
-          <div className="space-y-6">
+          <div className="space-y-6 relative z-10">
             <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2 emissive-pulse">
               <div className="w-2 h-2 rounded-full bg-[#00FF41] animate-ping" />
               [ ABD_CORE // SESSION_ACTIVE // AVAILABLE_FOR_OPPORTUNITIES ]
@@ -162,22 +175,25 @@ const Hero = () => {
       </div>
 
       {/* Right Column: Highlights Register */}
-      <div style={{ flex: '0.8', pointerEvents: 'auto' }} className="flex flex-col items-end w-full gap-4 text-right">
-        <div className="pcb-card" style={{ background: 'rgba(0, 10, 20, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0, 255, 65, 0.2)' }}>
-          <div className="text-[10px] text-[#00FF41] mb-6 border-b border-[#004400] pb-2 font-mono">
-            // REGISTER_01 :: CORE_HIGHLIGHTS
-          </div>
-          <div className="space-y-4">
-            {about.highlights.map((h, i) => (
-              <div key={i} className="text-xs font-mono text-[var(--terminal-yellow)] group hover:text-white transition-colors cursor-default">
-                HIGHLIGHT_{String(i+1).padStart(2, '0')}: <span className="opacity-80">{h}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 text-[8px] font-mono text-[#004400]">
-            0x0000_BOOT_SEC_OK<br />
-            0x0001_G_PARTICLES_READY<br />
-            0x0002_EMISSIVE_SUBSTRATE_ON
+      <div style={{ flex: '0.8', pointerEvents: 'auto' }} className="flex flex-col items-start w-full gap-4 text-left">
+        <div className="pcb-card relative overflow-hidden" style={{ background: 'rgba(0, 10, 20, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0, 255, 65, 0.2)' }}>
+          <TraceOverlay />
+          <div className="relative z-10">
+            <div className="text-[10px] text-[#00FF41] mb-6 border-b border-[#004400] pb-2 font-mono">
+              // REGISTER_01 :: CORE_HIGHLIGHTS
+            </div>
+            <div className="space-y-4">
+              {about.highlights.map((h, i) => (
+                <div key={i} className="text-xs font-mono text-[var(--terminal-yellow)] group hover:text-white transition-colors cursor-default">
+                  HIGHLIGHT_{String(i+1).padStart(2, '0')}: <span className="opacity-80">{h}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 text-[8px] font-mono text-[#004400]">
+              0x0000_BOOT_SEC_OK<br />
+              0x0001_G_PARTICLES_READY<br />
+              0x0002_EMISSIVE_SUBSTRATE_ON
+            </div>
           </div>
         </div>
       </div>

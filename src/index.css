@@ -421,6 +421,14 @@ canvas {
   to { stroke-dashoffset: -100; }
 }
 
+.trace-pattern-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.15;
+  z-index: 0;
+}
+
 .shadow-glow {
   text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 2px black;
 }
