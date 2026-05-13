@@ -149,8 +149,6 @@ function SwarmCanvas() {
 
   return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', zIndex:9999, pointerEvents:'none' }} />;
 }
-import GlobalTraces from './components/GlobalTraces';
-
 function App() {
   const [booting, setBooting] = useState(true);
   const [showCanvas, setShowCanvas] = useState(false);
@@ -179,7 +177,6 @@ function App() {
 
   return (
     <div className="app-container">
-      <GlobalTraces />
       {booting ? (
         <BootSequence onComplete={handleBootComplete} />
       ) : (

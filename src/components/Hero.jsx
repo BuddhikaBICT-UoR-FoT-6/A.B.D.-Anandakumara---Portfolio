@@ -48,24 +48,6 @@ const TypewriterRole = () => {
   );
 };
 
-const TraceOverlay = () => (
-  <svg className="trace-pattern-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
-    {/* Static Traces */}
-    <path d="M 0 10 L 20 10 L 30 20 L 70 20 L 80 10 L 100 10" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
-    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
-    <path d="M 90 0 L 90 40 L 80 50 L 80 70 L 90 80 L 90 100" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
-    
-    {/* Live Pulses */}
-    <path d="M 0 10 L 20 10 L 30 20 L 70 20 L 80 10 L 100 10" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" />
-    <path d="M 10 0 L 10 30 L 20 40 L 20 80 L 10 90 L 10 100" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" style={{ animationDelay: '1.5s' }} />
-    
-    <circle cx="20" cy="10" r="1.5" fill="rgba(0, 255, 65, 0.4)" />
-    <circle cx="80" cy="10" r="1.5" fill="rgba(0, 255, 65, 0.4)" />
-    <circle cx="20" cy="80" r="1.5" fill="rgba(0, 255, 65, 0.4)" />
-    <circle cx="80" cy="70" r="1.5" fill="rgba(0, 255, 65, 0.4)" />
-  </svg>
-);
-
 const Hero = () => {
   const { personal, about } = usePortfolioData();
   const name = personal.fullName;
@@ -106,19 +88,12 @@ const Hero = () => {
       {/* Left Column: Core Identity */}
       <div style={{ flex: '1.2', maxWidth: '640px', pointerEvents: 'auto' }} className="relative">
         <div className="hero-plate relative overflow-hidden">
-          <TraceOverlay />
           {/* Live Electricity Traces */}
           <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ zIndex: -1 }}>
-            <defs>
-              <filter id="hero-glow-internal">
-                <feGaussianBlur stdDeviation="1.2" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-              </filter>
-            </defs>
-            <path d="M 10 10 L 100 10 L 120 30" fill="none" stroke="rgba(0, 255, 65, 0.25)" strokeWidth="1" />
-            <path d="M 10 10 L 100 10 L 120 30" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" filter="url(#hero-glow-internal)" />
-            <path d="M 580 400 L 500 400 L 480 380" fill="none" stroke="rgba(0, 255, 65, 0.25)" strokeWidth="1" />
-            <path d="M 580 400 L 500 400 L 480 380" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" filter="url(#hero-glow-internal)" />
+            <path d="M 10 10 L 100 10 L 120 30" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
+            <path d="M 10 10 L 100 10 L 120 30" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" />
+            <path d="M 580 400 L 500 400 L 480 380" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
+            <path d="M 580 400 L 500 400 L 480 380" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" />
           </svg>
 
           <div className="screw-head top-3 left-3 screw-blink" />
@@ -189,7 +164,6 @@ const Hero = () => {
       {/* Right Column: Highlights Register */}
       <div style={{ flex: '0.8', pointerEvents: 'auto' }} className="flex flex-col items-start w-full gap-4 text-left">
         <div className="pcb-card relative overflow-hidden" style={{ background: 'rgba(0, 10, 20, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0, 255, 65, 0.2)' }}>
-          <TraceOverlay />
           <div className="relative z-10">
             <div className="text-[10px] text-[#00FF41] mb-6 border-b border-[#004400] pb-2 font-mono">
               // REGISTER_01 :: CORE_HIGHLIGHTS
