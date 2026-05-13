@@ -19,50 +19,114 @@ function SwarmCanvas() {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    let mx = canvas.width / 2;
-    let my = canvas.height / 2;
-
-    // each particle has a fixed orbit angle + radius offset so they
-    // always surround the cursor, never collapse onto it
-    const pts = Array.from({ length: SWARM_COUNT }, (_, i) => ({
-      angle: (i / SWARM_COUNT) * Math.PI * 2,   // evenly spread around cursor
-      r:     18 + Math.random() * 22,            // orbit radius 18-40px
-      speed: 3.5 + Math.random() * 3.0,          // rad/s — fast spin
-      x: mx, y: my,                              // current draw position
-      c: SWARM_COLORS[i % SWARM_COLORS.length],
-      size: 1.2 + Math.random() * 1.3,
-    }));
-
-    window.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
-    window.addEventListener('resize', () => {
-      canvas.width  = window.innerWidth;
+    
+    const updateSize = () => {
+      canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+
+    let mx = window.innerWidth / 2;
+    let my = window.innerHeight / 2;
+
+    const PARTICLE_COUNT = 80;
+    const pts = Array.from({ length: PARTICLE_COUNT }, (_, i) => {
+      // Assign particles to different parts of the React icon
+      // 0-10: Nucleus, 11-33: Orbit 1, 34-56: Orbit 2, 57-79: Orbit 3
+      let type = 'nucleus';
+      if (i > 10) type = 'orbit1';
+      if (i > 33) type = 'orbit2';
+      if (i > 56) type = 'orbit3';
+
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        type,
+        angle: Math.random() * Math.PI * 2,
+        speed: 0.02 + Math.random() * 0.03,
+        size: 1.2 + Math.random() * 1.5,
+        color: SWARM_COLORS[i % SWARM_COLORS.length]
+      };
     });
 
-    let prev = performance.now();
-    const loop = (now) => {
-      const dt = Math.min((now - prev) / 1000, 0.05);
-      prev = now;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const handleMouseMove = (e) => {
+      mx = e.clientX;
+      my = e.clientY;
+    };
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-      for (const p of pts) {
-        p.angle += p.speed * dt;   // advance orbit angle
-        const tx = mx + Math.cos(p.angle) * p.r;
-        const ty = my + Math.sin(p.angle) * p.r;
-        // lerp toward orbit position so they snap to cursor movement
-        p.x += (tx - p.x) * Math.min(dt * 14, 1);
-        p.y += (ty - p.y) * Math.min(dt * 14, 1);
+    let rotation = 0;
+
+    const loop = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      rotation += 0.01;
+
+      pts.forEach((p, i) => {
+        p.angle += p.speed;
+        let tx = mx;
+        let ty = my;
+
+        const orbitWidth = 45;
+        const orbitHeight = 15;
+
+        if (p.type === 'nucleus') {
+          // Small tight cluster in center
+          tx = mx + Math.cos(p.angle) * (5 + Math.sin(rotation * 2 + i) * 3);
+          ty = my + Math.sin(p.angle) * (5 + Math.cos(rotation * 2 + i) * 3);
+        } else {
+          // React Orbits (Ellipses)
+          let orbitAngle = 0;
+          if (p.type === 'orbit1') orbitAngle = 0;
+          if (p.type === 'orbit2') orbitAngle = Math.PI / 3;
+          if (p.type === 'orbit3') orbitAngle = (Math.PI / 3) * 2;
+
+          // Parametric ellipse points
+          const ex = Math.cos(p.angle) * orbitWidth;
+          const ey = Math.sin(p.angle) * orbitHeight;
+
+          // Rotate the ellipse
+          const rx = ex * Math.cos(orbitAngle) - ey * Math.sin(orbitAngle);
+          const ry = ex * Math.sin(orbitAngle) + ey * Math.cos(orbitAngle);
+
+          tx = mx + rx;
+          ty = my + ry;
+        }
+
+        // Smooth follow
+        p.x += (tx - p.x) * 0.15;
+        p.y += (ty - p.y) * 0.15;
+
+        // Draw particle
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.c;
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = p.color;
         ctx.fill();
-      }
+        
+        // Occasional connecting lines for "circuitry" look
+        if (i % 8 === 0 && p.type !== 'nucleus') {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mx, my);
+          ctx.strokeStyle = p.color;
+          ctx.lineWidth = 0.2;
+          ctx.globalAlpha = 0.2;
+          ctx.stroke();
+          ctx.globalAlpha = 1.0;
+        }
+      });
+
       requestAnimationFrame(loop);
     };
-    requestAnimationFrame(loop);
+
+    const animFrame = requestAnimationFrame(loop);
+    return () => {
+      window.removeEventListener('resize', updateSize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animFrame);
+    };
   }, []);
 
   return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', zIndex:9999, pointerEvents:'none' }} />;
