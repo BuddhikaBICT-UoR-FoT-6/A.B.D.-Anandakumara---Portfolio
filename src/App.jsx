@@ -32,8 +32,6 @@ function SwarmCanvas() {
 
     const PARTICLE_COUNT = 80;
     const pts = Array.from({ length: PARTICLE_COUNT }, (_, i) => {
-      // Assign particles to different parts of the React icon
-      // 0-10: Nucleus, 11-33: Orbit 1, 34-56: Orbit 2, 57-79: Orbit 3
       let type = 'nucleus';
       if (i > 10) type = 'orbit1';
       if (i > 33) type = 'orbit2';
@@ -42,6 +40,8 @@ function SwarmCanvas() {
       return {
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
+        vx: 0,
+        vy: 0,
         type,
         angle: Math.random() * Math.PI * 2,
         speed: 0.02 + Math.random() * 0.03,
@@ -54,7 +54,24 @@ function SwarmCanvas() {
       mx = e.clientX;
       my = e.clientY;
     };
+
+    const handleMouseDown = (e) => {
+      // Shatter effect: push particles away from click
+      pts.forEach(p => {
+        const dx = p.x - e.clientX;
+        const dy = p.y - e.clientY;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const force = 15.0 / (dist * 0.02 + 1); // Inverse distance force
+        p.vx += (dx / dist) * force;
+        p.vy += (dy / dist) * force;
+      });
+      
+      // Global pulse event for the PCB background
+      window.dispatchEvent(new CustomEvent('transmit-packet', { detail: { x: e.clientX, y: e.clientY } }));
+    };
+
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mousedown', handleMouseDown);
 
     let rotation = 0;
 
@@ -71,21 +88,16 @@ function SwarmCanvas() {
         const orbitHeight = 15;
 
         if (p.type === 'nucleus') {
-          // Small tight cluster in center
           tx = mx + Math.cos(p.angle) * (5 + Math.sin(rotation * 2 + i) * 3);
           ty = my + Math.sin(p.angle) * (5 + Math.cos(rotation * 2 + i) * 3);
         } else {
-          // React Orbits (Ellipses)
           let orbitAngle = 0;
           if (p.type === 'orbit1') orbitAngle = 0;
           if (p.type === 'orbit2') orbitAngle = Math.PI / 3;
           if (p.type === 'orbit3') orbitAngle = (Math.PI / 3) * 2;
 
-          // Parametric ellipse points
           const ex = Math.cos(p.angle) * orbitWidth;
           const ey = Math.sin(p.angle) * orbitHeight;
-
-          // Rotate the ellipse
           const rx = ex * Math.cos(orbitAngle) - ey * Math.sin(orbitAngle);
           const ry = ex * Math.sin(orbitAngle) + ey * Math.cos(orbitAngle);
 
@@ -93,11 +105,22 @@ function SwarmCanvas() {
           ty = my + ry;
         }
 
-        // Smooth follow
-        p.x += (tx - p.x) * 0.15;
-        p.y += (ty - p.y) * 0.15;
+        // PHYSICS LAYER
+        // 1. Friction
+        p.vx *= 0.92;
+        p.vy *= 0.92;
+        
+        // 2. Gravitational pull to target (React shape)
+        const springDx = tx - p.x;
+        const springDy = ty - p.y;
+        p.vx += springDx * 0.025;
+        p.vy += springDy * 0.025;
 
-        // Draw particle
+        // 3. Move
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // DRAW LAYER
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
@@ -105,14 +128,15 @@ function SwarmCanvas() {
         ctx.shadowColor = p.color;
         ctx.fill();
         
-        // Occasional connecting lines for "circuitry" look
+        // Connecting lines - intensity based on speed (shattering)
+        const currentSpeed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
         if (i % 8 === 0 && p.type !== 'nucleus') {
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(mx, my);
           ctx.strokeStyle = p.color;
-          ctx.lineWidth = 0.2;
-          ctx.globalAlpha = 0.2;
+          ctx.lineWidth = 0.2 + (currentSpeed * 0.1);
+          ctx.globalAlpha = 0.1 + (currentSpeed * 0.05);
           ctx.stroke();
           ctx.globalAlpha = 1.0;
         }
@@ -125,6 +149,7 @@ function SwarmCanvas() {
     return () => {
       window.removeEventListener('resize', updateSize);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousedown', handleMouseDown);
       cancelAnimationFrame(animFrame);
     };
   }, []);
