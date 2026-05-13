@@ -360,6 +360,48 @@ canvas {
   pointer-events: auto !important;
 }
 
+.hero-plate {
+  background: rgba(0, 10, 20, 0.75);
+  backdrop-filter: blur(12px);
+  padding: 40px 60px;
+  position: relative;
+  clip-path: polygon(0 0, 95% 0, 100% 100%, 5% 100%);
+  border-left: 2px solid rgba(0, 255, 65, 0.3);
+  border-right: 2px solid rgba(0, 255, 65, 0.3);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+}
+
+.screw-head {
+  width: 14px;
+  height: 14px;
+  background: #2a2a2a;
+  border-radius: 50%;
+  position: absolute;
+  box-shadow: inset 0 0 5px #000, 1px 1px 2px rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.screw-head::after {
+  content: '';
+  width: 8px;
+  height: 2px;
+  background: #111;
+  position: absolute;
+  transform: rotate(45deg);
+}
+
+.screw-head::before {
+  content: '';
+  width: 8px;
+  height: 2px;
+  background: #111;
+  position: absolute;
+  transform: rotate(-45deg);
+}
+
 .shadow-glow {
   text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 2px black;
 }

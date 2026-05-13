@@ -134,72 +134,80 @@ const Hero = () => {
   return (
     <section style={{
       display: 'flex',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       justifyContent: 'space-between',
       minHeight: '100vh',
-      padding: '100px 60px 60px',
-      gap: '40px',
+      padding: '80px 40px',
+      gap: '20px',
       position: 'relative',
       zIndex: 10,
       pointerEvents: 'none'
     }} className="flex-col md:flex-row">
-      <div style={{ flex: '1', maxWidth: '540px', pointerEvents: 'auto' }} className="space-y-6">
-        <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2 emissive-pulse">
-          <div className="w-2 h-2 rounded-full bg-[#00FF41] animate-ping" />
-          [ ABD_CORE // SESSION_ACTIVE // AVAILABLE_FOR_OPPORTUNITIES ]
-        </div>
+      <div style={{ flex: '1', maxWidth: '640px', pointerEvents: 'auto' }} className="relative">
+        <div className="hero-plate relative">
+          {/* Hardware Fasteners */}
+          <div className="screw-head top-3 left-3" />
+          <div className="screw-head bottom-3 right-3" />
 
-        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8 emissive-pulse" style={{ textShadow: '0 0 10px rgba(0, 255, 65, 0.3), 0 0 20px black' }}>
-          {name.split(" ").map((word, wi) => (
-            <span key={wi} className="inline-block whitespace-nowrap mr-4">
-              {word.split("").map((char, i) => (
-                <motion.span
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: (wi * 10 + i) * 0.03, duration: 0.5 }}
-                  className="inline-block hover:text-[#00FF41] transition-colors cursor-default"
-                >
-                  {char}
-                </motion.span>
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2 emissive-pulse">
+              <div className="w-2 h-2 rounded-full bg-[#00FF41] animate-ping" />
+              [ ABD_CORE // SESSION_ACTIVE // AVAILABLE_FOR_OPPORTUNITIES ]
+            </div>
+
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8 emissive-pulse" style={{ textShadow: '0 0 10px rgba(0, 255, 65, 0.3), 0 0 20px black' }}>
+              {name.split(" ").map((word, wi) => (
+                <span key={wi} className="inline-block whitespace-nowrap mr-4">
+                  {word.split("").map((char, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: (wi * 10 + i) * 0.03, duration: 0.5 }}
+                      className="inline-block hover:text-[#00FF41] transition-colors cursor-default"
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </span>
               ))}
-            </span>
-          ))}
-        </h1>
+            </h1>
 
-        <TypewriterRole />
+            <TypewriterRole />
 
-        <p className="emissive-pulse" style={{
-          fontFamily: 'monospace',
-          fontSize: '14px',
-          color: '#E0FFEA',
-          lineHeight: '1.8',
-          maxWidth: '520px',
-          marginTop: '16px',
-          textShadow: '0 0 10px black, 0 0 4px black'
-        }}>
-          {personal.heroSubtitle}
-        </p>
+            <p className="emissive-pulse" style={{
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              color: '#E0FFEA',
+              lineHeight: '1.8',
+              maxWidth: '520px',
+              marginTop: '16px',
+              textShadow: '0 0 10px black, 0 0 4px black'
+            }}>
+              {personal.heroSubtitle}
+            </p>
 
-        <div className="flex gap-6 pt-6">
-          <motion.a 
-            href="#projects" 
-            className="btn-solid px-6 py-3 font-mono text-xs uppercase tracking-widest transition-all duration-300 relative overflow-hidden group"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span className="relative z-10 group-hover:text-black transition-colors">→ EXPLORE_SYSTEMS</span>
-          </motion.a>
-          
-          <motion.a 
-            href="#" 
-            onClick={handleDownloadCV}
-            className="btn-solid btn-secondary-solid px-6 py-3 font-mono text-xs uppercase tracking-widest transition-all duration-300 relative overflow-hidden group"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span className="relative z-10 group-hover:text-black transition-colors">↓ DOWNLOAD_CV_MANIFEST</span>
-          </motion.a>
+            <div className="flex gap-6 pt-6">
+              <motion.a 
+                href="#projects" 
+                className="btn-solid px-6 py-3 font-mono text-xs uppercase tracking-widest transition-all duration-300 relative overflow-hidden group"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="relative z-10 group-hover:text-black transition-colors">→ EXPLORE_SYSTEMS</span>
+              </motion.a>
+              
+              <motion.a 
+                href="#" 
+                onClick={handleDownloadCV}
+                className="btn-solid btn-secondary-solid px-6 py-3 font-mono text-xs uppercase tracking-widest transition-all duration-300 relative overflow-hidden group"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="relative z-10 group-hover:text-black transition-colors">↓ DOWNLOAD_CV_MANIFEST</span>
+              </motion.a>
+            </div>
+          </div>
         </div>
       </div>
 
