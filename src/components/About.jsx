@@ -52,23 +52,6 @@ const About = () => {
               {about.profile}
             </p>
           </div>
-
-          <div className="space-y-1">
-            <DossierLine label="ENGINEER_ID" value="ABD-2024-047" />
-            <DossierLine label="SPECIALIZATION" value="IoT · Full-Stack · Embedded Systems" />
-            <DossierLine label="STACK_PRIMARY" value="React 18 · Spring Boot 3 · Java 21" />
-            <DossierLine label="STACK_EMBEDDED" value="C++ · Arduino · ESP32 · MQTT" />
-            <DossierLine label="STACK_INFRA" value="Docker · PostgreSQL · Redis · AWS" />
-          </div>
-
-          <div className="mt-8 space-y-4">
-            {about.highlights.map((h, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs font-mono text-[var(--terminal-yellow)]">
-                <span className="w-1.5 h-1.5 bg-[var(--terminal-yellow)] rounded-full" />
-                HIGHLIGHT_{String(i+1).padStart(2, '0')}: {h}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>

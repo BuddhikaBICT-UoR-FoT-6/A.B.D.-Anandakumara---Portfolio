@@ -3,68 +3,12 @@ import { motion, AnimatePresence, useScroll } from 'framer-motion';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const ROLES = [
-  "Spring Boot Developer",
-  "Embedded Systems Engineer",
-  "IoT Solutions Architect",
-  "Full-Stack Engineer"
+  "Full-Stack Developer",
+  "IoT Engineer",
+  "Backend Specialist",
+  "UI/UX Architect",
+  "Embedded Systems Developer"
 ];
-
-const StatusWidget = () => {
-  const [uptime, setUptime] = useState(0);
-  
-  useEffect(() => {
-    const start = Date.now();
-    const interval = setInterval(() => {
-      setUptime(Date.now() - start);
-    }, 13);
-    return () => clearInterval(interval);
-  }, []);
-
-  const formatUptime = (ms) => {
-    const seconds = Math.floor((ms / 1000) % 60).toString().padStart(2, '0');
-    const minutes = Math.floor((ms / (1000 * 60)) % 60).toString().padStart(2, '0');
-    const hours = Math.floor((ms / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
-    const milliseconds = (ms % 1000).toString().padStart(3, '0');
-    return `${hours}:${minutes}:${seconds}.${milliseconds}`;
-  };
-
-  return (
-    <div className="pcb-card" style={{
-      background: 'rgba(0, 15, 5, 0.85)',
-      border: '1px solid rgba(0, 255, 68, 0.2)',
-      borderRadius: '8px',
-      padding: '14px 16px',
-      backdropFilter: 'blur(12px)',
-      fontFamily: 'monospace',
-      fontSize: '12px'
-    }}>
-      <div className="text-[10px] text-[#00FF41] mb-2 border-b border-[#004400] pb-1">
-        SYS_STATUS // FUSION_CORE_v2.1
-      </div>
-      <div className="space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-[9px] text-white/50">UPTIME</span>
-          <span className="text-xs text-[#00FF41]">{formatUptime(uptime)}</span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-[9px] text-white/50">CPU_TEMP</span>
-          <span className="text-xs text-[#FFD700]">42.5°C</span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-[9px] text-white/50">BUS_VOLTAGE</span>
-          <span className="text-xs text-[#00FFFF]">3.30V</span>
-        </div>
-        <div className="h-1 bg-[#002200] rounded-full overflow-hidden">
-          <motion.div 
-            animate={{ width: ["10%", "85%", "40%", "95%", "20%"] }}
-            transition={{ duration: 10, repeat: Infinity }}
-            className="h-full bg-[#00FF41]" 
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const TypewriterRole = () => {
   const [index, setIndex] = useState(0);
@@ -82,7 +26,6 @@ const TypewriterRole = () => {
         setIsDeleting(false);
         setIndex((prev) => (prev + 1) % ROLES.length);
       } else {
-        // Occasional typo logic
         const shouldTypo = !isDeleting && Math.random() < 0.05 && text.length > 2;
         if (shouldTypo) {
           setText(prev => prev + String.fromCharCode(97 + Math.floor(Math.random() * 26)));
@@ -106,7 +49,7 @@ const TypewriterRole = () => {
 };
 
 const Hero = () => {
-  const { personal } = usePortfolioData();
+  const { personal, about } = usePortfolioData();
   const name = personal.fullName;
 
   const handleDownloadCV = (e) => {
@@ -130,7 +73,6 @@ const Hero = () => {
     }
   };
 
-  
   return (
     <section style={{
       display: 'flex',
@@ -138,45 +80,22 @@ const Hero = () => {
       justifyContent: 'space-between',
       minHeight: '100vh',
       padding: '80px 40px',
-      gap: '20px',
+      gap: '40px',
       position: 'relative',
       zIndex: 10,
       pointerEvents: 'none'
-    }} className="flex-col md:flex-row">
-      <div style={{ flex: '1', maxWidth: '640px', pointerEvents: 'auto' }} className="relative">
+    }} className="flex-col lg:flex-row">
+      {/* Left Column: Core Identity */}
+      <div style={{ flex: '1.2', maxWidth: '640px', pointerEvents: 'auto' }} className="relative">
         <div className="hero-plate relative">
           {/* Live Electricity Traces */}
           <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ zIndex: -1 }}>
-            <path 
-              d="M 10 10 L 100 10 L 120 30" 
-              fill="none" 
-              stroke="rgba(0, 255, 65, 0.2)" 
-              strokeWidth="1" 
-            />
-            <path 
-              d="M 10 10 L 100 10 L 120 30" 
-              className="live-trace" 
-              fill="none" 
-              stroke="white" 
-              strokeWidth="1.5" 
-            />
-            
-            <path 
-              d="M 580 400 L 500 400 L 480 380" 
-              fill="none" 
-              stroke="rgba(0, 255, 65, 0.2)" 
-              strokeWidth="1" 
-            />
-            <path 
-              d="M 580 400 L 500 400 L 480 380" 
-              className="live-trace" 
-              fill="none" 
-              stroke="white" 
-              strokeWidth="1.5" 
-            />
+            <path d="M 10 10 L 100 10 L 120 30" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
+            <path d="M 10 10 L 100 10 L 120 30" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" />
+            <path d="M 580 400 L 500 400 L 480 380" fill="none" stroke="rgba(0, 255, 65, 0.2)" strokeWidth="1" />
+            <path d="M 580 400 L 500 400 L 480 380" className="live-trace" fill="none" stroke="white" strokeWidth="1.5" />
           </svg>
 
-          {/* Hardware Fasteners */}
           <div className="screw-head top-3 left-3 screw-blink" />
           <div className="screw-head bottom-3 right-3 screw-blink" />
 
@@ -242,16 +161,24 @@ const Hero = () => {
         </div>
       </div>
 
-      <div style={{
-        width: '260px',
-        flexShrink: 0,
-        pointerEvents: 'auto'
-      }} className="flex flex-col items-center md:items-end w-full gap-4">
-        <StatusWidget />
-        <div className="text-[8px] font-mono text-[#004400] text-right">
-          0x0000_BOOT_SEC_OK<br />
-          0x0001_G_PARTICLES_READY<br />
-          0x0002_EMISSIVE_SUBSTRATE_ON
+      {/* Right Column: Highlights Register */}
+      <div style={{ flex: '0.8', pointerEvents: 'auto' }} className="flex flex-col items-end w-full gap-4 text-right">
+        <div className="pcb-card" style={{ background: 'rgba(0, 10, 20, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0, 255, 65, 0.2)' }}>
+          <div className="text-[10px] text-[#00FF41] mb-6 border-b border-[#004400] pb-2 font-mono">
+            // REGISTER_01 :: CORE_HIGHLIGHTS
+          </div>
+          <div className="space-y-4">
+            {about.highlights.map((h, i) => (
+              <div key={i} className="text-xs font-mono text-[var(--terminal-yellow)] group hover:text-white transition-colors cursor-default">
+                HIGHLIGHT_{String(i+1).padStart(2, '0')}: <span className="opacity-80">{h}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 text-[8px] font-mono text-[#004400]">
+            0x0000_BOOT_SEC_OK<br />
+            0x0001_G_PARTICLES_READY<br />
+            0x0002_EMISSIVE_SUBSTRATE_ON
+          </div>
         </div>
       </div>
     </section>
