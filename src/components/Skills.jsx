@@ -66,6 +66,30 @@ const SkillBar = ({ level }) => (
 );
 
 const Skills = () => {
+  const { skills } = usePortfolioData();
+
+  const displaySkills = (skills && Array.isArray(skills.technical) && skills.technical.length > 0)
+    ? skills.technical.map(skillName => {
+        const matched = SKILLS.find(s => s.component.toLowerCase() === skillName.toLowerCase());
+        return {
+          component: skillName,
+          spec: matched ? matched.spec : 'Logic/Data',
+          status: matched ? matched.status : 'ACTIVE',
+          level: matched ? matched.level : 80
+        };
+      })
+    : SKILLS;
+
+  const displaySoftSkills = (skills && Array.isArray(skills.soft) && skills.soft.length > 0)
+    ? skills.soft.map(skillName => {
+        const matched = SOFT_SKILLS.find(s => s.tag.toLowerCase() === skillName.toLowerCase());
+        return {
+          tag: skillName,
+          emoji: matched ? matched.emoji : '⚡'
+        };
+      })
+    : SOFT_SKILLS;
+
   return (
     <section id="skills" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
       <div className="section-header flex items-center gap-4 mb-12">
@@ -93,7 +117,7 @@ const Skills = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--pcb-green-light)]/20">
-                  {SKILLS.map((skill, i) => (
+                  {displaySkills.map((skill, i) => (
                     <tr key={i} className="group">
                       <td className="py-3 text-[var(--terminal-green)]">{skill.component}</td>
                       <td className="py-3 opacity-60">{skill.spec}</td>
@@ -111,7 +135,7 @@ const Skills = () => {
               PIN_HEADER_PROTOCOLS
             </h3>
             <div className="flex flex-wrap gap-3">
-              {SOFT_SKILLS.map(item => (
+              {displaySoftSkills.map(item => (
                 <div key={item.tag} className="bg-[#111] border border-[var(--pcb-green-light)] px-3 py-1.5 font-mono text-[10px] text-[var(--terminal-green)] shadow-[4px_4px_0_var(--pcb-green-dark)] hover:text-white hover:border-[var(--terminal-green)] transition-all duration-300 cursor-default flex items-center gap-2 group hover:-translate-y-1">
                   <span className="opacity-70 group-hover:scale-125 transition-transform">{item.emoji}</span>
                   {item.tag.toUpperCase().replace(/ /g, '_')}

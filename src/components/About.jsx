@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const DossierLine = ({ label, value }) => (
@@ -8,7 +9,27 @@ const DossierLine = ({ label, value }) => (
 );
 
 const About = () => {
-  const { about } = usePortfolioData();
+  const { about, personal } = usePortfolioData();
+
+  const [localPhoto, setLocalPhoto] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('profilePhoto') || '';
+    }
+    return '';
+  });
+
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === 'profilePhoto') {
+        setLocalPhoto(e.newValue || '');
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  const photoVer = personal?.photoVersion || '1';
+  const profileImg = localPhoto ? localPhoto : `profile.png?v=${photoVer}`;
 
   return (
     <section id="about" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
@@ -28,7 +49,7 @@ const About = () => {
               style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
             >
               <img 
-                src="/profile.png" 
+                src={profileImg} 
                 alt="Profile" 
                 className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" 
               />
@@ -44,7 +65,7 @@ const About = () => {
           <div className="mb-6 border-b border-[var(--pcb-green-light)] pb-4">
             <h3 className="text-lg font-mono text-[var(--terminal-green)] mb-2">ENGINEER_PROFILE_DATA</h3>
             <p className="text-sm opacity-70 leading-relaxed">
-              {about.profile}
+              {about?.profile || ''}
             </p>
           </div>
         </div>

@@ -148,12 +148,27 @@ function SwarmCanvas() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', zIndex:9999, pointerEvents:'none' }} />;
+  return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100%', height:'100%', zIndex:9999, pointerEvents:'none' }} />;
 }
 function App() {
   const [booting, setBooting] = useState(true);
   const [showCanvas, setShowCanvas] = useState(false);
   const [webglOk, setWebglOk] = useState(true);
+
+  // Lock body & html scroll during the booting sequence to prevent window scrollbar showing
+  useEffect(() => {
+    if (booting) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [booting]);
 
   useEffect(() => {
     try {

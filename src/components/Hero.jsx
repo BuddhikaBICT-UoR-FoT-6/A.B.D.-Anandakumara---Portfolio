@@ -50,18 +50,29 @@ const TypewriterRole = () => {
 
 const Hero = () => {
   const { personal, about } = usePortfolioData();
-  const name = personal.fullName;
+  const name = personal?.fullName || '';
 
   const handleDownloadCV = (e) => {
     e.preventDefault();
-    const resumeData = localStorage.getItem('resumeData');
-    const resumeName = localStorage.getItem('resumeName') || 'Resume.pdf';
+    let cvUrl = '';
+    let cvName = 'Resume.pdf';
 
-    if (resumeData) {
+    const localData = localStorage.getItem('resumeData');
+    const localName = localStorage.getItem('resumeName');
+
+    if (localData) {
+      cvUrl = localData;
+      cvName = localName || 'Resume.pdf';
+    } else if (personal?.hasResume) {
+      cvUrl = `Resume.pdf?v=${personal.cvVersion || '1'}`;
+      cvName = personal.resumeName || 'Resume.pdf';
+    }
+
+    if (cvUrl) {
       try {
         const link = document.createElement('a');
-        link.href = resumeData;
-        link.download = resumeName;
+        link.href = cvUrl;
+        link.download = cvName;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -169,7 +180,7 @@ const Hero = () => {
               // REGISTER_01 :: CORE_HIGHLIGHTS
             </div>
             <div className="space-y-4">
-              {about.highlights.map((h, i) => (
+              {(about?.highlights || []).map((h, i) => (
                 <div key={i} className="text-xs font-mono text-[var(--terminal-yellow)] group hover:text-white transition-colors cursor-default">
                   HIGHLIGHT_{String(i+1).padStart(2, '0')}: <span className="opacity-80">{h}</span>
                 </div>

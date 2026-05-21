@@ -6,6 +6,18 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
+    // Check query params for secret access
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('secret') === 'admin') {
+      setIsOpen(true);
+      try {
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({ path: newUrl }, '', newUrl);
+      } catch (err) {
+        console.warn('URL cleanup failed:', err);
+      }
+    }
+
     const onDown = (e) => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
@@ -20,7 +32,7 @@ export default function AdminLogin() {
   const handleLogin = () => {
     if (password === 'buddhika2026') {
       sessionStorage.setItem('adminAuth', 'true');
-      window.location.href = '/admin.html';
+      window.location.href = 'admin.html';
     } else {
       alert('Incorrect password');
       setPassword('');

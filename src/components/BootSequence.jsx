@@ -32,12 +32,15 @@ export default function BootSequence({ onComplete }) {
     }
   }, [displayedLogs, progress]);
 
+  // Global 4.5s failsafe timer to ensure it transitions to portfolio
   useEffect(() => {
-    // Fail-safe timer to ensure boot screen clears in 7 seconds
     const failsafe = setTimeout(() => {
       onComplete();
-    }, 7000);
+    }, 4500);
+    return () => clearTimeout(failsafe);
+  }, [onComplete]);
 
+  useEffect(() => {
     if (currentLine < BOOT_LOGS.length) {
       const log = BOOT_LOGS[currentLine];
       
@@ -47,28 +50,26 @@ export default function BootSequence({ onComplete }) {
         if (log.hasProgress) {
           let p = 0;
           const pInterval = setInterval(() => {
-            p += Math.random() * 20;
+            p += Math.random() * 25 + 10;
             if (p >= 100) {
               p = 100;
               clearInterval(pInterval);
               setCurrentLine(prev => prev + 1);
             }
             setProgress(p);
-          }, 80); // Slightly faster to fit 7s
+          }, 40); // 40ms interval for fast progress
         } else {
           setCurrentLine(prev => prev + 1);
         }
-      }, 100 + Math.random() * 50);
+      }, 40 + Math.random() * 30); // 40-70ms delay
 
       return () => {
         clearTimeout(timer);
-        clearTimeout(failsafe);
       };
     } else {
-      const finalTimer = setTimeout(() => onComplete(), 500);
+      const finalTimer = setTimeout(() => onComplete(), 300);
       return () => {
         clearTimeout(finalTimer);
-        clearTimeout(failsafe);
       };
     }
   }, [currentLine, onComplete]);
@@ -84,7 +85,17 @@ export default function BootSequence({ onComplete }) {
             <span className="text-[10px] text-[#004400] ml-2">SYSTEM CONSOLE - v2.1.4</span>
           </div>
 
-          <div ref={scrollRef} className="space-y-1.5 h-[400px] overflow-y-auto scroll-smooth">
+          <style dangerouslySetInnerHTML={{__html: `
+            .hide-scrollbar::-webkit-scrollbar {
+              display: none !important;
+            }
+          `}} />
+
+          <div 
+            ref={scrollRef} 
+            className="space-y-1.5 h-[400px] overflow-y-auto scroll-smooth hide-scrollbar"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {displayedLogs.map((log, i) => (
               <div key={i} style={{ color: log.color, opacity: i < displayedLogs.length - 1 ? 0.6 : 1 }}>
                 <span className="mr-2">{log.text}</span>

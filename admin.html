@@ -12,7 +12,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
     <style>
         :root {
             --bg: #02040a;
@@ -317,6 +316,22 @@
             border: 1px solid var(--border-2);
             color: var(--text);
         }
+
+        /* Override any inherited .card::after overlays that would block pointer events */
+        .card::after,
+        .card::before {
+            pointer-events: none !important;
+        }
+
+        /* Ensure all admin interactive elements remain clickable */
+        .admin-container *,
+        .admin-container button,
+        .admin-container input,
+        .admin-container textarea,
+        .admin-container a,
+        .admin-container select {
+            pointer-events: auto;
+        }
     </style>
 </head>
 
@@ -445,13 +460,874 @@
             <button class="button" id="addProjectBtn">+ Add New Project</button>
         </div>
 
+        <!-- Export Assets Section -->
+        <div class="admin-section card" id="exportSection">
+            <h2>📤 Export & Backup Portfolio Data</h2>
+            <p style="color:var(--muted);font-size:14px;margin-bottom:16px;line-height:1.5;">
+                Since this is a client-side environment, you can download your modified configuration and assets below.
+                To make your changes live for all visitors, place these downloaded files in your repository directory (e.g. <code>src/data/portfolioData.json</code>, <code>public/profile.png</code>, and <code>public/Resume.pdf</code>) and commit/push them to Git.
+            </p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <button class="button button-secondary" type="button" id="exportDataBtn">📥 Export portfolioData.json</button>
+                <button class="button button-secondary" type="button" id="exportPhotoBtn" style="display:none;">🖼 Download profile.png</button>
+                <button class="button button-secondary" type="button" id="exportCvBtn" style="display:none;">📄 Download Resume.pdf</button>
+            </div>
+        </div>
+
         <div class="admin-actions">
             <button class="btn-save" id="saveBtn">💾 Save All Changes</button>
             <a href="index.html" class="button button-secondary">← Back to Portfolio</a>
         </div>
     </div>
 
-    <script type="module" src="admin.js"></script>
+    <script>
+(function () {
+    'use strict';
+
+    if (window.__admin_panel_loaded__) return;
+    window.__admin_panel_loaded__ = true;
+
+    const defaultData = {
+      "personal": {
+        "fullName": "Buddhika Darshan",
+        "title": "BICT Undergraduate | Full-Stack Developer | OCI Certified",
+        "heroTitle": "I build software that works as good as it looks.",
+        "heroSubtitle": "I'm Buddhika Darshan — a final-year engineer who turns complex problems into clean, scalable, and impactful software.",
+        "email": "buddhikadarshan1475@gmail.com",
+        "github": "https://github.com/BuddhikaBICT-UoR-FoT-6",
+        "linkedin": "https://www.linkedin.com/in/buddhika-darshan-9b9168252/",
+        "photoVersion": "1",
+        "cvVersion": "1",
+        "hasResume": false,
+        "resumeName": ""
+      },
+      "about": {
+        "profile": "I am a Full-Stack Software Engineer and BICT undergraduate specializing in building scalable, AI-integrated applications. From architecting agentic IoT smart environments to developing semantic search engines, I bridge the gap between robust backend systems (Java/Spring Boot, Node.js) and intuitive, modern frontends (React, Flutter). Driven by a passion for clean code and cloud-ready infrastructure (GCP, Oracle Cloud), I thrive on solving complex system architecture challenges.",
+        "highlights": [
+          "🎓 Final Year BICT at University of Ruhuna",
+          "☁️ Oracle Certified Foundations Associate (OCI)",
+          "🤖 Built HomeCanvas (Gemini AI, ESP32, Spring Boot)",
+          "📱 Built Smart Campus (Offline-first Flutter platform)",
+          "🚌 Built CeylonQueueBusPulse (Real-time tracking)",
+          "💳 Integrated Stripe & PayPal for BoutiqueFlow",
+          "🧪 95%+ Jest coverage on Cypher-UI engine",
+          "🚀 Deployed via GCP, Docker, Vercel & Netlify"
+        ]
+      },
+      "skills": {
+        "technical": [
+          "Spring Boot / Java",
+          "React / Flutter",
+          "Node.js / Express",
+          "JavaScript / TypeScript",
+          "Kotlin / Android",
+          "MongoDB / MySQL / SQLite",
+          "Cloud (GCP / OCI)",
+          "Docker / CI-CD"
+        ],
+        "soft": [
+          "Communication",
+          "Teamwork",
+          "Problem-solving",
+          "Git & GitHub",
+          "REST API Design",
+          "Jest Testing",
+          "Redis Caching",
+          "Cryptography"
+        ]
+      },
+      "projects": [
+        {
+          "title": "HomeCanvas",
+          "badge": "IoT / Web",
+          "icon": "🏠",
+          "description": "An end-to-end smart home platform integrating an ESP32 micro-controller and sensor fusion for real-time home monitoring, actionable alerts, and a secure centralized dashboard.",
+          "tech": ["Java", "Spring Boot", "React.js", "TypeScript", "ESP32", "SQL"],
+          "liveUrl": "https://homecanvas99.netlify.app/",
+          "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/HomeCanvas.git"
+        },
+        {
+          "title": "CrowdFlow",
+          "badge": "Mobile",
+          "icon": "🗺️",
+          "description": "A map-first Android platform backed by a highly scalable data pipeline, enabling users to visualize localized traffic conditions and seamlessly submit real-time severity feedback.",
+          "tech": ["Kotlin", "Node.js", "MongoDB", "Redis"],
+          "liveUrl": "",
+          "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/CrowdFlow.git"
+        },
+        {
+          "title": "BoutiqueFlow",
+          "badge": "Web",
+          "icon": "👗",
+          "description": "A full-stack digital management platform built to transition a physical clothing shop online, featuring secure real-time inventory tracking, RBAC, and automated digital sales processing.",
+          "tech": ["Angular", "Node.js", "Express", "MongoDB"],
+          "liveUrl": "https://abdclothingstore.netlify.app/",
+          "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/BoutiqueFlow.git"
+        },
+        {
+          "title": "Cypher-UI",
+          "badge": "Web",
+          "icon": "🔐",
+          "description": "An educational platform bridging theoretical cryptography with hands-on implementation, featuring real-time encryption visualizations and brute-force simulators to accelerate concept understanding.",
+          "tech": ["React.js", "Node.js", "MySQL"],
+          "liveUrl": "https://cipher-ui-zeta.vercel.app/",
+          "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/cipher-ui.git"
+        },
+        {
+          "title": "Smart Campus",
+          "badge": "Mobile",
+          "icon": "🎓",
+          "description": "A production-grade, multi-role Flutter application that digitizes and centralizes administrative and academic workflows with an offline-first architecture for low-connectivity environments.",
+          "tech": ["Flutter", "Dart", "Provider", "SQLite", "MySQL", "Clean Architecture"],
+          "liveUrl": "",
+          "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/smart_campus.git"
+        },
+        {
+          "title": "Earn++",
+          "badge": "Mobile",
+          "icon": "📈",
+          "description": "A cross-platform mobile application providing beginner investors with a streamlined, dollar-based alternative to complex spreadsheet portfolio management with real-time profit/loss calculations.",
+          "tech": ["Flutter", "Dart Shelf", "MySQL"],
+          "liveUrl": "",
+          "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/EarnPlusPlus.git"
+        },
+        {
+          "title": "Secure Vault",
+          "badge": "Desktop",
+          "icon": "🔒",
+          "description": "A desktop utility application designed to securely manage, organize, and edit .env files for local development repositories with encrypted backup generation capabilities.",
+          "tech": ["Java", "JavaFX", "SQL"],
+          "liveUrl": "",
+          "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/Secure-Environment-Variable-Vault.git"
+        }
+      ]
+    };
+
+    // ── DIAGNOSTIC GLOBAL ERROR CATCHER ─────────────────────────
+    window.onerror = function (message, source, lineno, colno, error) {
+        const errText = `${message} at ${source}:${lineno}:${colno}`;
+        console.error("GLOBAL ERROR:", errText, error);
+        alert("Admin Panel JS Error:\n" + errText);
+        return false;
+    };
+    window.onunhandledrejection = function (event) {
+        console.error("UNHANDLED REJECTION:", event.reason);
+        alert("Admin Panel Unhandled Rejection:\n" + String(event.reason));
+    };
+
+    // ── AUTH CHECK ─────────────────────────────────────────────
+    let isAuthenticated = false;
+    try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('pass') === 'buddhika2026') {
+            isAuthenticated = true;
+            try { sessionStorage.setItem('adminAuth', 'true'); } catch (_) {}
+        } else {
+            isAuthenticated = sessionStorage.getItem('adminAuth') === 'true';
+        }
+    } catch (e) {
+        console.warn("sessionStorage access blocked:", e);
+    }
+
+    if (!isAuthenticated) {
+        const isLocalFile = window.location.protocol === 'file:';
+        // If local file, or cookies/storage blocked, or they just visited admin.html directly
+        const entered = prompt("Admin Access - Enter password:");
+        if (entered === 'buddhika2026') {
+            isAuthenticated = true;
+            try { sessionStorage.setItem('adminAuth', 'true'); } catch (_) {}
+        }
+    }
+
+    if (!isAuthenticated) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    // ══════════════════════════════════════════════
+    //  TOAST SYSTEM (self-contained for admin page)
+    // ══════════════════════════════════════════════
+    const TOAST_ICONS = { success: '✓', error: '✕', info: 'ℹ', warning: '⚠' };
+    const TOAST_TITLES = { success: 'Success', error: 'Error', info: 'Info', warning: 'Warning' };
+
+    function showToast(message, type = 'info', title, duration = 3500) {
+        let toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container';
+            if (document.body) {
+                document.body.appendChild(toastContainer);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => document.body.appendChild(toastContainer));
+            }
+        }
+
+        const t = document.createElement('div');
+        t.className = `toast toast-${type}`;
+        t.setAttribute('role', 'alert');
+        t.innerHTML = `
+          <span class="toast-left-bar"></span>
+          <span class="toast-icon">${TOAST_ICONS[type] || TOAST_ICONS.info}</span>
+          <span class="toast-body">
+            <div class="toast-title">${title || TOAST_TITLES[type]}</div>
+            <div class="toast-message">${message}</div>
+          </span>
+          <button class="toast-close" aria-label="Dismiss">&times;</button>
+        `;
+        toastContainer.appendChild(t);
+        const dismiss = () => {
+            t.classList.add('toast-exit');
+            t.addEventListener('animationend', () => t.remove(), { once: true });
+        };
+        const timer = setTimeout(dismiss, duration);
+        t.querySelector('.toast-close').addEventListener('click', () => { clearTimeout(timer); dismiss(); });
+    }
+
+    // ══════════════════════════════════════════════
+    //  PORTFOLIO DATA INITIALIZATION
+    // ══════════════════════════════════════════════
+    let portfolioData = JSON.parse(JSON.stringify(defaultData));
+
+    function migratePortfolioData() {
+        if (!portfolioData || !portfolioData.projects || !Array.isArray(portfolioData.projects)) return;
+        let dirty = false;
+
+        const patches = {
+            'HomeCanvas':  { liveUrl: 'https://homecanvas99.netlify.app/' },
+            'Cypher-UI':   { liveUrl: 'https://cipher-ui-zeta.vercel.app/' },
+            'BoutiqueFlow':{ liveUrl: 'https://abdclothingstore.netlify.app/' },
+        };
+
+        // Apply liveUrl patches
+        portfolioData.projects.forEach(p => {
+            if (!p || typeof p !== 'object') return;
+            const patch = patches[p.title];
+            if (patch && !p.liveUrl) {
+                Object.assign(p, patch);
+                dirty = true;
+            }
+        });
+
+        // Add Smart Campus if not already present
+        const hasSC = portfolioData.projects.some(p => p && p.title === 'Smart Campus');
+        if (!hasSC) {
+            const scEntry = defaultData.projects.find(p => p && p.title === 'Smart Campus');
+            if (scEntry) {
+                // Insert after Cypher-UI
+                const idx = portfolioData.projects.findIndex(p => p && p.title === 'Cypher-UI');
+                portfolioData.projects.splice(idx >= 0 ? idx + 1 : portfolioData.projects.length, 0, scEntry);
+                dirty = true;
+            }
+        }
+
+        if (dirty) {
+            try { localStorage.setItem('portfolioData', JSON.stringify(portfolioData)); } catch (_) {}
+        }
+    }
+
+    // Helper to safely get an element by ID
+    const getEl = (id) => document.getElementById(id);
+
+    // Helpers to safely get and set field values without throwing TypeError
+    function safeGetVal(id) {
+        const el = getEl(id);
+        return el ? el.value.trim() : '';
+    }
+
+    function safeSetVal(id, val) {
+        const el = getEl(id);
+        if (el) el.value = val;
+    }
+
+    // Safe localStorage wrappers
+    function safeGetItem(key) {
+        try {
+            return localStorage.getItem(key);
+        } catch (e) {
+            console.warn(`localStorage.getItem failed for ${key}:`, e);
+            return null;
+        }
+    }
+
+    // Safe localStorage remove wrapper
+    function safeRemoveItem(key) {
+        try {
+            localStorage.removeItem(key);
+            return true;
+        } catch (e) {
+            console.warn(`localStorage.removeItem failed for ${key}:`, e);
+            return false;
+        }
+    }
+
+    function safeSetItem(key, value) {
+        try {
+            localStorage.setItem(key, value);
+            return true;
+        } catch (e) {
+            console.warn(`localStorage.setItem failed for ${key}:`, e);
+            return false;
+        }
+    }
+
+    // ── IMAGE & RESUME PREVIEWS ──────────────────────────────────
+    function initAdminPhoto() {
+        const adminPhotoPreview = getEl('adminPhotoPreview');
+        const adminPhotoFallback = getEl('adminPhotoFallback');
+        const profilePhotoRemoveBtn = getEl('profilePhotoRemoveBtn');
+        const exportPhotoBtn = getEl('exportPhotoBtn');
+
+        if (!adminPhotoPreview || !adminPhotoFallback || !profilePhotoRemoveBtn) return;
+
+        const saved = safeGetItem('profilePhoto');
+        if (saved) {
+            adminPhotoPreview.src = saved;
+            adminPhotoPreview.style.display = 'block';
+            adminPhotoFallback.style.display = 'none';
+            profilePhotoRemoveBtn.style.display = '';
+            if (exportPhotoBtn) exportPhotoBtn.style.display = '';
+        } else if (portfolioData && portfolioData.personal?.photoVersion) {
+            adminPhotoPreview.src = `profile.png?v=${portfolioData.personal.photoVersion}`;
+            adminPhotoPreview.style.display = 'block';
+            adminPhotoFallback.style.display = 'none';
+            profilePhotoRemoveBtn.style.display = '';
+            if (exportPhotoBtn) exportPhotoBtn.style.display = 'none';
+        } else {
+            adminPhotoPreview.src = '';
+            adminPhotoPreview.style.display = 'none';
+            adminPhotoFallback.style.display = 'block';
+            profilePhotoRemoveBtn.style.display = 'none';
+            if (exportPhotoBtn) exportPhotoBtn.style.display = 'none';
+        }
+    }
+
+    function refreshResumeUI() {
+        const resumeCurrentName = getEl('resumeCurrentName');
+        const resumeCurrentInfo = getEl('resumeCurrentInfo');
+        const resumeDropZone = getEl('resumeDropZone');
+        const exportCvBtn = getEl('exportCvBtn');
+
+        if (!resumeCurrentName || !resumeCurrentInfo || !resumeDropZone) return;
+
+        const hasLocal = !!safeGetItem('resumeData');
+        const name = safeGetItem('resumeName') || (portfolioData.personal?.hasResume ? (portfolioData.personal.resumeName || 'Resume.pdf') : '');
+        if (name) {
+            resumeCurrentName.textContent = name;
+            resumeCurrentInfo.style.display = 'flex';
+            resumeDropZone.style.display = 'none';
+            if (exportCvBtn) exportCvBtn.style.display = hasLocal ? '' : 'none';
+        } else {
+            resumeCurrentInfo.style.display = 'none';
+            resumeDropZone.style.display = '';
+            if (exportCvBtn) exportCvBtn.style.display = 'none';
+        }
+    }
+
+    function loadFormData() {
+        safeSetVal('fullName', portfolioData.personal?.fullName || '');
+        safeSetVal('title', portfolioData.personal?.title || '');
+        safeSetVal('heroTitle', portfolioData.personal?.heroTitle || '');
+        safeSetVal('heroSubtitle', portfolioData.personal?.heroSubtitle || '');
+        safeSetVal('email', portfolioData.personal?.email || '');
+        safeSetVal('github', portfolioData.personal?.github || '');
+        safeSetVal('linkedin', portfolioData.personal?.linkedin || '');
+        safeSetVal('aboutProfile', portfolioData.about?.profile || '');
+        safeSetVal('aboutHighlights', Array.isArray(portfolioData.about?.highlights) ? portfolioData.about.highlights.join('\n') : '');
+        safeSetVal('technicalSkills', Array.isArray(portfolioData.skills?.technical) ? portfolioData.skills.technical.join('\n') : '');
+        safeSetVal('softSkills', Array.isArray(portfolioData.skills?.soft) ? portfolioData.skills.soft.join('\n') : '');
+        renderProjects();
+        refreshResumeUI();
+    }
+
+    // ──────────────────────────────────────────────
+    //  RESUME UPLOAD HELPER
+    // ──────────────────────────────────────────────
+    function handleResumeFile(file) {
+        if (!file) return;
+        if (file.type !== 'application/pdf') {
+            showToast('Only PDF files are supported.', 'error', 'Invalid File');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) { // 5 MB limit
+            showToast('File is too large. Please upload a PDF under 5 MB.', 'warning', 'File Too Large');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                safeSetItem('resumeData', e.target.result);
+                safeSetItem('resumeName', file.name);
+                safeSetItem('resumeVersion', Date.now().toString());
+
+                // Upload to local server
+                try {
+                    await fetch('/api/upload-cv', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/pdf' },
+                        body: file
+                    });
+                } catch (fetchErr) {
+                    console.warn('Local dev API upload-cv failed (expected in production):', fetchErr);
+                }
+
+                refreshResumeUI();
+                showToast(`"${file.name}" uploaded — CV button is now live on your portfolio!`, 'success', 'Resume Uploaded ✓', 5000);
+            } catch (err) {
+                showToast('Storage quota exceeded. Try a smaller file.', 'error', 'Upload Failed');
+            }
+        };
+        reader.onerror = () => showToast('Could not read the file. Please try again.', 'error');
+        reader.readAsDataURL(file);
+    }
+
+    // ──────────────────────────────────────────────
+    //  PROJECTS
+    // ──────────────────────────────────────────────
+    function renderProjects() {
+        const projectsContainer = getEl('projectsContainer');
+        if (!projectsContainer) return;
+        projectsContainer.innerHTML = '';
+        if (!portfolioData || !Array.isArray(portfolioData.projects)) return;
+        portfolioData.projects.forEach((project, index) => {
+            if (!project) return;
+            const techStr = Array.isArray(project.tech) ? project.tech.join(', ') : '';
+            const div = document.createElement('div');
+            div.className = 'project-item';
+            div.innerHTML = `
+        <h4>Project ${index + 1}</h4>
+        <div class="admin-field-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="admin-field">
+                <label>Title</label>
+                <input type="text" class="project-title" data-index="${index}" value="${escHtml(project.title)}">
+            </div>
+            <div class="admin-field">
+                <label>Badge (e.g. Web / App)</label>
+                <input type="text" class="project-badge" data-index="${index}" value="${escHtml(project.badge)}">
+            </div>
+        </div>
+        <div class="admin-field-row" style="display:grid;grid-template-columns:80px 1fr;gap:12px;">
+            <div class="admin-field">
+                <label>Icon</label>
+                <input type="text" class="project-icon-field" data-index="${index}" value="${escHtml(project.icon || '🚀')}" placeholder="🚀">
+            </div>
+            <div class="admin-field">
+                <label>Date Range</label>
+                <input type="text" class="project-date" data-index="${index}" value="${escHtml(project.date || '')}" placeholder="e.g. Jan 2026 – Mar 2026">
+            </div>
+        </div>
+        <div class="admin-field">
+          <label>Description</label>
+          <textarea class="project-description" data-index="${index}">${escHtml(project.description)}</textarea>
+        </div>
+        <div class="admin-field">
+          <label>Technologies (comma separated)</label>
+          <input type="text" class="project-tech" data-index="${index}" value="${escHtml(techStr)}">
+        </div>
+        <div class="admin-field-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="admin-field">
+                <label>Live URL</label>
+                <input type="url" class="project-live" data-index="${index}" value="${escHtml(project.liveUrl || '')}">
+            </div>
+            <div class="admin-field">
+                <label>Code / GitHub URL</label>
+                <input type="url" class="project-code" data-index="${index}" value="${escHtml(project.codeUrl || '')}">
+            </div>
+        </div>
+        <button class="button button-secondary" onclick="deleteProject(${index})" style="margin-top:4px;">🗑 Delete Project</button>
+      `;
+            projectsContainer.appendChild(div);
+        });
+    }
+
+    function escHtml(str) {
+        return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    window.deleteProject = function (index) {
+        if (!portfolioData || !Array.isArray(portfolioData.projects) || !portfolioData.projects[index]) return;
+        if (!confirm('Delete this project?')) return;
+        const removed = portfolioData.projects[index].title || 'New Project';
+        portfolioData.projects.splice(index, 1);
+        renderProjects();
+        showToast(`Project "${removed}" deleted.`, 'info', 'Project Deleted');
+    };
+
+    // ── EXPORT AND BACKUP DOWNLOAD FUNCTIONS ──────────────────────
+    function exportPortfolioData() {
+        try {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(portfolioData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "portfolioData.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Downloaded portfolioData.json! Put this in src/data/portfolioData.json", "success", "Export Successful");
+        } catch (e) {
+            console.error("Export portfolioData failed", e);
+            showToast("Failed to export portfolioData.json: " + e.message, "error", "Export Failed");
+        }
+    }
+
+    function exportProfilePhoto() {
+        const savedPhoto = safeGetItem('profilePhoto');
+        if (!savedPhoto) {
+            showToast("No uploaded profile photo to download.", "warning", "Download Photo");
+            return;
+        }
+        try {
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", savedPhoto);
+            let ext = 'png';
+            const match = savedPhoto.match(/^data:image\/([a-zA-Z+]+);base64,/);
+            if (match && match[1]) {
+                ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+            }
+            downloadAnchor.setAttribute("download", `profile.${ext}`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast(`Downloaded profile.${ext}! Save it as public/profile.png`, "success", "Export Successful");
+        } catch (e) {
+            console.error("Export photo failed", e);
+            showToast("Failed to export photo: " + e.message, "error", "Export Failed");
+        }
+    }
+
+    function exportResume() {
+        const savedResume = safeGetItem('resumeData');
+        if (!savedResume) {
+            showToast("No uploaded resume to download.", "warning", "Download Resume");
+            return;
+        }
+        try {
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", savedResume);
+            downloadAnchor.setAttribute("download", "Resume.pdf");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Downloaded Resume.pdf! Save it as public/Resume.pdf", "success", "Export Successful");
+        } catch (e) {
+            console.error("Export resume failed", e);
+            showToast("Failed to export resume: " + e.message, "error", "Export Failed");
+        }
+    }
+
+    // ──────────────────────────────────────────────
+    //  EVENT LISTENERS SETUP
+    // ──────────────────────────────────────────────
+    function setupEventListeners() {
+        const profilePhotoBrowseBtn = getEl('profilePhotoBrowseBtn');
+        const profilePhotoInput = getEl('profilePhotoInput');
+        const profilePhotoRemoveBtn = getEl('profilePhotoRemoveBtn');
+        const adminPhotoPreview = getEl('adminPhotoPreview');
+        const adminPhotoFallback = getEl('adminPhotoFallback');
+        const resumeBrowseBtn = getEl('resumeBrowseBtn');
+        const resumeFileInput = getEl('resumeFileInput');
+        const resumeDropZone = getEl('resumeDropZone');
+        const resumeRemoveBtn = getEl('resumeRemoveBtn');
+        const addProjectBtn = getEl('addProjectBtn');
+        const saveBtn = getEl('saveBtn');
+        const logoutBtn = getEl('logoutBtn');
+
+        if (profilePhotoBrowseBtn && profilePhotoInput) {
+            profilePhotoBrowseBtn.addEventListener('click', () => profilePhotoInput.click());
+        }
+
+        if (profilePhotoInput) {
+            profilePhotoInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+                if (!allowed.includes(file.type)) {
+                    showToast('Only JPG, PNG, WebP or GIF images are supported.', 'error', 'Invalid File');
+                    return;
+                }
+                if (file.size > 3 * 1024 * 1024) {
+                    showToast('Photo is too large. Please use an image under 3 MB.', 'warning', 'File Too Large');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    try {
+                        safeSetItem('profilePhoto', ev.target.result);
+                        safeSetItem('profilePhotoVersion', Date.now().toString());
+
+                        // Upload to local server
+                        try {
+                            await fetch('/api/upload-photo', {
+                                method: 'POST',
+                                headers: { 'Content-Type': file.type },
+                                body: file
+                            });
+                        } catch (fetchErr) {
+                            console.warn('Local dev API upload-photo failed (expected in production):', fetchErr);
+                        }
+
+                        if (adminPhotoPreview && adminPhotoFallback && profilePhotoRemoveBtn) {
+                            adminPhotoPreview.src = ev.target.result;
+                            adminPhotoPreview.style.display = 'block';
+                            adminPhotoFallback.style.display = 'none';
+                            profilePhotoRemoveBtn.style.display = '';
+                        }
+                        showToast('Profile photo updated! It now appears on your portfolio.', 'success', 'Photo Uploaded ✓', 4500);
+                    } catch (err) {
+                        showToast('Storage quota exceeded. Try a smaller image.', 'error', 'Upload Failed');
+                    }
+                };
+                reader.onerror = () => showToast('Could not read the file. Please try again.', 'error');
+                reader.readAsDataURL(file);
+            });
+        }
+
+        if (profilePhotoRemoveBtn) {
+            profilePhotoRemoveBtn.addEventListener('click', () => {
+                if (!confirm('Remove your profile photo? The default initial will be shown instead.')) return;
+                safeRemoveItem('profilePhoto');
+                safeRemoveItem('profilePhotoVersion');
+                if (adminPhotoPreview && adminPhotoFallback) {
+                    adminPhotoPreview.src = '';
+                    adminPhotoPreview.style.display = 'none';
+                    adminPhotoFallback.style.display = '';
+                }
+                profilePhotoRemoveBtn.style.display = 'none';
+                showToast('Profile photo removed.', 'info', 'Photo Removed');
+            });
+        }
+
+        if (resumeBrowseBtn && resumeFileInput) {
+            resumeBrowseBtn.addEventListener('click', () => resumeFileInput.click());
+        }
+
+        if (resumeFileInput) {
+            resumeFileInput.addEventListener('change', (e) => handleResumeFile(e.target.files[0]));
+        }
+
+        if (resumeDropZone) {
+            resumeDropZone.addEventListener('dragover', (e) => { e.preventDefault(); resumeDropZone.classList.add('drag-over'); });
+            resumeDropZone.addEventListener('dragleave', () => resumeDropZone.classList.remove('drag-over'));
+            resumeDropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                resumeDropZone.classList.remove('drag-over');
+                handleResumeFile(e.dataTransfer.files[0]);
+            });
+        }
+
+        if (resumeRemoveBtn) {
+            resumeRemoveBtn.addEventListener('click', () => {
+                if (!confirm('Remove the uploaded resume? The CV button will disappear from the portfolio.')) return;
+                safeRemoveItem('resumeData');
+                safeRemoveItem('resumeName');
+                safeRemoveItem('resumeVersion');
+                refreshResumeUI();
+                showToast('Resume removed from your portfolio.', 'info', 'Resume Removed');
+            });
+        }
+
+        if (addProjectBtn) {
+            addProjectBtn.addEventListener('click', () => {
+                if (!portfolioData || !Array.isArray(portfolioData.projects)) {
+                     portfolioData = portfolioData || {};
+                     portfolioData.projects = [];
+                }
+                portfolioData.projects.push({
+                    title: 'New Project', badge: 'Web',
+                    icon: '🚀', date: '',
+                    description: 'Describe what this project does.', tech: ['Tech1'],
+                    liveUrl: '', codeUrl: ''
+                });
+                renderProjects();
+                showToast('New project added. Fill in the details and save.', 'info', 'Project Added');
+                const projectsContainer = getEl('projectsContainer');
+                projectsContainer?.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', async () => {
+                saveBtn.disabled = true;
+                saveBtn.textContent = '⏳ Saving…';
+
+                const localPhotoVer = safeGetItem('profilePhotoVersion');
+                const localCvVer = safeGetItem('resumeVersion');
+                const localResumeData = safeGetItem('resumeData');
+                const localResumeName = safeGetItem('resumeName');
+
+                portfolioData.personal = {
+                    fullName: safeGetVal('fullName'),
+                    title: safeGetVal('title'),
+                    heroTitle: safeGetVal('heroTitle'),
+                    heroSubtitle: safeGetVal('heroSubtitle'),
+                    email: safeGetVal('email'),
+                    github: safeGetVal('github'),
+                    linkedin: safeGetVal('linkedin'),
+                    photoVersion: localPhotoVer || portfolioData.personal?.photoVersion || '1',
+                    cvVersion: localCvVer || portfolioData.personal?.cvVersion || '1',
+                    hasResume: (localResumeData || portfolioData.personal?.hasResume) ? true : false,
+                    resumeName: localResumeName || portfolioData.personal?.resumeName || ''
+                };
+
+                portfolioData.about = {
+                    profile: safeGetVal('aboutProfile'),
+                    highlights: safeGetVal('aboutHighlights').split('\n').map(h => h.trim()).filter(Boolean)
+                };
+
+                portfolioData.skills = {
+                    technical: safeGetVal('technicalSkills').split('\n').map(s => s.trim()).filter(Boolean),
+                    soft: safeGetVal('softSkills').split('\n').map(s => s.trim()).filter(Boolean)
+                };
+
+                // Collect projects
+                const titles = document.querySelectorAll('.project-title');
+                const badges = document.querySelectorAll('.project-badge');
+                const icons = document.querySelectorAll('.project-icon-field');
+                const projectDates = document.querySelectorAll('.project-date');
+                const descriptions = document.querySelectorAll('.project-description');
+                const techs = document.querySelectorAll('.project-tech');
+                const lives = document.querySelectorAll('.project-live');
+                const codes = document.querySelectorAll('.project-code');
+
+                portfolioData.projects = [];
+                titles.forEach((_, i) => {
+                    portfolioData.projects.push({
+                        title: titles[i].value.trim(),
+                        badge: badges[i].value.trim(),
+                        icon: icons[i].value.trim() || '🚀',
+                        date: projectDates[i].value.trim(),
+                        description: descriptions[i].value.trim(),
+                        tech: techs[i].value.split(',').map(t => t.trim()).filter(Boolean),
+                        liveUrl: lives[i].value.trim(),
+                        codeUrl: codes[i].value.trim()
+                    });
+                });
+
+                let savedOk = false;
+                try {
+                    localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
+                    savedOk = true;
+                } catch (err) {
+                    showToast('localStorage quota exceeded. Try removing the resume.', 'error', 'Save Failed');
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = '💾 Save All Changes';
+                }
+
+                if (savedOk) {
+                    // Try backend
+                    try {
+                        const apiBase = String(window.PORTFOLIO_API_BASE || '').trim();
+                        const url = apiBase ? `${apiBase.replace(/\/$/, '')}/api/save-portfolio` : '/api/save-portfolio';
+                        await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(portfolioData)
+                        });
+                    } catch (e) {
+                        console.log('Backend save failed, localStorage only:', e);
+                    }
+
+                    showToast('All changes saved! Your portfolio is up to date.', 'success', 'Saved ✓', 4000);
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = '💾 Save All Changes';
+                    hasShownUnsavedHint = false; // Reset warning hint
+                }
+            });
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                showToast('Logging you out…', 'info', 'Goodbye!', 1500);
+                setTimeout(() => {
+                    try {
+                        sessionStorage.removeItem('adminAuth');
+                    } catch (_) {}
+                    window.location.href = 'index.html';
+                }, 1600);
+            });
+        }
+
+        const exportDataBtn = getEl('exportDataBtn');
+        const exportPhotoBtn = getEl('exportPhotoBtn');
+        const exportCvBtn = getEl('exportCvBtn');
+
+        if (exportDataBtn) {
+            exportDataBtn.addEventListener('click', exportPortfolioData);
+        }
+        if (exportPhotoBtn) {
+            exportPhotoBtn.addEventListener('click', exportProfilePhoto);
+        }
+        if (exportCvBtn) {
+            exportCvBtn.addEventListener('click', exportResume);
+        }
+
+        // Watch every text input and textarea in the panel for unsaved changes hint
+        let hasShownUnsavedHint = false;
+        let unsavedTimer = null;
+
+        function onFieldChange() {
+            if (hasShownUnsavedHint) return;
+            clearTimeout(unsavedTimer);
+            unsavedTimer = setTimeout(() => {
+                hasShownUnsavedHint = true;
+                showToast('You have unsaved changes. Click "Save All Changes" when done.', 'warning', 'Unsaved Changes', 5000);
+            }, 1500);
+        }
+
+        document.querySelectorAll('input[type="text"], input[type="url"], input[type="email"], textarea')
+            .forEach(el => el.addEventListener('input', () => {
+                onFieldChange();
+            }));
+    }
+
+    // ── INIT ──────────────────────────────────────
+    async function init() {
+        try {
+            const apiBase = String(window.PORTFOLIO_API_BASE || '').trim();
+            const url = apiBase ? `${apiBase.replace(/\/$/, '')}/src/data/portfolioData.json` : 'src/data/portfolioData.json';
+            const response = await fetch(url);
+            if (response.ok) {
+                const fetchedData = await response.json();
+                if (fetchedData && typeof fetchedData === 'object' && fetchedData.personal && fetchedData.projects) {
+                    portfolioData = fetchedData;
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to fetch portfolioData.json from server, falling back to local storage / default data:', e);
+        }
+
+        const saved = safeGetItem('portfolioData');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed && typeof parsed === 'object' && parsed.personal && parsed.projects) {
+                    portfolioData = parsed;
+                }
+            } catch (e) {
+                console.error('Failed to parse localStorage portfolioData:', e);
+            }
+        }
+
+        migratePortfolioData();
+        loadFormData();
+        initAdminPhoto();
+
+        const fullNameEl = getEl('fullName');
+        if (fullNameEl) {
+            fullNameEl.setAttribute('placeholder', 'e.g. Buddhika Darshan');
+        }
+
+        setupEventListeners();
+        showToast('Welcome back to the admin panel.', 'info', 'Admin Panel', 2500);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+    </script>
 </body>
 
 </html>
