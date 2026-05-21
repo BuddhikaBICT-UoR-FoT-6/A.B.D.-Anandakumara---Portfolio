@@ -51,7 +51,7 @@ const About = () => {
               <img 
                 src={profileImg} 
                 alt="Profile" 
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" 
+                className="w-full h-full object-cover" 
               />
             </div>
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-black px-4 py-1 border border-[var(--pcb-green-light)] text-[10px] font-mono whitespace-nowrap">
