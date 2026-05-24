@@ -10,7 +10,6 @@ import About from './components/About';
 import Skills from './components/Skills';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
-import { sounds } from './utils/sounds';
 
 const SWARM_COLORS = ['#00FF41','#66ffbb','#00ccff','#55ddff','#ffffff','#00aa33','#003399'];
 const SWARM_COUNT  = 60;
@@ -58,7 +57,6 @@ function SwarmCanvas() {
     };
 
     const handleMouseDown = (e) => {
-      sounds.shockwave();
       // Shatter effect: push particles away from click
       pts.forEach(p => {
         const dx = p.x - e.clientX;

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { sounds } from '../utils/sounds';
 
 const Contact = () => {
   const [form, setForm] = useState({ name: '', email: '', message: '', channel: 'Job Offer' });
@@ -31,7 +30,6 @@ const Contact = () => {
 
       setStatus('success');
       setForm({ name: '', email: '', message: '', channel: 'Job Offer' });
-      sounds.transmit();
       window.dispatchEvent(new CustomEvent('transmit-packet'));
     } catch (err) {
       setStatus('error');
@@ -128,7 +126,6 @@ const Contact = () => {
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                onClick={() => sounds.click()}
                 className="btn-terminal w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {status === 'sending' ? '⟳ Sending...' : '→ Send Message'}
