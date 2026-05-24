@@ -63,7 +63,7 @@ const Projects = () => {
     <section id="projects" className="content-section py-32 px-8 max-w-7xl mx-auto relative z-10">
       <div className="section-header flex items-center gap-4 mb-12">
         <h2 className="text-2xl font-mono text-[var(--terminal-green)]">
-          // SYSTEMS_ARCH :: PROJECT_PORTFOLIO
+          Projects
         </h2>
         <div className="flex-1 h-[1px] bg-[var(--pcb-green-light)] opacity-30" />
       </div>

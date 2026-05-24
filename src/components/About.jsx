@@ -35,7 +35,7 @@ const About = () => {
     <section id="about" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
       <div className="section-header flex items-center gap-4 mb-12">
         <h2 className="text-2xl font-mono text-[var(--terminal-green)]">
-          // BIO_ENGINEER :: ABD_DOSSIER
+          About
         </h2>
         <div className="flex-1 h-[1px] bg-[var(--pcb-green-light)] opacity-30" />
       </div>
@@ -63,7 +63,7 @@ const About = () => {
 
         <div className="pcb-card">
           <div className="mb-6 border-b border-[var(--pcb-green-light)] pb-4">
-            <h3 className="text-lg font-mono text-[var(--terminal-green)] mb-2">ENGINEER_PROFILE_DATA</h3>
+            <h3 className="text-lg font-mono text-[var(--terminal-green)] mb-2">Profile</h3>
             <p className="text-sm opacity-70 leading-relaxed">
               {about?.profile || ''}
             </p>

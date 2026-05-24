@@ -113,7 +113,7 @@ const Hero = () => {
           <div className="space-y-6 relative z-10">
             <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2 emissive-pulse">
               <div className="w-2 h-2 rounded-full bg-[#00FF41] animate-ping" />
-              [ ABD_CORE // SESSION_ACTIVE // AVAILABLE_FOR_OPPORTUNITIES ]
+              [ Available for Opportunities ]
             </div>
 
             <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8 emissive-pulse" style={{ textShadow: '0 0 10px rgba(0, 255, 65, 0.3), 0 0 20px black' }}>
@@ -155,7 +155,7 @@ const Hero = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="relative z-10 group-hover:text-black transition-colors">→ EXPLORE_SYSTEMS</span>
+                <span className="relative z-10 group-hover:text-black transition-colors">→ View Projects</span>
               </motion.a>
               
               <motion.a 
@@ -165,7 +165,7 @@ const Hero = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="relative z-10 group-hover:text-black transition-colors">↓ DOWNLOAD_CV_MANIFEST</span>
+                <span className="relative z-10 group-hover:text-black transition-colors">↓ Download CV</span>
               </motion.a>
             </div>
           </div>
@@ -177,7 +177,7 @@ const Hero = () => {
         <div className="pcb-card relative overflow-hidden" style={{ background: 'rgba(0, 10, 20, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0, 255, 65, 0.2)' }}>
           <div className="relative z-10">
             <div className="text-[10px] text-[#00FF41] mb-6 border-b border-[#004400] pb-2 font-mono">
-              // REGISTER_01 :: CORE_HIGHLIGHTS
+              Highlights
             </div>
             <div className="space-y-4">
               {(about?.highlights || []).map((h, i) => (
@@ -187,9 +187,7 @@ const Hero = () => {
               ))}
             </div>
             <div className="mt-8 text-[8px] font-mono text-[#004400]">
-              0x0000_BOOT_SEC_OK<br />
-              0x0001_G_PARTICLES_READY<br />
-              0x0002_EMISSIVE_SUBSTRATE_ON
+              System Ready
             </div>
           </div>
         </div>

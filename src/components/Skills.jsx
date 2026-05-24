@@ -94,7 +94,7 @@ const Skills = () => {
     <section id="skills" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
       <div className="section-header flex items-center gap-4 mb-12">
         <h2 className="text-2xl font-mono text-[var(--terminal-green)]">
-          // TECH_STACK :: CORE_COMPETENCIES
+          Skills
         </h2>
         <div className="flex-1 h-[1px] bg-[var(--pcb-green-light)] opacity-30" />
       </div>
@@ -104,7 +104,7 @@ const Skills = () => {
         <div className="space-y-12">
           <div className="pcb-card h-fit">
             <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
-              TECHNICAL_SPECIFICATIONS
+              Technical Skills
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full font-mono text-[10px] text-left">
@@ -132,7 +132,7 @@ const Skills = () => {
 
           <div>
             <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
-              PIN_HEADER_PROTOCOLS
+              Other Skills
             </h3>
             <div className="flex flex-wrap gap-3">
               {displaySoftSkills.map(item => (
@@ -149,7 +149,7 @@ const Skills = () => {
         <div className="space-y-8">
           <div>
             <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
-              CERTIFICATIONS_REGISTRY
+              Certifications
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-fr">
               {CERTS.map((cert, i) => (
