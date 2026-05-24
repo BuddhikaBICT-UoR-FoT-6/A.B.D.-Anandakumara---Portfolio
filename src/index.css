@@ -106,14 +106,38 @@ canvas {
   z-index: 10;
   background: rgba(0, 10, 20, 0.85);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(0, 255, 65, 0.15);
+  border: 1px solid rgba(0, 255, 65, 0.25);
   border-radius: 16px;
   padding: 80px 60px;
   margin: 60px auto;
   max-width: 1200px;
   width: calc(100% - 40px);
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.9);
+  box-shadow:
+    0 15px 45px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(0, 255, 65, 0.08),
+    0 0 20px rgba(0, 255, 65, 0.08),
+    inset 0 0 40px rgba(0, 255, 65, 0.03);
+  animation: section-border-glow 4s ease-in-out infinite;
   pointer-events: auto;
+}
+
+@keyframes section-border-glow {
+  0%, 100% {
+    border-color: rgba(0, 255, 65, 0.25);
+    box-shadow:
+      0 15px 45px rgba(0, 0, 0, 0.9),
+      0 0 18px rgba(0, 255, 65, 0.12),
+      0 0 40px rgba(0, 255, 65, 0.05),
+      inset 0 0 40px rgba(0, 255, 65, 0.03);
+  }
+  50% {
+    border-color: rgba(0, 255, 65, 0.55);
+    box-shadow:
+      0 15px 45px rgba(0, 0, 0, 0.9),
+      0 0 30px rgba(0, 255, 65, 0.30),
+      0 0 70px rgba(0, 255, 65, 0.12),
+      inset 0 0 60px rgba(0, 255, 65, 0.06);
+  }
 }
 
 /* Section Headers */
@@ -169,8 +193,21 @@ canvas {
   .pcb-card {
     @apply relative p-6 overflow-hidden;
     background: rgba(0, 10, 20, 0.9);
-    border: 1px solid rgba(0, 255, 65, 0.15);
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(0, 255, 65, 0.2);
+    box-shadow:
+      0 0 30px rgba(0, 0, 0, 0.7),
+      0 0 12px rgba(0, 255, 65, 0.08),
+      inset 0 0 20px rgba(0, 255, 65, 0.02);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .pcb-card:hover {
+    border-color: rgba(0, 255, 65, 0.5);
+    box-shadow:
+      0 0 30px rgba(0, 0, 0, 0.7),
+      0 0 25px rgba(0, 255, 65, 0.22),
+      0 0 55px rgba(0, 255, 65, 0.08),
+      inset 0 0 30px rgba(0, 255, 65, 0.04);
   }
 
   .pcb-trace-border {
@@ -376,9 +413,32 @@ canvas {
   padding: 40px 60px;
   position: relative;
   clip-path: polygon(0 0, 95% 0, 100% 100%, 5% 100%);
-  border-left: 2px solid rgba(0, 255, 65, 0.3);
-  border-right: 2px solid rgba(0, 255, 65, 0.3);
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+  border-left: 2px solid rgba(0, 255, 65, 0.4);
+  border-right: 2px solid rgba(0, 255, 65, 0.4);
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.8),
+    -6px 0 24px rgba(0, 255, 65, 0.15),
+    6px 0 24px rgba(0, 255, 65, 0.15);
+  animation: hero-plate-glow 3.5s ease-in-out infinite;
+}
+
+@keyframes hero-plate-glow {
+  0%, 100% {
+    border-left-color: rgba(0, 255, 65, 0.3);
+    border-right-color: rgba(0, 255, 65, 0.3);
+    box-shadow:
+      0 0 40px rgba(0, 0, 0, 0.8),
+      -6px 0 20px rgba(0, 255, 65, 0.12),
+      6px 0 20px rgba(0, 255, 65, 0.12);
+  }
+  50% {
+    border-left-color: rgba(0, 255, 65, 0.7);
+    border-right-color: rgba(0, 255, 65, 0.7);
+    box-shadow:
+      0 0 40px rgba(0, 0, 0, 0.8),
+      -10px 0 35px rgba(0, 255, 65, 0.35),
+      10px 0 35px rgba(0, 255, 65, 0.35);
+  }
 }
 
 .screw-head {
