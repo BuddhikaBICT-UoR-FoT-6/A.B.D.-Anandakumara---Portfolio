@@ -14,32 +14,35 @@ const TypewriterRole = () => {
   const [index, setIndex] = useState(0);
   const [text, setText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     const currentFull = ROLES[index];
-    const speed = isDeleting ? 30 : 70;
-    
-    const timeout = setTimeout(() => {
+
+    // Pause after full word is typed — use state so React owns the timeout
+    if (isPaused) {
+      const t = setTimeout(() => {
+        setIsPaused(false);
+        setIsDeleting(true);
+      }, 2200);
+      return () => clearTimeout(t);
+    }
+
+    const speed = isDeleting ? 35 : 75;
+
+    const t = setTimeout(() => {
       if (!isDeleting && text === currentFull) {
-        setTimeout(() => setIsDeleting(true), 2500);
+        setIsPaused(true);
       } else if (isDeleting && text === "") {
         setIsDeleting(false);
-        setIndex((prev) => (prev + 1) % ROLES.length);
+        setIndex(prev => (prev + 1) % ROLES.length);
       } else {
-        const shouldTypo = !isDeleting && Math.random() < 0.05 && text.length > 2;
-        if (shouldTypo) {
-          setText(prev => prev + String.fromCharCode(97 + Math.floor(Math.random() * 26)));
-          setTimeout(() => {
-            setText(prev => prev.slice(0, -1));
-          }, 300);
-        } else {
-          setText(currentFull.slice(0, isDeleting ? text.length - 1 : text.length + 1));
-        }
+        setText(currentFull.slice(0, isDeleting ? text.length - 1 : text.length + 1));
       }
     }, speed);
 
-    return () => clearTimeout(timeout);
-  }, [text, isDeleting, index]);
+    return () => clearTimeout(t);
+  }, [text, isDeleting, index, isPaused]);
 
   return (
     <div className="text-xl md:text-2xl text-[#00FF41] font-mono mb-4 h-8">
