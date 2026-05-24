@@ -1,9 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { sounds } from '../utils/sounds';
 
 const NavLink = ({ href, label }) => (
   <a 
     href={href} 
+    onMouseEnter={() => sounds.hover()}
+    onClick={() => sounds.click()}
     className="group relative px-3 py-2 text-xs font-mono text-[var(--terminal-green)] opacity-70 hover:opacity-100 transition-opacity"
   >
     <span className="opacity-0 group-hover:opacity-100 transition-opacity">./</span>

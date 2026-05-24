@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll } from 'framer-motion';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import { sounds } from '../utils/sounds';
 
 const ROLES = [
   "Full-Stack Developer",
@@ -37,7 +38,9 @@ const TypewriterRole = () => {
         setIsDeleting(false);
         setIndex(prev => (prev + 1) % ROLES.length);
       } else {
-        setText(currentFull.slice(0, isDeleting ? text.length - 1 : text.length + 1));
+        const next = currentFull.slice(0, isDeleting ? text.length - 1 : text.length + 1);
+        if (!isDeleting) sounds.keypress();
+        setText(next);
       }
     }, speed);
 
@@ -155,6 +158,8 @@ const Hero = () => {
               <motion.a 
                 href="#projects" 
                 className="btn-solid px-6 py-3 font-mono text-xs uppercase tracking-widest transition-all duration-300 relative overflow-hidden group"
+              onMouseEnter={() => sounds.hover()}
+                onClick={() => sounds.click()}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -164,6 +169,8 @@ const Hero = () => {
               <motion.a 
                 href="#" 
                 onClick={handleDownloadCV}
+              onMouseEnter={() => sounds.hover()}
+                onClick={(e) => { sounds.click(); handleDownloadCV(e); }}
                 className="btn-solid btn-secondary-solid px-6 py-3 font-mono text-xs uppercase tracking-widest transition-all duration-300 relative overflow-hidden group"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

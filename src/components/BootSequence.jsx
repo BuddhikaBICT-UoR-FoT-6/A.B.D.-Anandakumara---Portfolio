@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { sounds } from '../utils/sounds';
 
 const BOOT_LOGS = [
   { text: "> Initializing Fusion Board v2.1...", color: "#00FF41" },
@@ -46,6 +47,7 @@ export default function BootSequence({ onComplete }) {
       
       const timer = setTimeout(() => {
         setDisplayedLogs(prev => [...prev, log]);
+        sounds.bootBeep();
         
         if (log.hasProgress) {
           let p = 0;
@@ -67,7 +69,10 @@ export default function BootSequence({ onComplete }) {
         clearTimeout(timer);
       };
     } else {
-      const finalTimer = setTimeout(() => onComplete(), 300);
+      const finalTimer = setTimeout(() => {
+        sounds.startHum();
+        onComplete();
+      }, 300);
       return () => {
         clearTimeout(finalTimer);
       };
