@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 const allowCors = fn => async (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -23,23 +23,18 @@ const handler = async (req, res) => {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
-  // Validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ error: 'Invalid email address.' });
   }
 
-  // Use Gmail SMTP via environment variables set in Vercel dashboard:
-  //   GMAIL_USER = your Gmail address (e.g. yourname@gmail.com)
-  //   GMAIL_PASS = your Gmail App Password (16-character, not your normal password)
-  //   CONTACT_EMAIL = where to receive messages (can be same as GMAIL_USER)
   const gmailUser = process.env.GMAIL_USER;
-  const gmailPass = process.env.GMAIL_PASS;
+  // Strip spaces — Google shows App Passwords with spaces but SMTP needs them removed
+  const gmailPass = (process.env.GMAIL_PASS || '').replace(/\s/g, '');
   const contactEmail = process.env.CONTACT_EMAIL || gmailUser;
 
   if (!gmailUser || !gmailPass) {
-    // Graceful degradation — log but don't crash
-    console.warn('Email env vars not set. Logging contact submission:', { name, email, message });
+    console.warn('Email env vars not set. Logging submission:', { name, email });
     return res.status(200).json({ status: 'ok', note: 'logged (email not configured)' });
   }
 
@@ -60,7 +55,7 @@ const handler = async (req, res) => {
       subject: `Portfolio message from ${name}`,
       html: `
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#f7f7fb;border-radius:12px;">
-          <h2 style="color:#7c5cff;margin-top:0;">New Portfolio Contact ✉️</h2>
+          <h2 style="color:#00b857;margin-top:0;">New Portfolio Message ✉️</h2>
           <table style="width:100%;border-collapse:collapse;">
             <tr><td style="padding:8px 0;color:#555;font-weight:600;width:80px;">Name</td><td style="padding:8px 0;">${name}</td></tr>
             <tr><td style="padding:8px 0;color:#555;font-weight:600;">Email</td><td style="padding:8px 0;"><a href="mailto:${email}">${email}</a></td></tr>
@@ -79,7 +74,7 @@ const handler = async (req, res) => {
       subject: `Thanks for reaching out, ${name}!`,
       html: `
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#f7f7fb;border-radius:12px;">
-          <h2 style="color:#7c5cff;margin-top:0;">Thanks for your message! 👋</h2>
+          <h2 style="color:#00b857;margin-top:0;">Thanks for your message! 👋</h2>
           <p style="color:#333;line-height:1.6;">Hi <strong>${name}</strong>,</p>
           <p style="color:#333;line-height:1.6;">I've received your message and will get back to you as soon as possible — usually within 24–48 hours.</p>
           <p style="color:#333;line-height:1.6;">Best regards,<br><strong>Buddhika Darshan</strong></p>
@@ -90,9 +85,9 @@ const handler = async (req, res) => {
 
     return res.status(200).json({ status: 'ok', message: 'Email sent successfully.' });
   } catch (err) {
-    console.error('Email send error:', err);
-    return res.status(500).json({ error: 'Failed to send email. Please try again later.' });
+    console.error('Email send error:', err.message, err.code);
+    return res.status(500).json({ error: 'Failed to send email.', detail: err.message });
   }
 };
 
-module.exports = allowCors(handler);
+export default allowCors(handler);
