@@ -111,7 +111,7 @@ function useTypewriter(fullText, active, durationMs = 2000) {
 }
 
 // ── Tooltip popup ────────────────────────────────────────────────────────────
-function SkillTooltip({ name, visible }) {
+function SkillTooltip({ name, visible, isSoftSkill }) {
   const insight = getInsight(name);
   const fullText = `[${insight.project}] — ${insight.detail}`;
   const text = useTypewriter(fullText, visible, 2000);
@@ -120,7 +120,9 @@ function SkillTooltip({ name, visible }) {
 
   return (
     <div
-      className="absolute z-50 left-0 top-full mt-2 w-80 pointer-events-none"
+      className={isSoftSkill 
+        ? "absolute z-[100] left-0 top-full mt-2 w-64 pointer-events-none" 
+        : "w-full mt-2 pointer-events-none"}
       style={{ filter: 'drop-shadow(0 0 12px rgba(0,180,255,0.4))' }}
     >
       <div
@@ -130,10 +132,18 @@ function SkillTooltip({ name, visible }) {
         <div className="text-[#00b4ff]/60 text-[9px] mb-1 uppercase tracking-widest">
           Used in ▸
         </div>
-        <span style={{ color: '#7dd3fc' }}>
-          {text}
-        </span>
-        <span className="inline-block w-[6px] h-[12px] bg-[#7dd3fc] ml-0.5 align-middle animate-pulse" />
+        <div className="relative grid">
+          {/* Invisible full text reserves space to prevent scrollbars and layout shifts */}
+          <div className="text-transparent select-none col-start-1 row-start-1 whitespace-normal break-words">
+            {fullText}
+            <span className="inline-block w-[6px] h-[12px] ml-0.5" />
+          </div>
+          {/* Actual animated text overlay */}
+          <div className="text-[#7dd3fc] col-start-1 row-start-1 whitespace-normal break-words z-10">
+            {text}
+            <span className="inline-block w-[6px] h-[12px] bg-[#7dd3fc] ml-0.5 align-middle animate-pulse" />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -232,29 +242,42 @@ const Skills = () => {
                     <th className="pb-2 text-[var(--pcb-green-light)]">PROFICIENCY</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--pcb-green-light)]/20">
-                  {displaySkills.map((skill, i) => (
-                    <tr
-                      key={i}
-                      className="group relative cursor-default"
-                      onMouseEnter={() => setHoveredSkill(`tech-${i}`)}
-                      onMouseLeave={() => setHoveredSkill(null)}
-                    >
+                {displaySkills.map((skill, i) => (
+                  <tbody 
+                    key={i}
+                    className="border-b border-[var(--pcb-green-light)]/20"
+                    onMouseEnter={() => {
+                      setHoveredSkill(`tech-${i}`);
+                      window.dispatchEvent(new CustomEvent('scatter-swarm'));
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredSkill(null);
+                      window.dispatchEvent(new CustomEvent('gather-swarm'));
+                    }}
+                  >
+                    <tr className="group relative cursor-default">
                       <td className="py-3 text-[var(--terminal-green)] relative">
                         <span className="group-hover:text-[#7dd3fc] transition-colors duration-200">
                           {skill.component}
                         </span>
-                        <SkillTooltip
-                          name={skill.component}
-                          visible={hoveredSkill === `tech-${i}`}
-                        />
                       </td>
                       <td className="py-3 opacity-60 group-hover:opacity-100 transition-opacity">{skill.spec}</td>
                       <td className="py-3 text-[var(--terminal-yellow)]">{skill.status}</td>
                       <td className="py-3"><SkillBar level={skill.level} /></td>
                     </tr>
-                  ))}
-                </tbody>
+                    {hoveredSkill === `tech-${i}` && (
+                      <tr>
+                        <td colSpan={4} className="pb-3 px-2">
+                          <SkillTooltip 
+                            name={skill.component} 
+                            visible={true} 
+                            isSoftSkill={false} 
+                          />
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                ))}
               </table>
             </div>
           </div>
@@ -265,21 +288,31 @@ const Skills = () => {
               Other Skills
             </h3>
             <div className="flex flex-wrap gap-3">
-              {displaySoftSkills.map((item, i) => (
-                <div
-                  key={item.tag}
-                  className="relative bg-[#111] border border-[var(--pcb-green-light)] px-3 py-1.5 font-mono text-[10px] text-[var(--terminal-green)] shadow-[4px_4px_0_var(--pcb-green-dark)] hover:border-[#7dd3fc] hover:text-[#7dd3fc] transition-all duration-300 cursor-default flex items-center gap-2 group hover:-translate-y-1"
-                  onMouseEnter={() => setHoveredSkill(`soft-${i}`)}
-                  onMouseLeave={() => setHoveredSkill(null)}
-                >
-                  <span className="opacity-70 group-hover:scale-125 transition-transform">{item.emoji}</span>
-                  {item.tag.toUpperCase().replace(/ /g, '_').replace(/-/g, '-')}
-                  <SkillTooltip
-                    name={item.tag}
-                    visible={hoveredSkill === `soft-${i}`}
-                  />
-                </div>
-              ))}
+              {displaySoftSkills.map((item, i) => {
+                const isHovered = hoveredSkill === `soft-${i}`;
+                return (
+                  <div
+                    key={item.tag}
+                    className={`relative bg-[#111] border border-[var(--pcb-green-light)] px-3 py-1.5 font-mono text-[10px] text-[var(--terminal-green)] shadow-[4px_4px_0_var(--pcb-green-dark)] hover:border-[#7dd3fc] hover:text-[#7dd3fc] transition-all duration-300 cursor-default flex items-center gap-2 group hover:-translate-y-1 ${isHovered ? 'z-[100]' : 'z-10'}`}
+                    onMouseEnter={() => {
+                      setHoveredSkill(`soft-${i}`);
+                      window.dispatchEvent(new CustomEvent('scatter-swarm'));
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredSkill(null);
+                      window.dispatchEvent(new CustomEvent('gather-swarm'));
+                    }}
+                  >
+                    <span className="opacity-70 group-hover:scale-125 transition-transform">{item.emoji}</span>
+                    {item.tag.toUpperCase().replace(/ /g, '_').replace(/-/g, '-')}
+                    <SkillTooltip
+                      name={item.tag}
+                      visible={isHovered}
+                      isSoftSkill={true}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
