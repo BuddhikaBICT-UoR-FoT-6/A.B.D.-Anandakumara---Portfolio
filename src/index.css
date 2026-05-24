@@ -523,3 +523,29 @@ canvas {
 .shadow-glow {
   text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 2px black;
 }
+
+/* Floating Controls */
+.floating-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(0, 10, 20, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  color: var(--pcb-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 255, 65, 0.1);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+
+.floating-btn:hover {
+  border-color: rgba(0, 255, 65, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 255, 65, 0.3);
+  color: #fff;
+}
