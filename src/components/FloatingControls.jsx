@@ -17,7 +17,7 @@ const FloatingBtn = ({ onClick, title, children }) => (
   </motion.button>
 );
 
-const FloatingControls = ({ swarmVisible, onToggleSwarm }) => {
+const FloatingControls = ({ swarmVisible, onToggleSwarm, theme, onToggleTheme }) => {
   const [atTop, setAtTop] = useState(true);
   const [atBottom, setAtBottom] = useState(false);
 
@@ -61,6 +61,15 @@ const FloatingControls = ({ swarmVisible, onToggleSwarm }) => {
           </FloatingBtn>
         )}
       </AnimatePresence>
+
+      <FloatingBtn
+        onClick={onToggleTheme}
+        title={theme === 'hacker' ? 'Switch to Tranquil Mode' : 'Switch to Hacker Mode'}
+      >
+        <span style={{ fontSize: '14px' }}>
+          {theme === 'hacker' ? '◉' : '◎'}
+        </span>
+      </FloatingBtn>
 
       <FloatingBtn
         onClick={onToggleSwarm}

@@ -12,9 +12,10 @@ import Projects from './components/Projects';
 import Contact from './components/Contact';
 import FloatingControls from './components/FloatingControls';
 
-const SWARM_COLORS = ['#00FF41','#66ffbb','#00ccff','#55ddff','#ffffff','#00aa33','#003399'];
+const HACKER_COLORS = ['#00FF41','#66ffbb','#00ccff','#55ddff','#ffffff','#00aa33','#003399'];
+const TRANQUIL_COLORS = ['#2dd4bf','#5eead4','#38bdf8','#7dd3fc','#ffffff','#0ea5e9','#818cf8'];
 
-function SwarmCanvas({ visible }) {
+function SwarmCanvas({ visible, theme }) {
   const canvasRef = useRef();
 
   useEffect(() => {
@@ -32,6 +33,9 @@ function SwarmCanvas({ visible }) {
     let my = window.innerHeight / 2;
     let scatterMode = false;
 
+    const colors = theme === 'tranquil' ? TRANQUIL_COLORS : HACKER_COLORS;
+    const speedMult = theme === 'tranquil' ? 0.5 : 1.0;
+
     const PARTICLE_COUNT = 80;
     const pts = Array.from({ length: PARTICLE_COUNT }, (_, i) => {
       let type = 'nucleus';
@@ -44,9 +48,9 @@ function SwarmCanvas({ visible }) {
         vx: 0, vy: 0,
         type,
         angle: Math.random() * Math.PI * 2,
-        speed: 0.02 + Math.random() * 0.03,
+        speed: (0.02 + Math.random() * 0.03) * speedMult,
         size: 1.2 + Math.random() * 1.5,
-        color: SWARM_COLORS[i % SWARM_COLORS.length],
+        color: colors[i % colors.length],
       };
     });
 
@@ -166,7 +170,7 @@ function SwarmCanvas({ visible }) {
       window.removeEventListener('gather-swarm', onGather);
       cancelAnimationFrame(animFrame);
     };
-  }, []);
+  }, [theme]);
 
   return (
     <canvas
@@ -187,6 +191,11 @@ function App() {
   const [showCanvas, setShowCanvas] = useState(false);
   const [webglOk, setWebglOk] = useState(true);
   const [swarmVisible, setSwarmVisible] = useState(true);
+  const [theme, setTheme] = useState('hacker');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     if (booting) {
@@ -232,7 +241,7 @@ function App() {
             </div>
           )}
 
-          {showCanvas && <SwarmCanvas visible={swarmVisible} />}
+          {showCanvas && <SwarmCanvas visible={swarmVisible} theme={theme} />}
 
           <div style={{ position: 'relative', zIndex: 1 }}>
             <NavBar />
@@ -246,6 +255,8 @@ function App() {
           <FloatingControls
             swarmVisible={swarmVisible}
             onToggleSwarm={() => setSwarmVisible(v => !v)}
+            theme={theme}
+            onToggleTheme={() => setTheme(t => t === 'hacker' ? 'tranquil' : 'hacker')}
           />
         </>
       )}

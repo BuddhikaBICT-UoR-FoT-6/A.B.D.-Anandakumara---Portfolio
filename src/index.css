@@ -23,6 +23,81 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
+[data-theme="tranquil"] {
+  --pcb-green: #2dd4bf;
+  --pcb-green-light: #5eead4;
+  --pcb-blue: #38bdf8;
+  --pcb-gold: #fde047;
+  --bg-navy: #020617;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --ui-accent: #2dd4bf;
+  --terminal-green: #2dd4bf;
+  --terminal-yellow: #fde047;
+  --terminal-cyan: #7dd3fc;
+}
+
+[data-theme="tranquil"] .content-section {
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(45, 212, 191, 0.1);
+  animation: tranquil-border-glow 8s ease-in-out infinite;
+}
+
+@keyframes tranquil-border-glow {
+  0%, 100% {
+    border-color: rgba(45, 212, 191, 0.2);
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.5),
+      inset 0 0 20px rgba(45, 212, 191, 0.02);
+  }
+  50% {
+    border-color: rgba(45, 212, 191, 0.4);
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.5),
+      0 0 15px rgba(45, 212, 191, 0.1),
+      inset 0 0 30px rgba(45, 212, 191, 0.04);
+  }
+}
+
+[data-theme="tranquil"] .pcb-card {
+  background: rgba(2, 6, 23, 0.75);
+  border: 1px solid rgba(45, 212, 191, 0.15);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="tranquil"] .pcb-card:hover {
+  border-color: rgba(45, 212, 191, 0.4);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(45, 212, 191, 0.15);
+}
+
+[data-theme="tranquil"] .emissive-pulse {
+  animation: tranquil-emissive 6s ease-in-out infinite;
+}
+
+@keyframes tranquil-emissive {
+  0%, 100% { 
+    opacity: 1; 
+    filter: drop-shadow(0 0 4px rgba(45, 212, 191, 0.3));
+    color: #fff;
+  }
+  50% { 
+    opacity: 0.9; 
+    filter: drop-shadow(0 0 2px rgba(45, 212, 191, 0.1));
+    color: var(--pcb-green);
+  }
+}
+
+[data-theme="tranquil"] body, 
+[data-theme="tranquil"] html {
+  background-color: var(--bg-navy) !important;
+}
+
 html {
   background-color: #000d1a !important;
   margin: 0 !important;
