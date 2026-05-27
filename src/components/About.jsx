@@ -32,7 +32,7 @@ const About = () => {
   const profileImg = localPhoto ? localPhoto : `/profile.png?v=${photoVer}`;
 
   return (
-    <section id="about" className="content-section py-12 md:py-32 px-6 md:px-8 max-w-6xl mx-auto relative z-10">
+    <section id="about" className="content-section py-10 md:py-20 px-5 md:px-10 max-w-6xl mx-auto relative z-10">
       <div className="section-header flex items-center gap-4 mb-12">
         <h2 className="text-2xl font-mono text-[var(--terminal-green)]">
           About
@@ -40,21 +40,22 @@ const About = () => {
         <div className="flex-1 h-[1px] bg-[var(--pcb-green-light)] opacity-30" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8 md:gap-16 items-start">
-        <div className="space-y-8 flex justify-center md:block">
-          <div className="relative group w-48 md:w-full">
+      <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8 md:gap-12 items-start">
+        <div className="flex flex-col items-center md:items-start">
+          <div className="relative group w-40 h-40 md:w-56 md:h-56 flex-shrink-0">
             <div className="absolute -inset-4 border border-[var(--terminal-green)] opacity-20 group-hover:opacity-100 transition-opacity animate-pulse" />
             <div 
-              className="w-full aspect-square bg-[#111] overflow-hidden"
+              className="w-full h-full bg-[#111] overflow-hidden"
               style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
             >
               <img 
                 src={profileImg} 
                 alt="Profile" 
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-cover object-top"
+                onError={(e) => { e.target.style.display='none'; }}
               />
             </div>
-            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-black px-4 py-1 border border-[var(--pcb-green-light)] text-[10px] font-mono whitespace-nowrap">
+            <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-black px-3 py-1 border border-[var(--pcb-green-light)] text-[9px] font-mono whitespace-nowrap">
               STATUS: <span className="text-[var(--terminal-green)] animate-pulse">● OPEN_TO_WORK</span>
             </div>
           </div>

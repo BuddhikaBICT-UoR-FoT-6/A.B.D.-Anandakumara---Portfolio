@@ -38,7 +38,7 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="content-section py-32 px-8 max-w-6xl mx-auto relative z-10">
+    <section id="contact" className="content-section py-10 md:py-20 px-5 md:px-10 max-w-6xl mx-auto relative z-10">
       <div className="section-header flex items-center gap-4 mb-12">
         <h2 className="text-2xl font-mono text-[var(--terminal-green)]">
           Contact
@@ -56,7 +56,7 @@ const Contact = () => {
           <div className="text-[var(--pcb-green-light)]">A.B.D. Anandakumara</div>
         </div>
 
-        <div className="grid md:grid-cols-[1fr_300px]">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_300px]">
           {/* Form */}
           <div className="bg-black/40 p-6 flex flex-col">
             <form onSubmit={handleSubmit} className="space-y-4">
