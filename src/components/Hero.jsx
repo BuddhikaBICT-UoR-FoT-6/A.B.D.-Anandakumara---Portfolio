@@ -88,19 +88,9 @@ const Hero = () => {
   };
 
   return (
-    <section style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      minHeight: '100vh',
-      padding: '80px 40px',
-      gap: '40px',
-      position: 'relative',
-      zIndex: 10,
-      pointerEvents: 'none'
-    }} className="flex-col lg:flex-row">
+    <section className="flex flex-col lg:flex-row items-center justify-between min-h-[100vh] pt-24 pb-12 px-6 lg:px-20 gap-8 lg:gap-10 relative z-10 w-full max-w-[1400px] mx-auto pointer-events-none">
       {/* Left Column: Core Identity */}
-      <div style={{ flex: '1.2', maxWidth: '640px', pointerEvents: 'auto' }} className="relative">
+      <div className="relative w-full lg:flex-[1.2] lg:max-w-[640px] pointer-events-auto">
         <div className="hero-plate relative overflow-hidden">
           {/* Live Electricity Traces */}
           <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ zIndex: -1 }}>
@@ -176,8 +166,8 @@ const Hero = () => {
       </div>
 
       {/* Right Column: Highlights Register */}
-      <div style={{ flex: '0.8', pointerEvents: 'auto' }} className="flex flex-col items-start w-full gap-4 text-left">
-        <div className="pcb-card relative overflow-hidden" style={{ background: 'rgba(0, 10, 20, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0, 255, 65, 0.2)' }}>
+      <div className="flex flex-col items-start w-full lg:flex-[0.8] gap-4 text-left pointer-events-auto mt-4 lg:mt-0">
+        <div className="pcb-card relative overflow-hidden w-full" style={{ background: 'rgba(0, 10, 20, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0, 255, 65, 0.2)' }}>
           <div className="relative z-10">
             <div className="text-[10px] text-[#00FF41] mb-6 border-b border-[#004400] pb-2 font-mono">
               Highlights

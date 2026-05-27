@@ -36,7 +36,7 @@ function SwarmCanvas({ visible, theme }) {
     const colors = theme === 'tranquil' ? TRANQUIL_COLORS : HACKER_COLORS;
     const speedMult = theme === 'tranquil' ? 0.5 : 1.0;
 
-    const PARTICLE_COUNT = 80;
+    const PARTICLE_COUNT = window.innerWidth <= 768 ? 25 : 80;
     const pts = Array.from({ length: PARTICLE_COUNT }, (_, i) => {
       let type = 'nucleus';
       if (i > 10) type = 'orbit1';
@@ -192,6 +192,14 @@ function App() {
   const [webglOk, setWebglOk] = useState(true);
   const [swarmVisible, setSwarmVisible] = useState(true);
   const [theme, setTheme] = useState('hacker');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -235,7 +243,7 @@ function App() {
         <>
           {webglOk && showCanvas && (
             <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
-              <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+              <Canvas camera={{ position: [0, 0, 5], fov: 45 }} dpr={isMobile ? 1 : [1, 2]} performance={{ min: 0.5 }}>
                 <PCBScene />
               </Canvas>
             </div>
