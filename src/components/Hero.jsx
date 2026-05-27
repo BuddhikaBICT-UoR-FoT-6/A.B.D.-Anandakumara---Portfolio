@@ -88,7 +88,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="flex flex-col lg:flex-row items-center justify-center lg:justify-between min-h-[100vh] pt-24 pb-12 px-6 lg:px-20 gap-8 lg:gap-10 relative z-10 w-full max-w-[1400px] mx-auto pointer-events-none">
+    <section className="flex flex-col lg:flex-row items-center justify-between min-h-[100vh] pt-24 pb-12 px-6 lg:px-20 gap-8 lg:gap-10 relative z-10 w-full max-w-[1400px] mx-auto pointer-events-none">
       {/* Left Column: Core Identity */}
       <div className="relative w-full lg:flex-[1.2] lg:max-w-[640px] pointer-events-auto">
         <div className="hero-plate relative overflow-hidden">
