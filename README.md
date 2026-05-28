@@ -50,7 +50,7 @@ If you prefer to host the backend separately using the Express app instead of Ve
 
 ## Design Philosophy & Aesthetics
 
-This portfolio is not just a digital resume; it is a living engineering showcase designed to reflect Buddhika Darshan's deep technical focus. The aesthetic choices intentionally mirror his expertise in backend architecture, embedded systems (IoT), and complex logic layers.
+This portfolio is not just a digital resume; it is a living engineering showcase designed to reflect my deep technical focus. The aesthetic choices intentionally mirror his expertise in backend architecture, embedded systems (IoT), and complex logic layers.
 
 ### The PCB & Terminal Aesthetic
 - **Visual Styles**: The UI leverages a "Printed Circuit Board" (PCB) and retro-terminal aesthetic. Features include neon green trace lines (`--pcb-green`), glowing text components (`emissive-pulse`, `.percentage-glow`), CRT scanline reveals, and simulated hardware components like blinking LED indicators and metallic screw heads.
