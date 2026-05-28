@@ -160,15 +160,15 @@ const SKILLS = [
 ];
 
 const CERTS = [
-  { name: 'Back End Development & APIs', issuer: 'freeCodeCamp', date: 'Oct 2025', verifyLink: 'https://www.freecodecamp.org/certification/buddhikadarshan/back-end-development-and-apis' },
-  { name: 'OCI Foundations Associate',   issuer: 'Oracle',        date: 'Sep 2025' },
-  { name: 'Front End Development Libraries', issuer: 'freeCodeCamp', date: 'Sep 2025', verifyLink: 'https://www.freecodecamp.org/certification/buddhikadarshan/front-end-development-libraries' },
-  { name: 'Responsive Web Design',       issuer: 'freeCodeCamp', date: 'Jan 2025', verifyLink: 'https://www.freecodecamp.org/certification/buddhikadarshan/responsive-web-design' },
-  { name: 'AutoCAD & 3Ds Max',           issuer: 'Wijeya Graphics',     date: 'Sep 2019' },
-  { name: 'Web Development',             issuer: 'NAC Computer System', date: 'Sep 2015' },
-  { name: '3D Max',                      issuer: 'NAC Computer System', date: 'Feb 2014' },
-  { name: 'Computer Graphics',           issuer: 'NAC Computer System', date: 'Feb 2013' },
-  { name: 'Computer Studies',            issuer: 'NAC Computer System', date: 'Jul 2012' },
+  { name: 'Back End Development & APIs', issuer: 'freeCodeCamp', date: 'Oct 2025', verifyLink: 'https://www.freecodecamp.org/certification/buddhikadarshan/back-end-development-and-apis', detail: 'Built robust Node.js and Express RESTful APIs, handled routing and middleware, and deeply integrated MongoDB for data storage.' },
+  { name: 'OCI Foundations Associate',   issuer: 'Oracle',        date: 'Sep 2025', detail: 'Demonstrated fundamental knowledge of public cloud services provided by Oracle Cloud Infrastructure (OCI), covering core architecture and security.' },
+  { name: 'Front End Development Libraries', issuer: 'freeCodeCamp', date: 'Sep 2025', verifyLink: 'https://www.freecodecamp.org/certification/buddhikadarshan/front-end-development-libraries', detail: 'Mastered React, Redux, and Bootstrap. Built dynamic SPAs with state management and responsive UI components.' },
+  { name: 'Responsive Web Design',       issuer: 'freeCodeCamp', date: 'Jan 2025', verifyLink: 'https://www.freecodecamp.org/certification/buddhikadarshan/responsive-web-design', detail: 'Acquired advanced CSS skills including Flexbox, CSS Grid, and media queries to build highly responsive web applications.' },
+  { name: 'AutoCAD & 3Ds Max',           issuer: 'Wijeya Graphics',     date: 'Sep 2019', detail: 'Certified in industrial 2D/3D drafting and high-fidelity rendering, focusing on architectural and mechanical modeling.' },
+  { name: 'Web Development',             issuer: 'NAC Computer System', date: 'Sep 2015', detail: 'Learned core web fundamentals, establishing a solid foundation in HTML, CSS, and basic JavaScript interactivity.' },
+  { name: '3D Max',                      issuer: 'NAC Computer System', date: 'Feb 2014', detail: 'Focused on 3D modeling, texturing, and animation workflows.' },
+  { name: 'Computer Graphics',           issuer: 'NAC Computer System', date: 'Feb 2013', detail: 'Mastered graphic design tools, typography, and visual communication principles.' },
+  { name: 'Computer Studies',            issuer: 'NAC Computer System', date: 'Jul 2012', detail: 'Foundational coursework in computer hardware, networking, and software operations.' },
 ];
 
 const SOFT_SKILLS = [
@@ -337,6 +337,7 @@ const Skills = () => {
                     </div>
                     <div className="text-[10px] font-mono text-[var(--terminal-green)] leading-tight mb-1">{cert.name}</div>
                     <div className="text-[8px] font-mono opacity-60">{cert.issuer} // {cert.date}</div>
+                    {cert.detail && <div className="text-[9px] font-mono opacity-80 mt-2">{cert.detail}</div>}
                   </div>
                   {cert.verifyLink && (
                     <a

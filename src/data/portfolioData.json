@@ -52,7 +52,7 @@
       "title": "HomeCanvas",
       "badge": "IoT / Web",
       "icon": "🏠",
-      "description": "An end-to-end smart home platform integrating an ESP32 micro-controller and sensor fusion for real-time home monitoring, actionable alerts, and a secure centralized dashboard.",
+      "description": "An end-to-end smart home platform integrating an ESP32 micro-controller and sensor fusion for real-time home monitoring. Architected with a robust Spring Boot backend handling high-frequency sensor telemetry via MQTT, and a React-based interactive dashboard that provides real-time visualizations and actionable alerts. Deployed on scalable cloud infrastructure with automated CI/CD pipelines.",
       "tech": ["Java", "Spring Boot", "React.js", "TypeScript", "ESP32", "SQL"],
       "liveUrl": "https://homecanvas99.netlify.app/",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/HomeCanvas.git"
@@ -61,7 +61,7 @@
       "title": "CrowdFlow",
       "badge": "Mobile",
       "icon": "🗺️",
-      "description": "A map-first Android platform backed by a highly scalable data pipeline, enabling users to visualize localized traffic conditions and seamlessly submit real-time severity feedback.",
+      "description": "A map-first Android platform backed by a highly scalable Node.js data pipeline. Empowers users to visualize localized traffic conditions, integrating Google Maps SDK and geospatial queries to identify congestion hotspots. Features a custom Redis-backed debouncing layer capable of processing thousands of concurrent user-submitted severity reports, significantly reducing database load.",
       "tech": ["Kotlin", "Node.js", "MongoDB", "Redis"],
       "liveUrl": "",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/CrowdFlow.git"
@@ -70,7 +70,7 @@
       "title": "BoutiqueFlow",
       "badge": "Web",
       "icon": "👗",
-      "description": "A full-stack digital management platform built to transition a physical clothing shop online, featuring secure real-time inventory tracking, RBAC, and automated digital sales processing.",
+      "description": "A full-stack digital management platform built to transition physical retail businesses online. Includes secure real-time inventory tracking, Role-Based Access Control (RBAC) for staff management, and seamless Stripe/PayPal integration for automated sales processing. Designed with a microservice-inspired architecture ensuring high availability during seasonal traffic spikes.",
       "tech": ["Angular", "Node.js", "Express", "MongoDB"],
       "liveUrl": "https://abdclothingstore.netlify.app/",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/BoutiqueFlow.git"
@@ -79,7 +79,7 @@
       "title": "Cypher-UI",
       "badge": "Web",
       "icon": "🔐",
-      "description": "An educational platform bridging theoretical cryptography with hands-on implementation, featuring real-time encryption visualizations and brute-force simulators to accelerate concept understanding.",
+      "description": "An educational platform bridging theoretical cryptography with hands-on implementation. Features highly interactive, real-time visualizers for algorithms like AES, RSA, and DES. Includes advanced brute-force simulators and step-by-step cryptographic transformations, built with a robust TypeScript engine validated by over 95% Jest test coverage.",
       "tech": ["React.js", "Node.js", "MySQL"],
       "liveUrl": "https://cipher-ui-zeta.vercel.app/",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/cipher-ui.git"
@@ -88,7 +88,7 @@
       "title": "Smart Campus",
       "badge": "Mobile",
       "icon": "🎓",
-      "description": "A production-grade, multi-role Flutter application that digitizes and centralizes administrative and academic workflows with an offline-first architecture for low-connectivity environments.",
+      "description": "A production-grade, multi-role Flutter application that digitizes and centralizes administrative and academic workflows. Designed with a resilient offline-first architecture utilizing SQLite, ensuring 100% core functionality in low-connectivity environments. Implements Clean Architecture principles and Provider state management for maintainable and scalable code.",
       "tech": ["Flutter", "Dart", "Provider", "SQLite", "MySQL", "Clean Architecture"],
       "liveUrl": "",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/smart_campus.git"
@@ -97,7 +97,7 @@
       "title": "Earn++",
       "badge": "Mobile",
       "icon": "📈",
-      "description": "A cross-platform mobile application providing beginner investors with a streamlined, dollar-based alternative to complex spreadsheet portfolio management with real-time profit/loss calculations.",
+      "description": "A cross-platform mobile application providing beginner investors with a streamlined, dollar-based alternative to complex spreadsheet portfolio management. Leverages Dart Shelf for the backend to synchronize real-time profit/loss calculations and portfolio metrics, delivering an intuitive UI focused on frictionless asset tracking.",
       "tech": ["Flutter", "Dart Shelf", "MySQL"],
       "liveUrl": "",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/EarnPlusPlus.git"
@@ -106,7 +106,7 @@
       "title": "Secure Vault",
       "badge": "Desktop",
       "icon": "🔒",
-      "description": "A desktop utility application designed to securely manage, organize, and edit .env files for local development repositories with encrypted backup generation capabilities.",
+      "description": "A secure desktop utility built with JavaFX and Java, designed to manage, organize, and edit .env files across multiple local development environments. Employs AES-256 encryption to protect sensitive credentials at rest, featuring automated encrypted backup generation and a clean, developer-focused interface.",
       "tech": ["Java", "JavaFX", "SQL"],
       "liveUrl": "",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/Secure-Environment-Variable-Vault.git"
