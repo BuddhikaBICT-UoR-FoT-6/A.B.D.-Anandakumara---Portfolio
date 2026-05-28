@@ -1,101 +1,49 @@
-# Portfolio (static)
+# Portfolio
 
-This is a simple static portfolio website (no framework needed).
+A modern, interactive portfolio website built with React, Vite, Tailwind CSS, and Three.js (React Three Fiber). 
+It features a responsive 3D design and a modular architecture.
 
-## Edit your info
-- Update links and text in `index.html` (email, GitHub, LinkedIn, projects, resume).
+## Tech Stack
 
-## Preview locally
-### Option A: VS Code Live Server extension
-- Install **Live Server**
-- Right-click `index.html` → **Open with Live Server**
+- **Frontend**: React 18, Vite, Tailwind CSS, Framer Motion, Three.js (@react-three/fiber, @react-three/drei)
+- **Backend / API**:
+  - Vercel Serverless Functions (`/api` directory)
+  - Alternatively, an Express server is available in the `/server` directory for other hosting environments.
 
-### Option B: Python (if installed)
-From this folder:
-```powershell
-python -m http.server 5173
-```
-Then open:
-- http://localhost:5173
+## Running Locally (Frontend)
 
-## Host it (GitHub Pages)
-1. Create a new GitHub repo (example: `portfolio`).
-2. Upload these files (`index.html`, `styles.css`, `script.js`, `README.md`).
-3. In GitHub: **Settings → Pages**
-   - Source: **Deploy from a branch**
-   - Branch: `main` (root)
-4. Wait ~1–3 minutes, then your site will be available at the URL GitHub shows.
+1. **Install Dependencies**
+   ```powershell
+   npm install
+   ```
 
-## Push to GitHub (git)
-From this folder:
-```powershell
-git init
-git add .
-git commit -m "Initial portfolio"
-git branch -M main
-```
+2. **Start the Development Server**
+   ```powershell
+   npm run dev
+   ```
+   The site will be available at `http://localhost:5173`.
 
-Then create a GitHub repository (on github.com) and push:
-```powershell
-git remote add origin https://github.com/<your-username>/<your-repo>.git
-git push -u origin main
-```
+3. **Build for Production**
+   ```powershell
+   npm run build
+   ```
+   You can preview the production build with:
+   ```powershell
+   npm run preview
+   ```
 
-## Host it (Netlify)
-1. Go to https://www.netlify.com/ and log in.
-2. "Add new site" → "Deploy manually".
-3. Drag-and-drop this folder contents.
+## Deploying
 
-## Host it (Vercel)
-1. Log in to Vercel with GitHub.
-2. **Add New → Project** → select your repo.
-3. Framework preset: pick **Other** (or **Static Site** if shown).
-4. Build Command: leave empty.
-5. Output/Publish directory: `.` (repo root).
+### Frontend (Vercel)
 
-## Host it (Render)
-For this repo (static frontend only):
-1. Log in to Render with GitHub.
-2. **New + → Static Site** → select your repo.
-3. Build Command: leave empty.
-4. Publish Directory: `.`
+The project includes a `vercel.json` for easy deployment to Vercel. 
+Vercel will also automatically host the serverless functions found in the `/api` directory.
 
-If you later add a backend, put it in a separate folder (example: `server/`) and deploy as a **Web Service**.
+1. Connect your repository to Vercel.
+2. Vercel will automatically detect the Vite framework.
+3. Deploy!
 
-## Recommended free setup (Frontend: Vercel, Backend: Render)
-Free tiers change over time, but this split is common because it’s simple and performs well.
+### Backend (Express)
 
-### 1) Deploy frontend on Vercel
-1. Go to Vercel → **Add New → Project**.
-2. Import your GitHub repo.
-3. Framework preset: **Other**.
-4. Build Command: leave empty.
-5. Output/Publish directory: `.`
-6. Deploy.
-
-### 2) Deploy backend on Render (Express)
-1. Go to Render → **New + → Web Service**.
-2. Select the same GitHub repo.
-3. **Root Directory**: `server`
-4. Build Command: `npm install`
-5. Start Command: `npm start`
-6. Environment variables (Render → Environment):
-   - `CORS_ORIGIN` = your Vercel domain, e.g. `https://your-project.vercel.app`
-
-After deploy, Render will give you a backend URL like `https://your-service.onrender.com`.
-
-### 3) Connect frontend → backend
-Edit `index.html` and set:
-
-```js
-window.PORTFOLIO_API_BASE = 'https://your-service.onrender.com';
-```
-
-Commit + push, and Vercel will auto-redeploy.
-
-## Custom domain (optional)
-- GitHub Pages: **Settings → Pages → Custom domain** (then add the DNS records GitHub shows).
-- Netlify: **Domain management** (Netlify will tell you which DNS records to add).
-
-## Notes
-- The contact form uses `mailto:` (no backend). If you want a real form (Formspree / Netlify Forms), tell me.
+If you prefer to host the backend separately using the Express app instead of Vercel Serverless functions:
+- See the [server/README.md](server/README.md) for instructions on running and deploying the Express server.

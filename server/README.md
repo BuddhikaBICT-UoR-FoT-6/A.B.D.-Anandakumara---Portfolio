@@ -1,17 +1,32 @@
-# Server (Express)
+# Express Backend Server
 
-This is a tiny Express backend for the portfolio. It exposes:
+This is an optional Express backend for the portfolio, useful if you are not using Vercel Serverless Functions. It exposes the following endpoints:
 
 - `GET /api/hello` — simple JSON hello
-- `POST /api/contact` — accepts `{ name, email, message }` and returns an acknowledgement
-- `GET /health` — healthcheck
+- `POST /api/contact` — accepts `{ name, email, message }` and processes the contact form
+- `GET /health` — healthcheck endpoint
 
-To run locally:
+## Running Locally
 
-```powershell
-cd server
-npm install
-npm start
-```
+1. **Navigate to the server directory**
+   ```powershell
+   cd server
+   ```
 
-When deployed, configure the service root/path to the `server/` folder and use `npm install` as the build command (Render) and `npm start` as the start command.
+2. **Install Dependencies**
+   ```powershell
+   npm install
+   ```
+
+3. **Start the Server**
+   ```powershell
+   npm start
+   ```
+
+## Deployment
+
+When deploying to a service like Render or Railway:
+- Set the root directory or start path to the `server/` folder.
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+- Make sure to configure CORS appropriately to allow requests from your frontend domain.
