@@ -1,85 +1,32 @@
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
-    <title>404 — Page Not Found | Buddhika Darshan</title>
-
-    <!-- Favicon -->
+    <title>404 — Signal Lost | Buddhika Darshan</title>
     <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%237c5cff'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='800' font-size='18' fill='white'%3EB%3C/text%3E%3C/svg%3E" />
-
-    <!-- Fonts -->
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23001100'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='central' text-anchor='middle' font-family='monospace' font-weight='900' font-size='16' fill='%2300FF41'%3E⬡%3C/text%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
-        rel="stylesheet" />
-
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
     <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg: #02040a;
-            --text: #e0f2fe;
-            --muted: #94a3b8;
-            --accent: #00f2ff;
-            --green: #10b981;
-            --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+            --green: #00FF41;
+            --green-dim: rgba(0,255,65,0.3);
+            --green-faint: rgba(0,255,65,0.08);
+            --bg: #000d04;
+            --font: 'JetBrains Mono', monospace;
         }
 
-        #circuit-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        html, body {
             height: 100%;
-            z-index: -1;
-            pointer-events: none;
-            opacity: 0.6;
-        }
-
-        /* Electricity Wave Effect */
-        .elec-wave {
-            position: fixed;
-            border: 2px solid var(--accent);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%) scale(0);
-            opacity: 0.8;
-            animation: elecWaveAnim 0.6s cubic-bezier(0.1, 0.5, 0.5, 1) forwards;
-            box-shadow: 0 0 15px var(--accent), inset 0 0 10px var(--accent);
-        }
-
-        @keyframes elecWaveAnim {
-            0% {
-                width: 0;
-                height: 0;
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(0);
-            }
-            100% {
-                width: 300px;
-                height: 300px;
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(1.5);
-            }
-        }
-
-        html,
-        body {
-            height: 100%;
-            font-family: var(--font);
             background: var(--bg);
-            color: var(--text);
+            color: var(--green);
+            font-family: var(--font);
+            overflow: hidden;
         }
 
         body {
@@ -90,282 +37,238 @@
             min-height: 100vh;
             padding: 24px;
             text-align: center;
-            overflow: hidden;
+            position: relative;
         }
 
-        .error-number {
-            font-size: clamp(96px, 20vw, 180px);
-            font-weight: 800;
+        canvas#bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            max-width: 540px;
+            width: 100%;
+        }
+
+        .terminal-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #001100;
+            border: 1px solid var(--green-dim);
+            border-bottom: none;
+            padding: 8px 14px;
+            font-size: 10px;
+            color: var(--green-dim);
+            border-radius: 4px 4px 0 0;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-r { background: #ff5555; }
+        .dot-y { background: #ffaa00; }
+        .dot-g { background: var(--green); }
+
+        .terminal-body {
+            background: #001100;
+            border: 1px solid var(--green-dim);
+            padding: 28px 24px;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 0 40px rgba(0,255,65,0.08), 0 0 80px rgba(0,0,0,0.8);
+        }
+
+        .error-code {
+            font-size: clamp(72px, 18vw, 140px);
+            font-weight: 700;
             line-height: 1;
-            background: linear-gradient(135deg, #00f2ff 0%, #3b82f6 50%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--green);
             letter-spacing: -4px;
-            margin-bottom: 16px;
-            filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.3));
+            text-shadow: 0 0 20px rgba(0,255,65,0.5), 0 0 60px rgba(0,255,65,0.15);
+            margin-bottom: 4px;
+        }
+
+        .blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .badge {
+            display: inline-block;
+            font-size: 10px;
+            color: var(--green-dim);
+            border: 1px solid var(--green-dim);
+            padding: 2px 10px;
+            margin-bottom: 20px;
+            letter-spacing: 0.15em;
         }
 
         h1 {
-            font-size: clamp(22px, 4vw, 32px);
+            font-size: clamp(16px, 3vw, 22px);
             font-weight: 700;
-            margin-bottom: 12px;
+            color: #fff;
+            margin-bottom: 10px;
         }
 
-        p {
-            color: var(--muted);
-            font-size: 16px;
-            max-width: 420px;
-            line-height: 1.65;
-            margin-bottom: 36px;
+        .log-line {
+            font-size: 11px;
+            color: var(--green-dim);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+        .log-line.warn { color: #FFD700; }
+        .log-line.info { color: #00ccff; }
+
+        .countdown-bar {
+            width: 100%;
+            height: 2px;
+            background: var(--green-faint);
+            margin: 20px 0 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .countdown-fill {
+            height: 100%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            transition: width 1s linear;
         }
 
         .actions {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
+            margin-top: 20px;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 11px 24px;
-            border-radius: 999px;
+            gap: 6px;
+            padding: 9px 20px;
             font-family: var(--font);
-            font-size: 14px;
+            font-size: 11px;
             font-weight: 700;
             text-decoration: none;
             cursor: pointer;
-            border: none;
-            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--green-dim);
+            background: var(--green-faint);
+            color: var(--green);
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
         }
-
+        .btn:hover {
+            border-color: var(--green);
+            background: rgba(0,255,65,0.15);
+            box-shadow: 0 0 16px rgba(0,255,65,0.2);
+        }
         .btn-primary {
-            background: linear-gradient(135deg, #00f2ff, #0077ff);
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(0, 242, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(124, 92, 255, 0.55);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.06);
-            color: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.10);
-            transform: translateY(-2px);
-        }
-
-        .glitch {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 8px;
+            border-color: var(--green);
+            background: rgba(0,255,65,0.1);
+            box-shadow: 0 0 12px rgba(0,255,65,0.1);
         }
 
         @media (max-width: 480px) {
-            .actions {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .btn {
-                justify-content: center;
-            }
+            .actions { flex-direction: column; }
+            .btn { justify-content: center; }
         }
     </style>
 </head>
-
 <body>
-    <canvas id="circuit-bg"></canvas>
-    <span class="glitch">404</span>
-    <div class="error-number" aria-hidden="true">404</div>
-    <h1>Page Not Found</h1>
-    <p>The page you're looking for doesn't exist or has been moved. Let me take you somewhere useful instead.</p>
-    <div class="actions">
-        <a class="btn btn-primary" href="/">← Back to Portfolio</a>
-        <a class="btn btn-secondary" href="/#projects">View Projects</a>
-        <a class="btn btn-secondary" href="/#contact">Contact Me</a>
+    <canvas id="bg"></canvas>
+
+    <div class="content">
+        <div class="terminal-bar">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-y"></div>
+            <div class="dot dot-g"></div>
+            <span style="margin-left:8px">SYSTEM CONSOLE — ERROR HANDLER</span>
+        </div>
+        <div class="terminal-body">
+            <div class="log-line">> [SYS] Incoming request routed...</div>
+            <div class="log-line warn">> [WARN] Target route not found in registry</div>
+            <div class="log-line info">> [INFO] Initiating fallback handler...</div>
+
+            <div class="error-code">4<span class="blink">0</span>4</div>
+            <div class="badge">SIGNAL_LOST // ROUTE_NOT_FOUND</div>
+
+            <h1>Page Not Found</h1>
+            <p class="log-line" style="text-align:center; margin-bottom:0; color: rgba(0,255,65,0.5);">
+                The resource you're looking for doesn't exist or has been moved.
+            </p>
+
+            <div class="countdown-bar">
+                <div class="countdown-fill" id="fill" style="width:100%"></div>
+            </div>
+            <div class="log-line info" id="redirect-msg">> [SYS] Auto-redirect in 10s...</div>
+
+            <div class="actions">
+                <a class="btn btn-primary" href="/">← BACK_TO_PORTFOLIO</a>
+                <a class="btn" href="/#projects">→ VIEW_PROJECTS</a>
+                <a class="btn" href="/#contact">→ CONTACT_ME</a>
+            </div>
+        </div>
     </div>
 
-    <script type="module">
-        // Circuit Background
-        class CircuitBackground {
-            constructor(canvas) {
-                this.canvas = canvas;
-                this.ctx = canvas.getContext('2d');
-                this.pulses = [];
-                this.particles = [];
-                this.gridSize = 50;
-                this.maxParticles = 50;
-                this.mouse = { x: -1000, y: -1000 };
-                this.mouseStopped = false;
-                this.mouseTimer = null;
-                
-                this.resize();
-                window.addEventListener('resize', () => this.resize());
-                window.addEventListener('mousemove', (e) => {
-                    this.mouse.x = e.clientX;
-                    this.mouse.y = e.clientY;
-                    this.mouseStopped = false;
-                    if (this.mouseTimer) clearTimeout(this.mouseTimer);
-                    this.mouseTimer = setTimeout(() => {
-                        this.mouseStopped = true;
-                    }, 150);
-                });
-                
-                this.init();
-                this.animate();
-            }
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-                this.init();
-            }
-            init() {
-                this.particles = [];
-                for (let i = 0; i < this.maxParticles; i++) {
-                    this.particles.push({
-                        x: Math.random() * this.canvas.width,
-                        y: Math.random() * this.canvas.height,
-                        vx: (Math.random() - 0.5) * 1,
-                        vy: (Math.random() - 0.5) * 1,
-                        size: Math.random() * 2 + 1,
-                        alpha: Math.random() * 0.5 + 0.2
-                    });
-                }
-            }
-            createPulse() {
-                if (this.pulses.length > 10) return;
-                const x = Math.floor(Math.random() * (this.canvas.width / this.gridSize)) * this.gridSize;
-                const y = Math.floor(Math.random() * (this.canvas.height / this.gridSize)) * this.gridSize;
-                this.pulses.push({ x, y, tx: x, ty: y, speed: 2 + Math.random() * 2, life: 1, dir: Math.floor(Math.random() * 4) });
-            }
-            update() {
-                if (Math.random() > 0.9) this.createPulse();
-                
-                // Update Particles
-                this.particles.forEach(p => {
-                    const dx = this.mouse.x - p.x;
-                    const dy = this.mouse.y - p.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (this.mouseStopped && dist < 250) {
-                        const force = (250 - dist) / 250;
-                        p.vx += (dx / dist) * force * 0.7;
-                        p.vy += (dy / dist) * force * 0.7;
-                    } else {
-                        p.vx += (Math.random() - 0.5) * 0.1;
-                        p.vy += (Math.random() - 0.5) * 0.1;
-                    }
-                    p.vx *= 0.95;
-                    p.vy *= 0.95;
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    if (p.x < 0) p.x = this.canvas.width;
-                    if (p.x > this.canvas.width) p.x = 0;
-                    if (p.y < 0) p.y = this.canvas.height;
-                    if (p.y > this.canvas.height) p.y = 0;
-                });
+    <script>
+        // PCB trace background
+        const canvas = document.getElementById('bg');
+        const ctx = canvas.getContext('2d');
+        let W, H, nodes;
 
-                for (let i = this.pulses.length - 1; i >= 0; i--) {
-                    const p = this.pulses[i];
-                    if (Math.abs(p.x - p.tx) < 1 && Math.abs(p.y - p.ty) < 1) {
-                        p.dir = Math.floor(Math.random() * 4);
-                        if (p.dir === 0) p.ty -= this.gridSize;
-                        else if (p.dir === 1) p.tx += this.gridSize;
-                        else if (p.dir === 2) p.ty += this.gridSize;
-                        else p.tx -= this.gridSize;
-                        p.life -= 0.1;
-                    } else {
-                        p.x += (p.tx - p.x) * 0.1 * p.speed;
-                        p.y += (p.ty - p.y) * 0.1 * p.speed;
-                    }
-                    if (p.life <= 0) this.pulses.splice(i, 1);
-                }
-            }
-            draw() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                this.ctx.strokeStyle = 'rgba(0, 242, 255, 0.05)';
-                this.ctx.lineWidth = 1;
-                this.ctx.beginPath();
-                for (let i = 0; i < this.canvas.width; i += this.gridSize) { this.ctx.moveTo(i, 0); this.ctx.lineTo(i, this.canvas.height); }
-                for (let i = 0; i < this.canvas.height; i += this.gridSize) { this.ctx.moveTo(0, i); this.ctx.lineTo(this.canvas.width, i); }
-                this.ctx.stroke();
-
-                // Draw Particles
-                this.particles.forEach(p => {
-                    this.ctx.fillStyle = `rgba(0, 242, 255, ${p.alpha})`;
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    this.ctx.fill();
-                });
-
-                this.pulses.forEach(p => {
-                    this.ctx.shadowBlur = 10;
-                    this.ctx.shadowColor = '#00f2ff';
-                    this.ctx.fillStyle = `rgba(0, 242, 255, ${p.life})`;
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-                    this.ctx.fill();
-                    this.ctx.shadowBlur = 0;
-                });
-            }
-            animate() {
-                this.update();
-                this.draw();
-                requestAnimationFrame(() => this.animate());
-            }
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+            init();
         }
-        window.bg = new CircuitBackground(document.getElementById('circuit-bg'));
 
-        // Handle Electricity Wave
-        window.addEventListener('click', (e) => {
-            const wave = document.createElement('div');
-            wave.className = 'elec-wave';
-            wave.style.left = `${e.clientX}px`;
-            wave.style.top = `${e.clientY}px`;
-            document.body.appendChild(wave);
-            wave.addEventListener('animationend', () => wave.remove());
+        function init() {
+            nodes = Array.from({ length: 40 }, () => ({
+                x: Math.random() * W, y: Math.random() * H,
+                vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
+            }));
+        }
 
-            // Disperse Particles
-            if (window.bg && window.bg.particles) {
-                window.bg.particles.forEach(p => {
-                    const dx = p.x - e.clientX;
-                    const dy = p.y - e.clientY;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 400) {
-                        const force = (400 - dist) / 40;
-                        p.vx += (dx / dist) * force;
-                        p.vy += (dy / dist) * force;
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            nodes.forEach(n => {
+                n.x += n.vx; n.y += n.vy;
+                if (n.x < 0 || n.x > W) n.vx *= -1;
+                if (n.y < 0 || n.y > H) n.vy *= -1;
+            });
+            nodes.forEach((a, i) => {
+                nodes.slice(i + 1).forEach(b => {
+                    const d = Math.hypot(a.x - b.x, a.y - b.y);
+                    if (d < 140) {
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+                        ctx.strokeStyle = `rgba(0,255,65,${0.12 * (1 - d / 140)})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
                     }
                 });
-            }
-        });
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,255,65,0.25)';
+                ctx.fill();
+            });
+            requestAnimationFrame(draw);
+        }
 
-        // Auto-redirect after 10 seconds
-        let countdown = 10;
-        const p = document.querySelector('p');
-        const original = p.textContent;
-        const timer = setInterval(() => {
-            countdown--;
-            p.textContent = `${original} Redirecting in ${countdown}s…`;
-            if (countdown <= 0) {
-                clearInterval(timer);
-                window.location.href = '/';
-            }
+        window.addEventListener('resize', resize);
+        resize(); draw();
+
+        // Countdown
+        let s = 10;
+        const fill = document.getElementById('fill');
+        const msg = document.getElementById('redirect-msg');
+        const t = setInterval(() => {
+            s--;
+            fill.style.width = (s / 10 * 100) + '%';
+            msg.textContent = `> [SYS] Auto-redirect in ${s}s...`;
+            if (s <= 0) { clearInterval(t); window.location.href = '/'; }
         }, 1000);
     </script>
 </body>
-
 </html>

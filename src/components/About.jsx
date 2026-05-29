@@ -28,6 +28,7 @@ const About = () => {
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
+  const [imgError, setImgError] = useState(false);
   const photoVer = personal?.photoVersion || '1';
   const profileImg = localPhoto ? localPhoto : `/profile.png?v=${photoVer}`;
 
@@ -48,12 +49,22 @@ const About = () => {
               className="w-full h-full bg-[#111] overflow-hidden"
               style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
             >
-              <img 
-                src={profileImg} 
-                alt="Profile" 
-                className="w-full h-full object-cover object-top"
-                onError={(e) => { e.target.style.display='none'; }}
-              />
+              {imgError ? (
+                <div className="w-full h-full flex items-center justify-center bg-[#0a1a0a]">
+                  <svg viewBox="0 0 80 80" className="w-3/4 h-3/4 opacity-40">
+                    <circle cx="40" cy="28" r="16" fill="none" stroke="#00FF41" strokeWidth="2"/>
+                    <path d="M10 72 Q10 52 40 52 Q70 52 70 72" fill="none" stroke="#00FF41" strokeWidth="2"/>
+                    <circle cx="40" cy="28" r="6" fill="#00FF41" opacity="0.4"/>
+                  </svg>
+                </div>
+              ) : (
+                <img 
+                  src={profileImg} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover object-top"
+                  onError={() => setImgError(true)}
+                />
+              )}
             </div>
             <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-black px-3 py-1 border border-[var(--pcb-green-light)] text-[9px] font-mono whitespace-nowrap">
               STATUS: <span className="text-[var(--terminal-green)] animate-pulse">● OPEN_TO_WORK</span>

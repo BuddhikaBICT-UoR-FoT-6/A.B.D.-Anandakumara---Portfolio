@@ -2,49 +2,74 @@ import { motion } from 'framer-motion';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { useMode } from '../context/ModeContext';
 
+const PROJECT_IMAGES = {
+  'HomeCanvas':    '/project_homecanvas.png',
+  'CrowdFlow':     '/project_crowdflow.png',
+  'BoutiqueFlow':  '/project_boutiqueflow.png',
+  'Cypher-UI':     '/project_cypherui.png',
+  'Smart Campus':  '/project_smartcampus.png',
+  'Earn++':        '/project_earnplusplus.png',
+  'Secure Vault':  '/project_securevault.png',
+};
+
 const ProjectCard = ({ project, isDev }) => {
   const isComplete = project.status !== 'active';
 
   if (!isDev) {
     // ── Recruiter Mode: clean card ─────────────────────────────
+    const img = PROJECT_IMAGES[project.title];
     return (
       <motion.div
         whileHover={{ y: -6 }}
-        className="flex flex-col h-full rounded-xl border border-[rgba(0,255,65,0.2)] bg-[rgba(0,10,20,0.7)] backdrop-blur-sm p-5 transition-all duration-300 hover:border-[rgba(0,255,65,0.5)] hover:shadow-[0_0_20px_rgba(0,255,65,0.1)]"
+        className="flex flex-col h-full rounded-xl border border-[rgba(0,255,65,0.2)] bg-[rgba(0,10,20,0.7)] backdrop-blur-sm overflow-hidden transition-all duration-300 hover:border-[rgba(0,255,65,0.5)] hover:shadow-[0_0_20px_rgba(0,255,65,0.1)]"
       >
-        <div className="flex items-center gap-2 mb-2">
-          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isComplete ? 'bg-[#00FF41]' : 'bg-yellow-400 animate-pulse'}`} />
-          <h3 className="text-base font-semibold text-white">{project.title}</h3>
-        </div>
-        {project.badge && (
-          <span className="text-[10px] text-[#7dd3fc] mb-3">{project.badge}</span>
+        {img && (
+          <div className="w-full h-36 overflow-hidden">
+            <img src={img} alt={project.title} className="w-full h-full object-cover object-top opacity-80 hover:opacity-100 transition-opacity" />
+          </div>
         )}
-        <p className="text-sm text-[#a0bba0] leading-relaxed mb-4 flex-grow">{project.description}</p>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {project.tech.map(t => (
-            <span key={t} className="text-[10px] px-2 py-0.5 rounded-full border border-[rgba(0,255,65,0.2)] text-[#c8e6c9] bg-[rgba(0,255,65,0.05)]">{t}</span>
-          ))}
-        </div>
-        <div className="flex gap-4 pt-3 border-t border-[rgba(0,255,65,0.1)]">
-          {project.codeUrl && (
-            <a href={project.codeUrl} target="_blank" rel="noreferrer" className="text-xs text-[#00FF41] hover:underline">GitHub →</a>
+        <div className="p-5 flex flex-col flex-grow">
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isComplete ? 'bg-[#00FF41]' : 'bg-yellow-400 animate-pulse'}`} />
+            <h3 className="text-base font-semibold text-white">{project.title}</h3>
+          </div>
+          {project.badge && (
+            <span className="text-[10px] text-[#7dd3fc] mb-3">{project.badge}</span>
           )}
-          {project.liveUrl && (
-            <a href={project.liveUrl} target="_blank" rel="noreferrer" className="text-xs text-[#7dd3fc] hover:underline">Live Demo →</a>
-          )}
+          <p className="text-sm text-[#a0bba0] leading-relaxed mb-4 flex-grow">{project.description}</p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {project.tech.map(t => (
+              <span key={t} className="text-[10px] px-2 py-0.5 rounded-full border border-[rgba(0,255,65,0.2)] text-[#c8e6c9] bg-[rgba(0,255,65,0.05)]">{t}</span>
+            ))}
+          </div>
+          <div className="flex gap-4 pt-3 border-t border-[rgba(0,255,65,0.1)]">
+            {project.codeUrl && (
+              <a href={project.codeUrl} target="_blank" rel="noreferrer" className="text-xs text-[#00FF41] hover:underline">GitHub →</a>
+            )}
+            {project.liveUrl && (
+              <a href={project.liveUrl} target="_blank" rel="noreferrer" className="text-xs text-[#7dd3fc] hover:underline">Live Demo →</a>
+            )}
+          </div>
         </div>
       </motion.div>
     );
   }
 
   // ── Developer Mode: full terminal card ──────────────────────
+  const img = PROJECT_IMAGES[project.title];
   return (
     <motion.div
       whileHover={{ y: -8 }}
-      className="pcb-card group cursor-pointer border-[var(--pcb-green-light)] flex flex-col h-full"
+      className="pcb-card group cursor-pointer border-[var(--pcb-green-light)] flex flex-col h-full overflow-hidden"
     >
-      <div className="absolute top-2 left-2 w-2 h-2 rounded-full border border-[var(--pcb-green-light)]" />
-      <div className="absolute top-2 right-2 w-2 h-2 rounded-full border border-[var(--pcb-green-light)]" />
+      {img && (
+        <div className="w-full h-32 overflow-hidden -mx-0 -mt-0 mb-4 relative">
+          <img src={img} alt={project.title} className="w-full h-full object-cover object-top opacity-50 group-hover:opacity-80 transition-opacity duration-500" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(0,10,5,1) 100%)' }} />
+          <div className="absolute top-2 left-2 w-2 h-2 rounded-full border border-[var(--pcb-green-light)]" />
+          <div className="absolute top-2 right-2 w-2 h-2 rounded-full border border-[var(--pcb-green-light)]" />
+        </div>
+      )}
       <div className="absolute bottom-2 left-2 w-2 h-2 rounded-full border border-[var(--pcb-green-light)]" />
       <div className="absolute bottom-2 right-2 w-2 h-2 rounded-full border border-[var(--pcb-green-light)]" />
       <div className="pcb-trace-border group-hover:border-[var(--active-gold)] group-hover:opacity-100 transition-all duration-500" />

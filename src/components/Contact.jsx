@@ -56,7 +56,7 @@ const Contact = () => {
           <div className="text-[var(--pcb-green-light)]">A.B.D. Anandakumara</div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_300px]">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_280px]">
           {/* Form */}
           <div className="bg-black/40 p-6 flex flex-col">
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -134,7 +134,7 @@ const Contact = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="bg-[#111] p-6 border-l border-[var(--pcb-green-light)] space-y-8">
+          <div className="bg-[#111] p-5 border-t md:border-t-0 md:border-l border-[var(--pcb-green-light)] space-y-6">
             <div>
               <h3 className="text-[10px] font-mono text-[var(--pcb-green-light)] mb-4">Get in Touch</h3>
               <div className="space-y-4">

@@ -232,7 +232,8 @@ const Skills = () => {
           <div className="space-y-12">
             <div className="pcb-card h-fit">
               <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">Technical Skills</h3>
-              <div className="overflow-x-auto">
+              <div className="-mx-2 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div className="min-w-[360px] px-2">
                 <table className="w-full font-mono text-[10px] text-left">
                   <thead className="border-b border-[var(--pcb-green-light)]">
                     <tr>
@@ -263,6 +264,7 @@ const Skills = () => {
                     </tbody>
                   ))}
                 </table>
+                </div>
               </div>
             </div>
             <div>

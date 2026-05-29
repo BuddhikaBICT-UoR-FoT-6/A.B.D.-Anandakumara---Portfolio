@@ -25,6 +25,13 @@ export default function BootSequence({ onComplete }) {
   const [progress, setProgress] = useState(0);
   const scrollRef = React.useRef(null);
 
+  // Skip immediately if already booted this session
+  useEffect(() => {
+    if (sessionStorage.getItem('abd-booted')) {
+      onComplete();
+    }
+  }, [onComplete]);
+
   // Auto-scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
@@ -32,9 +39,10 @@ export default function BootSequence({ onComplete }) {
     }
   }, [displayedLogs, progress]);
 
-  // Global 4.5s failsafe timer to ensure it transitions to portfolio
+  // Global 4.5s failsafe timer
   useEffect(() => {
     const failsafe = setTimeout(() => {
+      sessionStorage.setItem('abd-booted', '1');
       onComplete();
     }, 4500);
     return () => clearTimeout(failsafe);
@@ -67,10 +75,11 @@ export default function BootSequence({ onComplete }) {
         clearTimeout(timer);
       };
     } else {
-      const finalTimer = setTimeout(() => onComplete(), 300);
-      return () => {
-        clearTimeout(finalTimer);
-      };
+      const finalTimer = setTimeout(() => {
+        sessionStorage.setItem('abd-booted', '1');
+        onComplete();
+      }, 300);
+      return () => clearTimeout(finalTimer);
     }
   }, [currentLine, onComplete]);
 

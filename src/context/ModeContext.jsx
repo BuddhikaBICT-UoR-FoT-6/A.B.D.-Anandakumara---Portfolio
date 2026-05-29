@@ -6,8 +6,16 @@ const ModeContext = createContext({
 });
 
 export const ModeProvider = ({ children }) => {
-  const [mode, setMode] = useState('developer');
-  const toggleMode = () => setMode(m => m === 'developer' ? 'recruiter' : 'developer');
+  const [mode, setMode] = useState(() => {
+    try { return localStorage.getItem('abd-view-mode') || 'developer'; }
+    catch { return 'developer'; }
+  });
+
+  const toggleMode = () => setMode(m => {
+    const next = m === 'developer' ? 'recruiter' : 'developer';
+    try { localStorage.setItem('abd-view-mode', next); } catch {}
+    return next;
+  });
 
   return (
     <ModeContext.Provider value={{ mode, toggleMode }}>

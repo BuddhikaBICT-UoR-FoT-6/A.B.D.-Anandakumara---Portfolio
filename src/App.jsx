@@ -11,6 +11,7 @@ import Skills from './components/Skills';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
 import FloatingControls from './components/FloatingControls';
+import SectionScrollRuler from './components/SectionScrollRuler';
 import { ModeProvider } from './context/ModeContext';
 
 const HACKER_COLORS = ['#00FF41','#66ffbb','#00ccff','#55ddff','#ffffff','#00aa33','#003399'];
@@ -268,6 +269,7 @@ function App() {
               theme={theme}
               onToggleTheme={() => setTheme(t => t === 'hacker' ? 'tranquil' : 'hacker')}
             />
+            <SectionScrollRuler />
           </>
         )}
 
