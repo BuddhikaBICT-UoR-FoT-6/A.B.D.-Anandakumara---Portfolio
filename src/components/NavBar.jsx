@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useMode } from '../context/ModeContext';
 
-const SECTIONS = ['about', 'projects', 'skills', 'contact'];
+const SECTIONS = ['about', 'skills', 'projects', 'contact'];
 
 const NavLink = ({ href, label, active }) => (
   <a
