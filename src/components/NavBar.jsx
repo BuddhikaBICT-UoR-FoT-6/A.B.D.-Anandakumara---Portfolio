@@ -28,18 +28,18 @@ const NavBar = () => {
   const [activeSection, setActiveSection] = useState('');
 
   useEffect(() => {
-    const observers = [];
-    SECTIONS.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
-        { threshold: 0.4 }
-      );
-      obs.observe(el);
-      observers.push(obs);
-    });
-    return () => observers.forEach(o => o.disconnect());
+    const getActive = () => {
+      const scrollY = window.scrollY + 80; // offset for navbar height
+      let current = '';
+      SECTIONS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= scrollY) current = id;
+      });
+      setActiveSection(current);
+    };
+    getActive();
+    window.addEventListener('scroll', getActive, { passive: true });
+    return () => window.removeEventListener('scroll', getActive);
   }, []);
 
   return (
