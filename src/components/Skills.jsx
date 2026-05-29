@@ -377,11 +377,15 @@ const Skills = () => {
                 <div key={i} className="flex items-start gap-3 p-3 border border-[rgba(0,255,65,0.15)] rounded-lg bg-[rgba(0,255,65,0.03)]">
                   <div className="w-2 h-2 rounded-full bg-[#00FF41] mt-1.5 flex-shrink-0" />
                   <div>
-                      className="mt-3 text-[9px] font-mono text-[var(--terminal-yellow)] hover:underline flex items-center gap-1"
-                    >
-                      → VERIFY_CREDENTIAL
-                    </a>
-                  )}
+                    <div className="text-sm text-white font-medium leading-snug">{cert.name}</div>
+                    <div className="text-xs text-[#7dd3fc] opacity-70 mt-0.5">{cert.issuer} · {cert.date}</div>
+                    {cert.verifyLink && (
+                      <a href={cert.verifyLink} target="_blank" rel="noreferrer"
+                        className="text-[10px] text-[#00FF41] hover:underline mt-1 block">
+                        Verify →
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
