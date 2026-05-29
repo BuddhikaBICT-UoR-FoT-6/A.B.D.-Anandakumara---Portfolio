@@ -41,7 +41,7 @@ const ToastTip = ({ tip, onDone }) => {
       transition={{ duration: 0.35, ease: 'easeOut' }}
       style={{
         position: 'fixed',
-        right: '72px',
+        right: '124px',
         bottom: '24px',
         zIndex: 10001,
         display: 'flex',
@@ -89,7 +89,7 @@ const ModeToast = ({ mode, visible }) => (
         style={{
           position: 'fixed',
           bottom: '90px',
-          right: '20px',
+          right: '58px',
           zIndex: 10002,
           background: mode === 'recruiter'
             ? 'rgba(0,10,30,0.95)'
@@ -208,7 +208,7 @@ const FloatingControls = ({ swarmVisible, onToggleSwarm, theme, onToggleTheme })
 
       {/* Button column */}
       <div style={{
-        position: 'fixed', right: '20px', bottom: '24px',
+        position: 'fixed', right: '58px', bottom: '24px',
         zIndex: 10000, display: 'flex', flexDirection: 'column',
         alignItems: 'center', gap: '10px',
       }}>
