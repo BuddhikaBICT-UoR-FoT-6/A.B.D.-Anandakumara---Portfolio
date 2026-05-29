@@ -62,8 +62,8 @@ const NavBar = () => {
 
       <div className="hidden lg:flex items-center gap-6">
         <NavLink href="#about"    label={isDev ? 'about'    : 'About'}    active={activeSection === 'about'} />
-        <NavLink href="#projects" label={isDev ? 'projects' : 'Projects'} active={activeSection === 'projects'} />
         <NavLink href="#skills"   label={isDev ? 'skills'   : 'Skills'}   active={activeSection === 'skills'} />
+        <NavLink href="#projects" label={isDev ? 'projects' : 'Projects'} active={activeSection === 'projects'} />
         <NavLink href="#contact"  label={isDev ? 'contact'  : 'Contact'}  active={activeSection === 'contact'} />
       </div>
 
