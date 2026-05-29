@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import { useMode } from '../context/ModeContext';
 
 // ── Skill → project insight mapping ─────────────────────────────────────────
 const SKILL_INSIGHTS = {
@@ -195,6 +196,8 @@ const SkillBar = ({ level }) => (
 // ── Main component ───────────────────────────────────────────────────────────
 const Skills = () => {
   const { skills } = usePortfolioData();
+  const { mode } = useMode();
+  const isDev = mode === 'developer';
   const [hoveredSkill, setHoveredSkill] = useState(null);
 
   const displaySkills = (skills && Array.isArray(skills.technical) && skills.technical.length > 0)
@@ -223,127 +226,157 @@ const Skills = () => {
         <div className="flex-1 h-[1px] bg-[var(--pcb-green-light)] opacity-30" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
-        {/* Left Column */}
-        <div className="space-y-12">
-
-          {/* Technical Skills Table */}
-          <div className="pcb-card h-fit">
-            <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
-              Technical Skills
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full font-mono text-[10px] text-left">
-                <thead className="border-b border-[var(--pcb-green-light)]">
-                  <tr>
-                    <th className="pb-2 text-[var(--pcb-green-light)]">COMPONENT</th>
-                    <th className="pb-2 text-[var(--pcb-green-light)]">SPEC</th>
-                    <th className="pb-2 text-[var(--pcb-green-light)]">STATUS</th>
-                    <th className="pb-2 text-[var(--pcb-green-light)]">PROFICIENCY</th>
-                  </tr>
-                </thead>
-                {displaySkills.map((skill, i) => (
-                  <tbody 
-                    key={i}
-                    className="border-b border-[var(--pcb-green-light)]/20"
-                    onMouseEnter={() => {
-                      setHoveredSkill(`tech-${i}`);
-                      window.dispatchEvent(new CustomEvent('scatter-swarm'));
-                    }}
-                    onMouseLeave={() => {
-                      setHoveredSkill(null);
-                      window.dispatchEvent(new CustomEvent('gather-swarm'));
-                    }}
-                  >
-                    <tr className="group relative cursor-default">
-                      <td className="py-3 text-[var(--terminal-green)] relative">
-                        <span className="group-hover:text-[#7dd3fc] transition-colors duration-200">
-                          {skill.component}
-                        </span>
-                      </td>
-                      <td className="py-3 opacity-60 group-hover:opacity-100 transition-opacity">{skill.spec}</td>
-                      <td className="py-3 text-[var(--terminal-yellow)]">{skill.status}</td>
-                      <td className="py-3"><SkillBar level={skill.level} /></td>
+      {isDev ? (
+        /* ── DEVELOPER MODE: full terminal table ─── */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
+          <div className="space-y-12">
+            <div className="pcb-card h-fit">
+              <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">Technical Skills</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full font-mono text-[10px] text-left">
+                  <thead className="border-b border-[var(--pcb-green-light)]">
+                    <tr>
+                      <th className="pb-2 text-[var(--pcb-green-light)]">COMPONENT</th>
+                      <th className="pb-2 text-[var(--pcb-green-light)]">SPEC</th>
+                      <th className="pb-2 text-[var(--pcb-green-light)]">STATUS</th>
+                      <th className="pb-2 text-[var(--pcb-green-light)]">PROFICIENCY</th>
                     </tr>
-                    {hoveredSkill === `tech-${i}` && (
-                      <tr>
-                        <td colSpan={4} className="pb-3 px-2">
-                          <SkillTooltip 
-                            name={skill.component} 
-                            visible={true} 
-                            isSoftSkill={false} 
-                          />
+                  </thead>
+                  {displaySkills.map((skill, i) => (
+                    <tbody key={i} className="border-b border-[var(--pcb-green-light)]/20"
+                      onMouseEnter={() => { setHoveredSkill(`tech-${i}`); window.dispatchEvent(new CustomEvent('scatter-swarm')); }}
+                      onMouseLeave={() => { setHoveredSkill(null); window.dispatchEvent(new CustomEvent('gather-swarm')); }}
+                    >
+                      <tr className="group relative cursor-default">
+                        <td className="py-3 text-[var(--terminal-green)] relative">
+                          <span className="group-hover:text-[#7dd3fc] transition-colors duration-200">{skill.component}</span>
                         </td>
+                        <td className="py-3 opacity-60 group-hover:opacity-100 transition-opacity">{skill.spec}</td>
+                        <td className="py-3 text-[var(--terminal-yellow)]">{skill.status}</td>
+                        <td className="py-3"><SkillBar level={skill.level} /></td>
                       </tr>
-                    )}
-                  </tbody>
-                ))}
-              </table>
+                      {hoveredSkill === `tech-${i}` && (
+                        <tr><td colSpan={4} className="pb-3 px-2">
+                          <SkillTooltip name={skill.component} visible={true} isSoftSkill={false} />
+                        </td></tr>
+                      )}
+                    </tbody>
+                  ))}
+                </table>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">Other Skills</h3>
+              <div className="flex flex-wrap gap-3">
+                {displaySoftSkills.map((item, i) => {
+                  const isHovered = hoveredSkill === `soft-${i}`;
+                  return (
+                    <div key={item.tag}
+                      className={`relative bg-[#111] border border-[var(--pcb-green-light)] px-3 py-1.5 font-mono text-[10px] text-[var(--terminal-green)] shadow-[4px_4px_0_var(--pcb-green-dark)] hover:border-[#7dd3fc] hover:text-[#7dd3fc] transition-all duration-300 cursor-default flex items-center gap-2 group hover:-translate-y-1 ${isHovered ? 'z-[100]' : 'z-10'}`}
+                      onMouseEnter={() => { setHoveredSkill(`soft-${i}`); window.dispatchEvent(new CustomEvent('scatter-swarm')); }}
+                      onMouseLeave={() => { setHoveredSkill(null); window.dispatchEvent(new CustomEvent('gather-swarm')); }}
+                    >
+                      <span className="opacity-70 group-hover:scale-125 transition-transform">{item.emoji}</span>
+                      {item.tag.toUpperCase().replace(/ /g, '_')}
+                      <SkillTooltip name={item.tag} visible={isHovered} isSoftSkill={true} />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-
-          {/* Other Skills (soft) */}
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">Certifications</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-fr">
+                {CERTS.map((cert, i) => (
+                  <div key={i} className="pcb-card p-4 flex flex-col justify-between h-full">
+                    <div>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="w-6 h-6 bg-[var(--pcb-green-light)] opacity-20 grid grid-cols-4 grid-rows-4 gap-0.5">
+                          {Array.from({ length: 16 }).map((_, j) => (
+                            <div key={j} className={Math.random() > 0.5 ? 'bg-[var(--terminal-green)]' : ''} />
+                          ))}
+                        </div>
+                        <div className="text-[8px] font-mono opacity-40">REG: {String(i + 1).padStart(3, '0')}</div>
+                      </div>
+                      <div className="text-[10px] font-mono text-[var(--terminal-green)] leading-tight mb-1">{cert.name}</div>
+                      <div className="text-[8px] font-mono opacity-60">{cert.issuer} // {cert.date}</div>
+                    </div>
+                    {cert.verifyLink && (
+                      <a href={cert.verifyLink} target="_blank" rel="noreferrer"
+                        className="mt-3 text-[9px] font-mono text-[var(--terminal-yellow)] hover:underline flex items-center gap-1">
+                        → VERIFY_CREDENTIAL
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ── RECRUITER MODE: clean pills + hover progressive disclosure ─── */
+        <div className="space-y-10">
+          {/* Technical Skills — clean pills with hover tooltip */}
           <div>
-            <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
-              Other Skills
-            </h3>
+            <h3 className="text-base font-semibold text-white mb-5">Technical Skills</h3>
             <div className="flex flex-wrap gap-3">
-              {displaySoftSkills.map((item, i) => {
-                const isHovered = hoveredSkill === `soft-${i}`;
+              {displaySkills.map((skill, i) => {
+                const isHov = hoveredSkill === `rec-tech-${i}`;
                 return (
-                  <div
-                    key={item.tag}
-                    className={`relative bg-[#111] border border-[var(--pcb-green-light)] px-3 py-1.5 font-mono text-[10px] text-[var(--terminal-green)] shadow-[4px_4px_0_var(--pcb-green-dark)] hover:border-[#7dd3fc] hover:text-[#7dd3fc] transition-all duration-300 cursor-default flex items-center gap-2 group hover:-translate-y-1 ${isHovered ? 'z-[100]' : 'z-10'}`}
-                    onMouseEnter={() => {
-                      setHoveredSkill(`soft-${i}`);
-                      window.dispatchEvent(new CustomEvent('scatter-swarm'));
-                    }}
-                    onMouseLeave={() => {
-                      setHoveredSkill(null);
-                      window.dispatchEvent(new CustomEvent('gather-swarm'));
-                    }}
+                  <div key={i} className={`relative cursor-default group transition-all duration-200`}
+                    onMouseEnter={() => setHoveredSkill(`rec-tech-${i}`)}
+                    onMouseLeave={() => setHoveredSkill(null)}
                   >
-                    <span className="opacity-70 group-hover:scale-125 transition-transform">{item.emoji}</span>
-                    {item.tag.toUpperCase().replace(/ /g, '_').replace(/-/g, '-')}
-                    <SkillTooltip
-                      name={item.tag}
-                      visible={isHovered}
-                      isSoftSkill={true}
-                    />
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 ${
+                      isHov
+                        ? 'border-[#00FF41] bg-[rgba(0,255,65,0.12)] text-white'
+                        : 'border-[rgba(0,255,65,0.3)] bg-[rgba(0,255,65,0.05)] text-[#c8e6c9]'
+                    }`}>
+                      <span className="text-xs font-medium">{skill.component}</span>
+                      <span className="text-[10px] text-[#00FF41] font-mono">{skill.level}%</span>
+                    </div>
+                    {/* Progressive disclosure: hover reveals terminal detail */}
+                    {isHov && (
+                      <div
+                        className="absolute left-0 top-full mt-2 z-50 w-64"
+                        style={{ filter: 'drop-shadow(0 0 12px rgba(0,255,65,0.3))' }}
+                      >
+                        <div className="border border-[#00FF41]/40 bg-[#000d1a]/96 backdrop-blur-sm px-3 py-2 font-mono text-[10px] rounded-sm">
+                          <div className="text-[#00FF41]/60 text-[9px] mb-1 uppercase tracking-widest">Behind the scenes ▸</div>
+                          <div className="text-[#7dd3fc] text-[10px] mb-1">SPEC: {skill.spec} · STATUS: {skill.status}</div>
+                          <SkillTooltip name={skill.component} visible={true} isSoftSkill={false} />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
           </div>
-        </div>
 
-        {/* Right Column: Certifications */}
-        <div className="space-y-8">
+          {/* Soft Skills */}
           <div>
-            <h3 className="text-sm font-mono text-[var(--pcb-green-light)] mb-6 uppercase tracking-widest">
-              Certifications
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-fr">
+            <h3 className="text-base font-semibold text-white mb-5">Other Skills</h3>
+            <div className="flex flex-wrap gap-3">
+              {displaySoftSkills.map((item, i) => (
+                <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full border border-[rgba(0,255,65,0.25)] bg-[rgba(0,255,65,0.04)] text-[#c8e6c9] text-xs">
+                  <span>{item.emoji}</span>
+                  <span>{item.tag}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Certifications — clean list */}
+          <div>
+            <h3 className="text-base font-semibold text-white mb-5">Certifications</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {CERTS.map((cert, i) => (
-                <div key={i} className="pcb-card p-4 flex flex-col justify-between h-full">
+                <div key={i} className="flex items-start gap-3 p-3 border border-[rgba(0,255,65,0.15)] rounded-lg bg-[rgba(0,255,65,0.03)]">
+                  <div className="w-2 h-2 rounded-full bg-[#00FF41] mt-1.5 flex-shrink-0" />
                   <div>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="w-6 h-6 bg-[var(--pcb-green-light)] opacity-20 grid grid-cols-4 grid-rows-4 gap-0.5">
-                        {Array.from({ length: 16 }).map((_, j) => (
-                          <div key={j} className={Math.random() > 0.5 ? 'bg-[var(--terminal-green)]' : ''} />
-                        ))}
-                      </div>
-                      <div className="text-[8px] font-mono opacity-40">REG: {String(i + 1).padStart(3, '0')}</div>
-                    </div>
-                    <div className="text-[10px] font-mono text-[var(--terminal-green)] leading-tight mb-1">{cert.name}</div>
-                    <div className="text-[8px] font-mono opacity-60">{cert.issuer} // {cert.date}</div>
-                    {cert.detail && <div className="text-[9px] font-mono opacity-80 mt-2">{cert.detail}</div>}
-                  </div>
-                  {cert.verifyLink && (
-                    <a
-                      href={cert.verifyLink}
-                      target="_blank"
-                      rel="noreferrer"
                       className="mt-3 text-[9px] font-mono text-[var(--terminal-yellow)] hover:underline flex items-center gap-1"
                     >
                       → VERIFY_CREDENTIAL

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll } from 'framer-motion';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import { useMode } from '../context/ModeContext';
 
 const ROLES = [
   "Full-Stack Developer",
@@ -53,6 +54,8 @@ const TypewriterRole = () => {
 
 const Hero = () => {
   const { personal, about } = usePortfolioData();
+  const { mode } = useMode();
+  const isDev = mode === 'developer';
   const name = personal?.fullName || '';
 
   const handleDownloadCV = (e) => {
@@ -104,28 +107,38 @@ const Hero = () => {
           <div className="screw-head bottom-3 right-3 screw-blink" />
 
           <div className="space-y-6 relative z-10">
-            <div className="flex items-center gap-2 text-[10px] font-mono text-[#00FF41] mb-2 emissive-pulse">
+            {/* Available badge — terminal in dev, clean in recruiter */}
+            <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 rounded-full bg-[#00FF41] animate-ping" />
-              [ Available for Opportunities ]
+              <span className={`text-[10px] font-mono text-[#00FF41] ${isDev ? 'emissive-pulse' : ''}`}>
+                {isDev ? '[ Available for Opportunities ]' : 'Available for Opportunities'}
+              </span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8 emissive-pulse" style={{ textShadow: '0 0 10px rgba(0, 255, 65, 0.3), 0 0 20px black' }}>
-              {name.split(" ").map((word, wi) => (
-                <span key={wi} className="inline-block whitespace-nowrap mr-4">
-                  {word.split("").map((char, i) => (
-                    <motion.span
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: (wi * 10 + i) * 0.03, duration: 0.5 }}
-                      className="inline-block hover:text-[#00FF41] transition-colors cursor-default"
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                </span>
-              ))}
-            </h1>
+            {/* Name — animated in dev, static in recruiter */}
+            {isDev ? (
+              <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8 emissive-pulse" style={{ textShadow: '0 0 10px rgba(0, 255, 65, 0.3), 0 0 20px black' }}>
+                {name.split(" ").map((word, wi) => (
+                  <span key={wi} className="inline-block whitespace-nowrap mr-4">
+                    {word.split("").map((char, i) => (
+                      <motion.span
+                        key={i}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: (wi * 10 + i) * 0.03, duration: 0.5 }}
+                        className="inline-block hover:text-[#00FF41] transition-colors cursor-default"
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                  </span>
+                ))}
+              </h1>
+            ) : (
+              <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-4" style={{ color: '#ffffff', textShadow: '0 0 20px black' }}>
+                {name}
+              </h1>
+            )}
 
             <TypewriterRole />
 
@@ -165,23 +178,28 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Right Column: Highlights Register */}
+      {/* Right Column: Highlights */}
       <div className="flex flex-col items-start w-full lg:flex-[0.8] gap-4 text-left pointer-events-auto mt-4 lg:mt-0">
         <div className="pcb-card relative overflow-hidden w-full" style={{ background: 'rgba(0, 10, 20, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(0, 255, 65, 0.2)' }}>
           <div className="relative z-10">
-            <div className="text-[10px] text-[#00FF41] mb-6 border-b border-[#004400] pb-2 font-mono">
-              Highlights
+            <div className={`text-[10px] mb-6 border-b border-[#004400] pb-2 font-mono ${isDev ? 'text-[#00FF41]' : 'text-white font-semibold text-sm'}`}>
+              {isDev ? 'Highlights' : '✦ Quick Facts'}
             </div>
             <div className="space-y-4">
               {(about?.highlights || []).map((h, i) => (
-                <div key={i} className="text-xs font-mono text-[var(--terminal-yellow)] group hover:text-white transition-colors cursor-default">
-                  HIGHLIGHT_{String(i+1).padStart(2, '0')}: <span className="opacity-80">{h}</span>
+                <div key={i} className={`text-xs font-mono group hover:text-white transition-colors cursor-default ${
+                  isDev ? 'text-[var(--terminal-yellow)]' : 'text-[#c8e6c9] leading-relaxed'
+                }`}>
+                  {isDev
+                    ? <>{`HIGHLIGHT_${String(i+1).padStart(2, '0')}: `}<span className="opacity-80">{h}</span></>
+                    : <><span className="text-[#00FF41] mr-2">✓</span>{h}</>
+                  }
                 </div>
               ))}
             </div>
-            <div className="mt-8 text-[8px] font-mono text-[#004400]">
-              System Ready
-            </div>
+            {isDev && (
+              <div className="mt-8 text-[8px] font-mono text-[#004400]">System Ready</div>
+            )}
           </div>
         </div>
       </div>

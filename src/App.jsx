@@ -11,6 +11,7 @@ import Skills from './components/Skills';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
 import FloatingControls from './components/FloatingControls';
+import { ModeProvider } from './context/ModeContext';
 
 const HACKER_COLORS = ['#00FF41','#66ffbb','#00ccff','#55ddff','#ffffff','#00aa33','#003399'];
 const TRANQUIL_COLORS = ['#2dd4bf','#5eead4','#38bdf8','#7dd3fc','#ffffff','#0ea5e9','#818cf8'];
@@ -236,45 +237,47 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      {booting ? (
-        <BootSequence onComplete={handleBootComplete} />
-      ) : (
-        <>
-          {webglOk && showCanvas && (
-            <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
-              <Canvas camera={{ position: [0, 0, 5], fov: 45 }} dpr={isMobile ? 1 : [1, 2]} performance={{ min: 0.5 }}>
-                <PCBScene />
-              </Canvas>
+    <ModeProvider>
+      <div className="app-container">
+        {booting ? (
+          <BootSequence onComplete={handleBootComplete} />
+        ) : (
+          <>
+            {webglOk && showCanvas && (
+              <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
+                <Canvas camera={{ position: [0, 0, 5], fov: 45 }} dpr={isMobile ? 1 : [1, 2]} performance={{ min: 0.5 }}>
+                  <PCBScene />
+                </Canvas>
+              </div>
+            )}
+
+            {showCanvas && <SwarmCanvas visible={swarmVisible} theme={theme} />}
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <NavBar />
+              <Hero />
+              <About />
+              <Skills />
+              <Projects />
+              <Contact />
             </div>
-          )}
 
-          {showCanvas && <SwarmCanvas visible={swarmVisible} theme={theme} />}
+            <FloatingControls
+              swarmVisible={swarmVisible}
+              onToggleSwarm={() => setSwarmVisible(v => !v)}
+              theme={theme}
+              onToggleTheme={() => setTheme(t => t === 'hacker' ? 'tranquil' : 'hacker')}
+            />
+          </>
+        )}
 
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <NavBar />
-            <Hero />
-            <About />
-            <Skills />
-            <Projects />
-            <Contact />
-          </div>
+        {(!webglOk || !showCanvas) && !booting && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: '#000d1a' }} />
+        )}
 
-          <FloatingControls
-            swarmVisible={swarmVisible}
-            onToggleSwarm={() => setSwarmVisible(v => !v)}
-            theme={theme}
-            onToggleTheme={() => setTheme(t => t === 'hacker' ? 'tranquil' : 'hacker')}
-          />
-        </>
-      )}
-
-      {(!webglOk || !showCanvas) && !booting && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: '#000d1a' }} />
-      )}
-
-      <AdminLogin />
-    </div>
+        <AdminLogin />
+      </div>
+    </ModeProvider>
   );
 }
 

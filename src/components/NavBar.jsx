@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useMode } from '../context/ModeContext';
 
 const NavLink = ({ href, label }) => (
-  <a 
-    href={href} 
+  <a
+    href={href}
     className="group relative px-3 py-2 text-xs font-mono text-[var(--terminal-green)] opacity-70 hover:opacity-100 transition-opacity"
   >
     <span className="opacity-0 group-hover:opacity-100 transition-opacity">./</span>
@@ -13,35 +14,55 @@ const NavLink = ({ href, label }) => (
 );
 
 const NavBar = () => {
+  const { mode } = useMode();
+  const isDev = mode === 'developer';
+
   return (
     <nav className="fixed top-0 left-0 w-full z-50 nav-glass h-16 flex items-center px-4 md:px-8 justify-between">
       <div className="flex items-center gap-1 md:gap-2 overflow-hidden shrink-0">
-        <span className="text-[var(--terminal-green)] font-mono font-bold tracking-tighter text-xs sm:text-sm md:text-base truncate max-w-[200px] sm:max-w-none">
-          ABD://ANANDAKUMARA
-          <span className="animate-pulse">_</span>
+        {isDev ? (
+          <span className="text-[var(--terminal-green)] font-mono font-bold tracking-tighter text-xs sm:text-sm md:text-base truncate max-w-[200px] sm:max-w-none">
+            ABD://ANANDAKUMARA
+            <span className="animate-pulse">_</span>
+          </span>
+        ) : (
+          <span className="text-[var(--terminal-green)] font-mono font-bold tracking-tighter text-xs sm:text-sm md:text-base">
+            A.B.D. Anandakumara
+          </span>
+        )}
+        <span className="hidden sm:inline text-[var(--pcb-green-light)] text-[10px] font-mono mt-1">
+          {isDev ? 'v2.6.1' : '· Portfolio'}
         </span>
-        <span className="hidden sm:inline text-[var(--pcb-green-light)] text-[10px] font-mono mt-1">v2.6.1</span>
       </div>
 
       <div className="hidden lg:flex items-center gap-8">
-        <NavLink href="#about" label="about" />
-        <NavLink href="#projects" label="projects" />
-        <NavLink href="#skills" label="skills" />
-        <NavLink href="#contact" label="contact" />
+        <NavLink href="#about" label={isDev ? 'about' : 'About'} />
+        <NavLink href="#projects" label={isDev ? 'projects' : 'Projects'} />
+        <NavLink href="#skills" label={isDev ? 'skills' : 'Skills'} />
+        <NavLink href="#contact" label={isDev ? 'contact' : 'Contact'} />
       </div>
 
       <div className="flex items-center gap-4 text-[10px] font-mono">
-        <div className="flex items-center gap-1.5">
-          <div className="led-indicator bg-[var(--terminal-green)]" />
-          <span className="text-[var(--terminal-green)]">API:ONLINE</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="led-indicator bg-[var(--terminal-green)]" />
-          <span className="text-[var(--terminal-green)]">MQTT:OK</span>
-        </div>
-        <div className="text-[var(--terminal-yellow)]">
-          ● 24 NODES
-        </div>
+        {isDev ? (
+          <>
+            <div className="flex items-center gap-1.5">
+              <div className="led-indicator bg-[var(--terminal-green)]" />
+              <span className="text-[var(--terminal-green)]">API:ONLINE</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-1.5">
+              <div className="led-indicator bg-[var(--terminal-green)]" />
+              <span className="text-[var(--terminal-green)]">MQTT:OK</span>
+            </div>
+            <div className="hidden sm:block text-[var(--terminal-yellow)]">
+              ● 24 NODES
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-[var(--terminal-green)] animate-pulse" />
+            <span className="text-[var(--terminal-green)]">Available for Work</span>
+          </div>
+        )}
       </div>
     </nav>
   );
