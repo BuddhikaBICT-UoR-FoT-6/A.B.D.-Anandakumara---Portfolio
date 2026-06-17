@@ -2,32 +2,36 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 /* =========================================================================
-   LIVING CIRCUIT BOARD — animated 3D PCB background
+   LIVING CIRCUIT BOARD — animated 3D PCB background, bird's-eye view
    -------------------------------------------------------------------------
-   A self-contained React component that renders a real, navigable 3D scene
-   (not a static image) of a circuit board with:
-     - current "flowing" through gold power traces (animated emissive pulse)
-     - data packets traveling along blue data traces toward a central core
-     - status LEDs that blink irregularly, like real activity lights
-     - chips that heat up and cool down on their own thermal cycle
-     - random electrical sparks (more frequent on hot chips)
+   A real 3D scene (not a static image), viewed from directly overhead like
+   the reference photo. Depth and "real PCB" feel come from actual shadow-
+   mapped lighting and PBR materials, not from camera angle:
+     - shadow-casting raking key light reveals real height on raised traces,
+       chips and LEDs
+     - PBR materials: glossy metallic copper traces, matte solder-mask
+       board, plastic chip bodies — tuned roughness/metalness, not flat color
+     - current "flows" through gold power traces (animated emissive pulse)
+     - data packets travel along blue data traces toward a central core
+     - status LEDs blink irregularly, like real activity lights
+     - chips heat up and cool down on their own thermal cycle, glowing
+       cooler blue -> hotter orange as they "work"
+     - random electrical sparks, biased to spawn on hot chips
      - a breathing, rotating "AI engine" core at the center
-     - subtle camera parallax (mouse + autonomous sway) to sell real depth
+     - camera is completely static and framed to perfectly fit the screen
 
-   Drop this in once near the root of your app and it becomes the page
-   background (position: fixed by default). Your existing content can sit
-   on top of it exactly as it does today over the static image.
+   Drop this in once near the root of your app — it becomes the page
+   background (position: fixed by default, pointer-events disabled) and
+   your existing content layers on top of it exactly like it does today
+   over the static image.
 
    npm install three
    ========================================================================= */
 
-// ---------------------------------------------------------------------------
-// Palette — tuned to match a dark PCB look (gold/copper power, cyan/green data)
-// ---------------------------------------------------------------------------
 const COLORS = {
-  bg: 0x040907,
-  pcb: 0x07140f,
-  traceGold: 0xc9a14b,
+  bg: 0x03070a,
+  pcb: 0x081a14,
+  traceGold: 0xd4af5a,
   traceBlue: 0x4fd1ff,
   ledRed: 0xff4444,
   ledGreen: 0x4ade80,
@@ -104,29 +108,28 @@ function updateTextSprite(sprite, text, color) {
 }
 
 // Dense, mostly-static "silkscreen" detail layer: via dots, fine background
-// traces and labels. This carries the visual density of a real PCB cheaply
-// (one texture, one draw call) so the explicit 3D objects can stay focused
-// on the parts that actually need to move.
+// traces and labels, reused as both color map and bump map so the printed
+// detail reads as real micro-relief under the raking key light.
 function buildSilkscreenTexture({ width = 2048, height = 1170, boardLabel, engineLabel }) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = '#071712';
+  ctx.fillStyle = '#0a1f17';
   ctx.fillRect(0, 0, width, height);
 
   const vignette = ctx.createRadialGradient(
     width / 2, height / 2, height * 0.15,
     width / 2, height / 2, height * 0.95
   );
-  vignette.addColorStop(0, 'rgba(10,40,30,0.35)');
+  vignette.addColorStop(0, 'rgba(10,50,36,0.4)');
   vignette.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, width, height);
 
-  ctx.strokeStyle = 'rgba(170,140,70,0.16)';
-  ctx.lineWidth = 1.4;
+  ctx.strokeStyle = 'rgba(200,170,90,0.22)';
+  ctx.lineWidth = 1.6;
   for (let i = 0; i < 150; i++) {
     let x = Math.random() * width;
     let y = Math.random() * height;
@@ -141,7 +144,7 @@ function buildSilkscreenTexture({ width = 2048, height = 1170, boardLabel, engin
     ctx.stroke();
   }
 
-  ctx.fillStyle = 'rgba(140,170,160,0.22)';
+  ctx.fillStyle = 'rgba(170,200,190,0.3)';
   const gridStep = 46;
   for (let gx = gridStep / 2; gx < width; gx += gridStep) {
     for (let gy = gridStep / 2; gy < height; gy += gridStep) {
@@ -154,8 +157,8 @@ function buildSilkscreenTexture({ width = 2048, height = 1170, boardLabel, engin
     }
   }
 
-  ctx.strokeStyle = 'rgba(170,140,70,0.28)';
-  ctx.lineWidth = 1.2;
+  ctx.strokeStyle = 'rgba(200,170,90,0.32)';
+  ctx.lineWidth = 1.3;
   for (let i = 0; i < 26; i++) {
     const w = 26 + Math.random() * 40;
     const h = 10 + Math.random() * 14;
@@ -164,11 +167,11 @@ function buildSilkscreenTexture({ width = 2048, height = 1170, boardLabel, engin
     ctx.strokeRect(x, y, w, h);
   }
 
-  ctx.fillStyle = 'rgba(120,255,210,0.5)';
+  ctx.fillStyle = 'rgba(140,255,215,0.55)';
   ctx.font = '600 30px "Courier New", monospace';
   ctx.fillText(boardLabel, 56, 64);
 
-  ctx.fillStyle = 'rgba(120,255,210,0.32)';
+  ctx.fillStyle = 'rgba(140,255,215,0.36)';
   ctx.font = '500 18px "Courier New", monospace';
   ctx.fillText(engineLabel, width - 280, height - 40);
 
@@ -177,8 +180,7 @@ function buildSilkscreenTexture({ width = 2048, height = 1170, boardLabel, engin
   return texture;
 }
 
-// Orthogonal (PCB-style) path between two points, made of a few right-angle
-// jogs rather than a straight or curved line.
+// Orthogonal (PCB-style) path between two points, made of right-angle jogs.
 function orthogonalPath(start, end, jogs = 3, lift = 0.12) {
   const pts = [];
   let cur = start.clone();
@@ -221,10 +223,14 @@ function sampleAlongPath(points, frac) {
   return points[points.length - 1].clone();
 }
 
-// Builds a trace as a chain of flat copper-bar meshes following `points`.
-// Returns the segment list with cumulative-length bookkeeping so the flow
-// animation can place a moving "current" band across the whole trace.
-function buildTraceMeshes(points, color, { width = 0.09, thickness = 0.045, baseEmissive = 0.12 } = {}) {
+// Builds a trace as a chain of raised copper-bar meshes following `points`,
+// with PBR metal materials so the key light produces real specular
+// highlights on top of the animated emissive "current" pulse.
+function buildTraceMeshes(
+  points,
+  color,
+  { width = 0.09, thickness = 0.05, baseEmissive = 0.12, metalness = 0.8, roughness = 0.3 } = {}
+) {
   const group = new THREE.Group();
   const segments = [];
   const lengths = [];
@@ -245,11 +251,11 @@ function buildTraceMeshes(points, color, { width = 0.09, thickness = 0.045, base
     const angle = Math.atan2(dir.z, dir.x);
     const geo = new THREE.BoxGeometry(len, thickness, width);
     const mat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(color).multiplyScalar(0.35),
+      color: new THREE.Color(color).multiplyScalar(0.45),
       emissive: new THREE.Color(color),
       emissiveIntensity: baseEmissive,
-      roughness: 0.35,
-      metalness: 0.6,
+      roughness,
+      metalness,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.copy(mid);
@@ -334,21 +340,35 @@ export default function LivingCircuitBoard({
 
     const perfScale = mount.clientWidth < 700 ? 0.6 : 1;
     const pixelRatioCap = mount.clientWidth < 700 ? 1.5 : 2;
+    const shadowMapSize = perfScale < 1 ? 1024 : 2048;
 
     // ---- core three.js setup ----
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(COLORS.bg);
-    scene.fog = new THREE.FogExp2(COLORS.bg, 0.032);
+    scene.fog = new THREE.FogExp2(COLORS.bg, 0.018);
 
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(0, 22, 0);
-    camera.lookAt(0, 0, 0);
+    let camHeight = 20;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, pixelRatioCap));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.1;
     mount.appendChild(renderer.domElement);
+
+    const boardW = 26;
+    const boardD = 15;
+
+    function fitCameraToBoard() {
+      const fovRad = (camera.fov * Math.PI) / 180;
+      const targetDepth = boardD * 1.25;
+      const targetWidth = boardW * 1.05;
+      const hForDepth = targetDepth / (2 * Math.tan(fovRad / 2));
+      const hForWidth = targetWidth / (2 * Math.tan(fovRad / 2) * camera.aspect);
+      camHeight = Math.max(hForDepth, hForWidth, 14);
+    }
 
     function resize() {
       const w = mount.clientWidth || 1;
@@ -356,38 +376,58 @@ export default function LivingCircuitBoard({
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      fitCameraToBoard();
     }
     resize();
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(mount);
 
-    // ---- lights ----
-    scene.add(new THREE.AmbientLight(0x335544, 0.55));
-    const key = new THREE.DirectionalLight(0x88ffe0, 0.35);
-    key.position.set(6, 20, 8);
+    // ---- lighting: hemisphere fill + angled, shadow-casting key light ----
+    scene.add(new THREE.HemisphereLight(0x3a6a55, 0x020504, 0.45));
+
+    const key = new THREE.DirectionalLight(0xbfe8ff, 1.05);
+    key.position.set(9, 18, -7);
+    key.castShadow = true;
+    key.shadow.mapSize.set(shadowMapSize, shadowMapSize);
+    key.shadow.camera.left = -boardW / 2 - 2;
+    key.shadow.camera.right = boardW / 2 + 2;
+    key.shadow.camera.top = boardD / 2 + 2;
+    key.shadow.camera.bottom = -boardD / 2 - 2;
+    key.shadow.camera.near = 1;
+    key.shadow.camera.far = 45;
+    key.shadow.bias = -0.0015;
+    key.shadow.normalBias = 0.02;
+    key.shadow.camera.updateProjectionMatrix();
     scene.add(key);
+
+    const fillLight = new THREE.DirectionalLight(0x224433, 0.3);
+    fillLight.position.set(-8, 10, 8);
+    scene.add(fillLight);
 
     const glowTexture = makeGlowTexture();
 
     // ---- board ----
-    const boardW = 60;
-    const boardD = 40;
     const board = new THREE.Mesh(
       new THREE.BoxGeometry(boardW, 0.4, boardD),
-      new THREE.MeshStandardMaterial({ color: COLORS.pcb, roughness: 0.75, metalness: 0.15 })
+      new THREE.MeshStandardMaterial({ color: COLORS.pcb, roughness: 0.6, metalness: 0.05 })
     );
     board.position.y = -0.2;
     scene.add(board);
 
+    const silkTexture = buildSilkscreenTexture({ boardLabel, engineLabel });
     const silkscreen = new THREE.Mesh(
       new THREE.PlaneGeometry(boardW, boardD),
-      new THREE.MeshBasicMaterial({
-        map: buildSilkscreenTexture({ boardLabel, engineLabel }),
-        transparent: false,
+      new THREE.MeshStandardMaterial({
+        map: silkTexture,
+        bumpMap: silkTexture,
+        bumpScale: 0.015,
+        roughness: 0.55,
+        metalness: 0.08,
       })
     );
     silkscreen.rotation.x = -Math.PI / 2;
     silkscreen.position.y = 0.001;
+    silkscreen.receiveShadow = true;
     scene.add(silkscreen);
 
     // ---- power traces (gold, broad slow "current" pulse) ----
@@ -406,7 +446,11 @@ export default function LivingCircuitBoard({
 
     chipSpecs.forEach((c) => {
       const pts = orthogonalPath(powerSource, new THREE.Vector3(c.x, 0, c.z), 4);
-      const built = buildTraceMeshes(pts, COLORS.traceGold, { baseEmissive: 0.1 });
+      const built = buildTraceMeshes(pts, COLORS.traceGold, {
+        baseEmissive: 0.1,
+        metalness: 0.85,
+        roughness: 0.28,
+      });
       tracesGroup.add(built.group);
       activeTraces.push({
         ...built,
@@ -427,7 +471,12 @@ export default function LivingCircuitBoard({
       const dirToOrigin = edgePoint.clone().normalize();
       const endPoint = dirToOrigin.multiplyScalar(hexOuterRadius);
       const pts = orthogonalPath(edgePoint, endPoint, 3);
-      const built = buildTraceMeshes(pts, COLORS.traceBlue, { width: 0.07, baseEmissive: 0.07 });
+      const built = buildTraceMeshes(pts, COLORS.traceBlue, {
+        width: 0.07,
+        baseEmissive: 0.07,
+        metalness: 0.5,
+        roughness: 0.4,
+      });
       tracesGroup.add(built.group);
 
       const beamGlow = makeGlowSprite(glowTexture, COLORS.traceBlue, 0.45, 0.85);
@@ -455,7 +504,12 @@ export default function LivingCircuitBoard({
       const start = perimeterPoint(Math.random(), boardW - 2, boardD - 2);
       const end = start.clone().lerp(new THREE.Vector3(0, 0, 0), 0.12 + Math.random() * 0.1);
       const pts = orthogonalPath(start, end, 2);
-      const built = buildTraceMeshes(pts, COLORS.traceGold, { width: 0.06, baseEmissive: 0.16 });
+      const built = buildTraceMeshes(pts, COLORS.traceGold, {
+        width: 0.06,
+        baseEmissive: 0.16,
+        metalness: 0.7,
+        roughness: 0.35,
+      });
       tracesGroup.add(built.group);
     }
 
@@ -465,18 +519,22 @@ export default function LivingCircuitBoard({
       group.position.set(c.x, 0.12, c.z);
       const body = new THREE.Mesh(
         new THREE.BoxGeometry(c.w, 0.16, c.d),
-        new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.6, metalness: 0.3 })
+        new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.7, metalness: 0.1 })
       );
+      body.castShadow = true;
+      body.receiveShadow = true;
       group.add(body);
+
       const plateMat = new THREE.MeshStandardMaterial({
         color: 0x021018,
         emissive: COLORS.cool,
         emissiveIntensity: 0.3,
         roughness: 0.3,
-        metalness: 0.4,
+        metalness: 0.6,
       });
       const plate = new THREE.Mesh(new THREE.BoxGeometry(c.w * 0.7, 0.04, c.d * 0.7), plateMat);
       plate.position.y = 0.1;
+      plate.castShadow = true;
       group.add(plate);
 
       const tempSprite = makeTextSprite('30°C', '#7CFFD6', [0.9, 0.34]);
@@ -497,6 +555,7 @@ export default function LivingCircuitBoard({
     });
 
     // ---- LEDs ----
+    const labelColor = '#bfead8';
     const ledSpecs = [
       { x: -10.2, z: -5.0, color: COLORS.ledYellow, mode: 'steady', label: 'PWR' },
       { x: -10.0, z: -2.0, color: COLORS.ledGreen, mode: 'blink', label: 'LINK' },
@@ -518,11 +577,12 @@ export default function LivingCircuitBoard({
         color: new THREE.Color(spec.color).multiplyScalar(0.4),
         emissive: spec.color,
         emissiveIntensity: 0.4,
-        roughness: 0.3,
-        metalness: 0.1,
+        roughness: 0.2,
+        metalness: 0.15,
       });
       const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 12), mat);
       mesh.position.copy(position);
+      mesh.castShadow = true;
       scene.add(mesh);
 
       const glow = makeGlowSprite(glowTexture, spec.color, 1.1, 0.5);
@@ -539,7 +599,7 @@ export default function LivingCircuitBoard({
       }
 
       if (spec.label) {
-        const label = makeTextSprite(spec.label, '#cfead f'.replace(' f', ''), [0.85, 0.3]);
+        const label = makeTextSprite(spec.label, labelColor, [0.85, 0.3]);
         label.position.set(position.x, 0.5, position.z - 0.55);
         scene.add(label);
       }
@@ -565,12 +625,14 @@ export default function LivingCircuitBoard({
       emissive: COLORS.coreCyan,
       emissiveIntensity: 0.8,
       roughness: 0.3,
-      metalness: 0.4,
+      metalness: 0.5,
       side: THREE.DoubleSide,
     });
     const hexMesh = new THREE.Mesh(hexGeo, hexMat);
     hexMesh.rotation.x = -Math.PI / 2;
     hexMesh.position.y = 0.25;
+    hexMesh.castShadow = true;
+    hexMesh.receiveShadow = true;
     scene.add(hexMesh);
 
     const coreWire = new THREE.Mesh(
@@ -646,15 +708,6 @@ export default function LivingCircuitBoard({
       spawnSpark(position, t);
     }
 
-    // ---- pointer parallax ----
-    const pointer = { x: 0, y: 0 };
-    function onPointerMove(e) {
-      const rect = mount.getBoundingClientRect();
-      pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      pointer.y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
-    }
-    window.addEventListener('pointermove', onPointerMove);
-
     // ---- animation loop ----
     const clock = new THREE.Clock();
     let raf = 0;
@@ -664,7 +717,6 @@ export default function LivingCircuitBoard({
       const dt = Math.min(clock.getDelta(), 0.05);
       const t = clock.elapsedTime;
 
-      // traces: flowing current / traveling data packets
       for (const trace of activeTraces) {
         const bandPos = ((t * trace.speed * motionScale + trace.phase) % 1 + 1) % 1;
         for (const seg of trace.segments) {
@@ -681,7 +733,6 @@ export default function LivingCircuitBoard({
         }
       }
 
-      // LEDs
       for (const led of leds) {
         if (led.mode === 'steady') {
           const pulse = 0.55 + Math.sin(t * 1.3 + led.phase) * 0.18;
@@ -702,7 +753,6 @@ export default function LivingCircuitBoard({
         }
       }
 
-      // chips: thermal cycle
       for (const chip of chips) {
         const cycle = (Math.sin(t * chip.freq * motionScale + chip.phase) + 1) / 2;
         chip.temp = cycle;
@@ -713,11 +763,10 @@ export default function LivingCircuitBoard({
         if (step !== chip._lastTextStep) {
           chip._lastTextStep = step;
           const tempC = Math.round(28 + cycle * 54);
-          updateTextSprite(chip.tempSprite, `${tempC}°C`, cycle > 0.72 ? '#ff6a3d' : '#7CFFD6');
+          updateTextSprite(chip.tempSprite, `${tempC}\u00b0C`, cycle > 0.72 ? '#ff6a3d' : '#7CFFD6');
         }
       }
 
-      // core: breathing + slow color drift + rotation
       const breathe = (Math.sin(t * 0.8) + 1) / 2;
       const colorMix = (Math.sin(t * 0.35) + 1) / 2;
       const mixed = new THREE.Color(COLORS.coreCyan).lerp(new THREE.Color(COLORS.coreGreen), colorMix);
@@ -733,7 +782,6 @@ export default function LivingCircuitBoard({
       coreLight.color.copy(mixed);
       coreLight.intensity = 0.8 + breathe * 1.0;
 
-      // sparks
       if (t > nextSparkAt) {
         if (!reducedMotion || Math.random() < 0.15) maybeSpawnSpark(t);
         nextSparkAt = t + (reducedMotion ? 5 + Math.random() * 4 : 1.1 + Math.random() * 2.2);
@@ -753,8 +801,8 @@ export default function LivingCircuitBoard({
         return true;
       });
 
-      // camera: fixed
-      camera.position.set(0, 22, 0);
+      // bird's-eye camera: strictly fixed overhead
+      camera.position.set(0, camHeight, 0);
       camera.lookAt(0, 0, 0);
 
       renderer.render(scene, camera);
@@ -765,27 +813,23 @@ export default function LivingCircuitBoard({
     return () => {
       cancelAnimationFrame(raf);
       resizeObserver.disconnect();
-      window.removeEventListener('pointermove', onPointerMove);
       if (renderer.domElement.parentNode === mount) mount.removeChild(renderer.domElement);
       disposeObject3D(scene);
       renderer.dispose();
     };
   }, [boardLabel, engineLabel]);
 
-  return (
-    <div
-      ref={mountRef}
-      className={className}
-      style={{
-        position: fixed ? 'fixed' : 'relative',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 0,
-        pointerEvents: 'none',
-        ...style
-      }}
-    />
-  );
+  const containerStyle = {
+    position: fixed ? 'fixed' : 'absolute',
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: fixed ? 0 : undefined,
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    background: '#03070a',
+    ...style,
+  };
+
+  return <div ref={mountRef} className={className} style={containerStyle} />;
 }
