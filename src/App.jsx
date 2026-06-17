@@ -1,7 +1,6 @@
 // ABD_CORE // SESSION_SYNC_v1.0.1
 import React, { useState, useEffect, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
-import PCBScene from './three/PCBScene';
+import LivingCircuitBoard from './components/LivingCircuitBoard';
 import AdminLogin from './components/AdminLogin';
 import BootSequence from './components/BootSequence';
 import NavBar from './components/NavBar';
@@ -245,11 +244,7 @@ function App() {
         ) : (
           <>
             {webglOk && showCanvas && (
-              <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
-                <Canvas camera={{ position: [0, 0, 5], fov: 45 }} dpr={isMobile ? 1 : [1, 2]} performance={{ min: 0.5 }}>
-                  <PCBScene />
-                </Canvas>
-              </div>
+              <LivingCircuitBoard fixed={true} style={{ zIndex: 0 }} />
             )}
 
             {showCanvas && <SwarmCanvas visible={swarmVisible} theme={theme} />}
