@@ -370,8 +370,8 @@ export default function LivingCircuitBoard({
     const glowTexture = makeGlowTexture();
 
     // ---- board ----
-    const boardW = 26;
-    const boardD = 15;
+    const boardW = 60;
+    const boardD = 40;
     const board = new THREE.Mesh(
       new THREE.BoxGeometry(boardW, 0.4, boardD),
       new THREE.MeshStandardMaterial({ color: COLORS.pcb, roughness: 0.75, metalness: 0.15 })
@@ -753,11 +753,8 @@ export default function LivingCircuitBoard({
         return true;
       });
 
-      // camera: autonomous sway + pointer parallax
-      const sway = motionScale;
-      camera.position.x = Math.sin(t * 0.07) * 1.4 * sway + pointer.x * 1.2 * sway;
-      camera.position.y = 22 + Math.sin(t * 0.05) * 0.4 * sway;
-      camera.position.z = Math.cos(t * 0.05) * 0.6 * sway + pointer.y * -1.2 * sway;
+      // camera: fixed
+      camera.position.set(0, 22, 0);
       camera.lookAt(0, 0, 0);
 
       renderer.render(scene, camera);
