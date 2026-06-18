@@ -107,9 +107,127 @@ function updateTextSprite(sprite, text, color) {
   texture.needsUpdate = true;
 }
 
-// Dense, mostly-static "silkscreen" detail layer: via dots, fine background
-// traces and labels, reused as both color map and bump map so the printed
-// detail reads as real micro-relief under the raking key light.
+// ---------------------------------------------------------------------------
+// Procedural surface detail — tileable noise converted into a normal map,
+// a roughness-variation map, and a brushed-metal grain map.
+// ---------------------------------------------------------------------------
+
+function makeTileableValueNoise(gridSize) {
+  const grid = [];
+  for (let y = 0; y < gridSize; y++) {
+    grid.push([]);
+    for (let x = 0; x < gridSize; x++) grid[y].push(Math.random());
+  }
+  return (u, v) => {
+    const gx = u * gridSize;
+    const gy = v * gridSize;
+    const x0 = Math.floor(gx) % gridSize;
+    const y0 = Math.floor(gy) % gridSize;
+    const x1 = (x0 + 1) % gridSize;
+    const y1 = (y0 + 1) % gridSize;
+    const sx = gx - Math.floor(gx);
+    const sy = gy - Math.floor(gy);
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const top = lerp(grid[y0][x0], grid[y0][x1], sx);
+    const bottom = lerp(grid[y1][x0], grid[y1][x1], sx);
+    return lerp(top, bottom, sy);
+  };
+}
+
+function buildFractalHeightField(size, octaves = [4, 8, 16, 32]) {
+  const layers = octaves.map((g, i) => ({ fn: makeTileableValueNoise(g), amp: 1 / Math.pow(1.8, i) }));
+  const totalAmp = layers.reduce((a, l) => a + l.amp, 0);
+  const data = new Float32Array(size * size);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const u = x / size;
+      const v = y / size;
+      let h = 0;
+      for (const layer of layers) h += layer.fn(u, v) * layer.amp;
+      data[y * size + x] = h / totalAmp;
+    }
+  }
+  return data;
+}
+
+function heightFieldToNormalCanvas(heightData, size, strength = 2.2) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(size, size);
+  const at = (x, y) => heightData[((y + size) % size) * size + ((x + size) % size)];
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const dx = (at(x + 1, y) - at(x - 1, y)) * strength;
+      const dy = (at(x, y + 1) - at(x, y - 1)) * strength;
+      const nx = -dx;
+      const ny = -dy;
+      const nz = 1;
+      const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+      const i = (y * size + x) * 4;
+      img.data[i] = Math.round((nx / len) * 0.5 * 255 + 127.5);
+      img.data[i + 1] = Math.round((ny / len) * 0.5 * 255 + 127.5);
+      img.data[i + 2] = Math.round((nz / len) * 0.5 * 255 + 127.5);
+      img.data[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
+}
+
+function heightFieldToGrayscaleCanvas(heightData, size, contrast = 1) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(size, size);
+  for (let i = 0; i < heightData.length; i++) {
+    const v = Math.max(0, Math.min(1, 0.5 + (heightData[i] - 0.5) * contrast));
+    const g = Math.round(v * 255);
+    img.data[i * 4] = g;
+    img.data[i * 4 + 1] = g;
+    img.data[i * 4 + 2] = g;
+    img.data[i * 4 + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
+}
+
+function makeRepeatingTexture(canvas, repeatX, repeatY) {
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(repeatX, repeatY);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function buildBrushedMetalCanvas(width = 256, height = 64) {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  const streakNoise = makeTileableValueNoise(8);
+  const grainNoise = makeTileableValueNoise(64);
+  const img = ctx.createImageData(width, height);
+  for (let y = 0; y < height; y++) {
+    const rowBrightness = 0.55 + 0.45 * streakNoise(0.5, y / height);
+    for (let x = 0; x < width; x++) {
+      const grain = grainNoise(x / width, y / height);
+      const v = Math.max(0, Math.min(1, rowBrightness * (0.82 + 0.22 * grain)));
+      const g = Math.round(v * 255);
+      const i = (y * width + x) * 4;
+      img.data[i] = g;
+      img.data[i + 1] = g;
+      img.data[i + 2] = g;
+      img.data[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
+}
+
 function buildSilkscreenTexture({ width = 2048, height = 1170, boardLabel, engineLabel }) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -175,12 +293,41 @@ function buildSilkscreenTexture({ width = 2048, height = 1170, boardLabel, engin
   ctx.font = '500 18px "Courier New", monospace';
   ctx.fillText(engineLabel, width - 280, height - 40);
 
+  // fine grain so the surface doesn't read as a flat vector fill
+  const grainImg = ctx.getImageData(0, 0, width, height);
+  for (let i = 0; i < grainImg.data.length; i += 4) {
+    const n = (Math.random() - 0.5) * 14;
+    grainImg.data[i] = Math.max(0, Math.min(255, grainImg.data[i] + n));
+    grainImg.data[i + 1] = Math.max(0, Math.min(255, grainImg.data[i + 1] + n));
+    grainImg.data[i + 2] = Math.max(0, Math.min(255, grainImg.data[i + 2] + n));
+  }
+  ctx.putImageData(grainImg, 0, 0);
+
+  // a handful of faint scratches and dust specks
+  ctx.strokeStyle = 'rgba(220,235,230,0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 18; i++) {
+    const x = Math.random() * width;
+    const y = Math.random() * height;
+    const ang = Math.random() * Math.PI * 2;
+    const len = 20 + Math.random() * 70;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len);
+    ctx.stroke();
+  }
+  ctx.fillStyle = 'rgba(230,240,235,0.18)';
+  for (let i = 0; i < 220; i++) {
+    const x = Math.random() * width;
+    const y = Math.random() * height;
+    ctx.fillRect(x, y, 1, 1);
+  }
+
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
   return texture;
 }
 
-// Orthogonal (PCB-style) path between two points, made of right-angle jogs.
 function orthogonalPath(start, end, jogs = 3, lift = 0.12) {
   const pts = [];
   let cur = start.clone();
@@ -203,7 +350,6 @@ function orthogonalPath(start, end, jogs = 3, lift = 0.12) {
   return pts;
 }
 
-// Position at a given fraction (0..1) of total length along a polyline.
 function sampleAlongPath(points, frac) {
   const lengths = [];
   let total = 0;
@@ -223,13 +369,17 @@ function sampleAlongPath(points, frac) {
   return points[points.length - 1].clone();
 }
 
-// Builds a trace as a chain of raised copper-bar meshes following `points`,
-// with PBR metal materials so the key light produces real specular
-// highlights on top of the animated emissive "current" pulse.
 function buildTraceMeshes(
   points,
   color,
-  { width = 0.09, thickness = 0.05, baseEmissive = 0.12, metalness = 0.8, roughness = 0.3 } = {}
+  {
+    width = 0.09,
+    thickness = 0.05,
+    baseEmissive = 0.12,
+    metalness = 0.8,
+    roughness = 0.3,
+    grainTexture = null,
+  } = {}
 ) {
   const group = new THREE.Group();
   const segments = [];
@@ -256,6 +406,8 @@ function buildTraceMeshes(
       emissiveIntensity: baseEmissive,
       roughness,
       metalness,
+      map: grainTexture || null,
+      roughnessMap: grainTexture || null,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.copy(mid);
@@ -363,11 +515,10 @@ export default function LivingCircuitBoard({
 
     function fitCameraToBoard() {
       const fovRad = (camera.fov * Math.PI) / 180;
-      const targetDepth = boardD * 1.25;
-      const targetWidth = boardW * 1.05;
-      const hForDepth = targetDepth / (2 * Math.tan(fovRad / 2));
-      const hForWidth = targetWidth / (2 * Math.tan(fovRad / 2) * camera.aspect);
-      camHeight = Math.max(hForDepth, hForWidth, 14);
+      const hForDepth = boardD / (2 * Math.tan(fovRad / 2));
+      const hForWidth = boardW / (2 * Math.tan(fovRad / 2) * camera.aspect);
+      const fit = Math.min(hForDepth, hForWidth) * 0.92;
+      camHeight = Math.max(10, Math.min(fit, 30));
     }
 
     function resize() {
@@ -406,6 +557,15 @@ export default function LivingCircuitBoard({
 
     const glowTexture = makeGlowTexture();
 
+    const surfaceHeight = buildFractalHeightField(256);
+    const surfaceNormalTexture = makeRepeatingTexture(heightFieldToNormalCanvas(surfaceHeight, 256), 22, 13);
+    const surfaceRoughnessTexture = makeRepeatingTexture(
+      heightFieldToGrayscaleCanvas(surfaceHeight, 256, 1.3),
+      22,
+      13
+    );
+    const metalGrainTexture = makeRepeatingTexture(buildBrushedMetalCanvas(), 4, 1);
+
     // ---- board ----
     const board = new THREE.Mesh(
       new THREE.BoxGeometry(boardW, 0.4, boardD),
@@ -420,9 +580,12 @@ export default function LivingCircuitBoard({
       new THREE.MeshStandardMaterial({
         map: silkTexture,
         bumpMap: silkTexture,
-        bumpScale: 0.015,
-        roughness: 0.55,
-        metalness: 0.08,
+        bumpScale: 0.012,
+        normalMap: surfaceNormalTexture,
+        normalScale: new THREE.Vector2(0.55, 0.55),
+        roughnessMap: surfaceRoughnessTexture,
+        roughness: 0.6,
+        metalness: 0.06,
       })
     );
     silkscreen.rotation.x = -Math.PI / 2;
@@ -430,7 +593,7 @@ export default function LivingCircuitBoard({
     silkscreen.receiveShadow = true;
     scene.add(silkscreen);
 
-    // ---- power traces (gold, broad slow "current" pulse) ----
+    // ---- power traces ----
     const powerSource = new THREE.Vector3(-boardW / 2 + 0.5, 0, 0);
     const chipSpecs = [
       { x: -7, z: -3.5, w: 1.6, d: 1.0, freq: 0.18 },
@@ -450,6 +613,7 @@ export default function LivingCircuitBoard({
         baseEmissive: 0.1,
         metalness: 0.85,
         roughness: 0.28,
+        grainTexture: metalGrainTexture,
       });
       tracesGroup.add(built.group);
       activeTraces.push({
@@ -463,7 +627,7 @@ export default function LivingCircuitBoard({
       });
     });
 
-    // ---- data traces (cyan, fast tight "packet" pulse + a traveling dot) ----
+    // ---- data traces ----
     const hexOuterRadius = 2.6;
     const dataEdgeCount = Math.max(6, Math.round(13 * perfScale));
     for (let i = 0; i < dataEdgeCount; i++) {
@@ -476,6 +640,7 @@ export default function LivingCircuitBoard({
         baseEmissive: 0.07,
         metalness: 0.5,
         roughness: 0.4,
+        grainTexture: metalGrainTexture,
       });
       tracesGroup.add(built.group);
 
@@ -498,7 +663,7 @@ export default function LivingCircuitBoard({
       });
     }
 
-    // ---- decorative static stub traces (board density, no animation) ----
+    // ---- decorative static stub traces ----
     const stubCount = Math.max(3, Math.round(6 * perfScale));
     for (let i = 0; i < stubCount; i++) {
       const start = perimeterPoint(Math.random(), boardW - 2, boardD - 2);
@@ -509,17 +674,23 @@ export default function LivingCircuitBoard({
         baseEmissive: 0.16,
         metalness: 0.7,
         roughness: 0.35,
+        grainTexture: metalGrainTexture,
       });
       tracesGroup.add(built.group);
     }
 
-    // ---- chips (thermal cycle: cool <-> hot) ----
+    // ---- chips ----
     const chips = chipSpecs.map((c) => {
       const group = new THREE.Group();
       group.position.set(c.x, 0.12, c.z);
       const body = new THREE.Mesh(
         new THREE.BoxGeometry(c.w, 0.16, c.d),
-        new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.7, metalness: 0.1 })
+        new THREE.MeshStandardMaterial({
+          color: 0x0a0a0a,
+          roughness: 0.7,
+          metalness: 0.1,
+          roughnessMap: surfaceRoughnessTexture,
+        })
       );
       body.castShadow = true;
       body.receiveShadow = true;
@@ -531,6 +702,7 @@ export default function LivingCircuitBoard({
         emissiveIntensity: 0.3,
         roughness: 0.3,
         metalness: 0.6,
+        roughnessMap: metalGrainTexture,
       });
       const plate = new THREE.Mesh(new THREE.BoxGeometry(c.w * 0.7, 0.04, c.d * 0.7), plateMat);
       plate.position.y = 0.1;
@@ -708,6 +880,15 @@ export default function LivingCircuitBoard({
       spawnSpark(position, t);
     }
 
+    // ---- pointer parallax ----
+    const pointer = { x: 0, y: 0 };
+    function onPointerMove(e) {
+      const rect = mount.getBoundingClientRect();
+      pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+    }
+    window.addEventListener('pointermove', onPointerMove);
+
     // ---- animation loop ----
     const clock = new THREE.Clock();
     let raf = 0;
@@ -801,7 +982,7 @@ export default function LivingCircuitBoard({
         return true;
       });
 
-      // bird's-eye camera: strictly fixed overhead
+      // bird's-eye camera: completely fixed overhead
       camera.position.set(0, camHeight, 0);
       camera.lookAt(0, 0, 0);
 
@@ -813,6 +994,7 @@ export default function LivingCircuitBoard({
     return () => {
       cancelAnimationFrame(raf);
       resizeObserver.disconnect();
+      window.removeEventListener('pointermove', onPointerMove);
       if (renderer.domElement.parentNode === mount) mount.removeChild(renderer.domElement);
       disposeObject3D(scene);
       renderer.dispose();
