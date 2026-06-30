@@ -8,6 +8,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Skills from './components/Skills';
 import Projects from './components/Projects';
+import Research from './components/Research';
 import Contact from './components/Contact';
 import FloatingControls from './components/FloatingControls';
 import SectionScrollRuler from './components/SectionScrollRuler';
@@ -255,6 +256,7 @@ function App() {
               <About />
               <Skills />
               <Projects />
+              <Research />
               <Contact />
             </div>
 
