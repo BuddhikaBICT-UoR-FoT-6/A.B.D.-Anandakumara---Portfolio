@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useMode } from '../context/ModeContext';
 
-const SECTIONS = ['about', 'skills', 'projects', 'contact'];
+const SECTIONS = ['about', 'research', 'projects', 'skills', 'contact'];
 
 const NavLink = ({ href, label, active }) => (
   <a
@@ -62,8 +62,9 @@ const NavBar = () => {
 
       <div className="hidden lg:flex items-center gap-6">
         <NavLink href="#about"    label={isDev ? 'about'    : 'About'}    active={activeSection === 'about'} />
-        <NavLink href="#skills"   label={isDev ? 'skills'   : 'Skills'}   active={activeSection === 'skills'} />
+        <NavLink href="#research" label={isDev ? 'research' : 'Research'} active={activeSection === 'research'} />
         <NavLink href="#projects" label={isDev ? 'projects' : 'Projects'} active={activeSection === 'projects'} />
+        <NavLink href="#skills"   label={isDev ? 'tech'     : 'Tech'}     active={activeSection === 'skills'} />
         <NavLink href="#contact"  label={isDev ? 'contact'  : 'Contact'}  active={activeSection === 'contact'} />
       </div>
 

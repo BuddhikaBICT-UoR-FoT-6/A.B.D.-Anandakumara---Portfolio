@@ -254,9 +254,9 @@ function App() {
               <NavBar />
               <Hero />
               <About />
-              <Skills />
-              <Projects />
               <Research />
+              <Projects />
+              <Skills />
               <Contact />
             </div>
 

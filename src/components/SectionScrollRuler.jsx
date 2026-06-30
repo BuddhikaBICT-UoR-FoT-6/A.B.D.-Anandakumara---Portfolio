@@ -8,8 +8,9 @@ const CYAN_BG    = 'rgba(0,212,255,0.08)';
 const SECTIONS = [
   { id: 'hero',     label: 'INIT'     },
   { id: 'about',    label: 'ABOUT'    },
-  { id: 'skills',   label: 'SKILLS'   },
+  { id: 'research', label: 'RESEARCH' },
   { id: 'projects', label: 'PROJECTS' },
+  { id: 'skills',   label: 'TECH'     },
   { id: 'contact',  label: 'CONTACT'  },
 ];
 
