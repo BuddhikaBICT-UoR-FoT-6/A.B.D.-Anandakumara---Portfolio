@@ -1,7 +1,7 @@
 {
   "personal": {
     "fullName": "Buddhika Darshan",
-    "title": "BICT Undergraduate | Full-Stack Developer | OCI Certified",
+    "title": "BICT Undergraduate (GPA: 3.52/4.0) | Full-Stack Developer | OCI Certified",
     "heroTitle": "I build software that works as good as it looks.",
     "heroSubtitle": "I'm Buddhika Darshan — a final-year engineer who turns complex problems into clean, scalable, and impactful software.",
     "email": "buddhikadarshan1475@gmail.com",
@@ -19,7 +19,7 @@
       "☁️ Oracle Certified Foundations Associate (OCI)",
       "🤖 Built HomeCanvas (Gemini AI, ESP32, Spring Boot)",
       "📱 Built Smart Campus (Offline-first Flutter platform)",
-      "🚌 Built CeylonQueueBusPulse (Real-time tracking)",
+      "🚌 Built WayWatch (Real-time tracking)",
       "💳 Integrated Stripe & PayPal for BoutiqueFlow",
       "🧪 95%+ Jest coverage on Cypher-UI engine",
       "🚀 Deployed via GCP, Docker, Vercel & Netlify"
@@ -49,64 +49,100 @@
   },
   "projects": [
     {
-      "title": "HomeCanvas",
+      "title": "Eden AI: Semantic Travel Search Engine",
+      "badge": "AI / Web",
+      "icon": "✈️",
+      "description": "Built a Gemini-powered pipeline to extract query parameters from natural language, paired with the Google Maps API for vicinity filtering on a Spring Boot/React stack. Established a self-optimizing feedback loop logging search telemetry for few-shot prompt tuning, deployed on Azure as an installable Progressive Web App (PWA) for native-like mobile access.",
+      "tech": ["Java/Spring Boot", "React", "TypeScript", "PostgreSQL", "Google Gemini API", "Google Maps API", "CSS3", "Tailwind CSS", "Azure"],
+      "liveUrl": "",
+      "codeUrl": ""
+    },
+    {
+      "title": "OptiTrack: AI-Powered Intelligent Logistics",
+      "badge": "Web",
+      "icon": "🚚",
+      "description": "Engineered a Spring Boot + React command center with WebSockets (STOMP) for live telemetry, AI-driven risk scoring, and a JWT/RBAC-secured backend on PostgreSQL. Deployed on Azure, replacing manual paperwork with digital PDF waybills and e-signature capture.",
+      "tech": ["Java/Spring Boot", "React.js", "Zustand", "WebSockets", "Google Gemini AI", "PostgreSQL", "JWT", "Azure"],
+      "liveUrl": "",
+      "codeUrl": ""
+    },
+    {
+      "title": "HomeCanvas: IoT Smart Home Monitoring System",
       "badge": "IoT / Web",
       "icon": "🏠",
-      "description": "An end-to-end smart home platform integrating an ESP32 micro-controller and sensor fusion for real-time home monitoring. Architected with a robust Spring Boot backend handling high-frequency sensor telemetry via MQTT, and a React-based interactive dashboard that provides real-time visualizations and actionable alerts. Deployed on scalable cloud infrastructure with automated CI/CD pipelines.",
-      "tech": ["Java", "Spring Boot", "React.js", "TypeScript", "ESP32", "SQL"],
+      "description": "Architected a Spring Boot backend with MQTT for sub-second ESP32 telemetry, using Gemini AI in a weighted sensor-fusion pipeline to convert raw signals into predictive occupancy alerts. Containerized and deployed on GCP with JWT auth and rate-limiting, including a hardware-free \"Guest Mode\" for demos.",
+      "tech": ["Java/Spring Boot", "React 18", "TypeScript", "MQTT", "Google Gemini AI", "C++", "PostgreSQL", "Docker", "GCP"],
       "liveUrl": "https://homecanvas99.netlify.app/",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/HomeCanvas.git"
     },
     {
-      "title": "CrowdFlow",
+      "title": "Smart Campus Operations System App",
+      "badge": "Mobile",
+      "icon": "🎓",
+      "description": "Developed a multi-role Flutter application with offline-first SQLite, MySQL background sync, and automated SGPA/CGPA calculation, securing the system with hardware-backed JWTs and SHA-256 hashing. Engineered an automated CI/CD pipeline using GitHub Actions to simultaneously deploy a live Web App and a lightweight Android APK optimized for mid-range devices via ABI-splitting.",
+      "tech": ["Flutter", "Dart", "Provider", "SQLite", "MySQL", "GitHub Actions"],
+      "liveUrl": "",
+      "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/smart_campus.git"
+    },
+    {
+      "title": "Film Booking System",
+      "badge": "Web",
+      "icon": "🎬",
+      "description": "Collaborated with a team to build a Spring Boot REST API with JWT/RBAC and a SvelteKit frontend for dynamic seat selection, using Git-based workflows. Validated with Vitest unit tests and Playwright end-to-end checkout flows, ensuring zero-regression releases.",
+      "tech": ["Java/Spring Boot", "SvelteKit", "TypeScript", "MySQL", "Spring Security", "Tailwind CSS", "Playwright"],
+      "liveUrl": "",
+      "codeUrl": ""
+    },
+    {
+      "title": "WayWatch: Real-Time Traffic & Transit",
       "badge": "Mobile",
       "icon": "🗺️",
-      "description": "A map-first Android platform backed by a highly scalable Node.js data pipeline. Empowers users to visualize localized traffic conditions, integrating Google Maps SDK and geospatial queries to identify congestion hotspots. Features a custom Redis-backed debouncing layer capable of processing thousands of concurrent user-submitted severity reports, significantly reducing database load.",
-      "tech": ["Kotlin", "Node.js", "MongoDB", "Redis"],
+      "description": "Engineered a map-first Kotlin (Jetpack Compose) Android client with TomTom geocoding, backed by a JWT-secured Node.js API utilizing Redis for strict rate-limiting, SHA-256 duplicate detection, and graceful in-memory fallbacks. Maintained sub-second write latency under concurrent load via a MongoDB bulk-insert pipeline, and automated full-stack testing and live OpenAPI documentation deployments using GitHub Actions.",
+      "tech": ["Kotlin", "Jetpack Compose", "Node.js", "TypeScript", "MongoDB", "Redis", "GitHub Actions"],
       "liveUrl": "",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/CrowdFlow.git"
     },
     {
-      "title": "BoutiqueFlow",
-      "badge": "Web",
-      "icon": "👗",
-      "description": "A full-stack digital management platform built to transition physical retail businesses online. Includes secure real-time inventory tracking, Role-Based Access Control (RBAC) for staff management, and seamless Stripe/PayPal integration for automated sales processing. Designed with a microservice-inspired architecture ensuring high availability during seasonal traffic spikes.",
-      "tech": ["Angular", "Node.js", "Express", "MongoDB"],
-      "liveUrl": "https://abdclothingstore.netlify.app/",
-      "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/BoutiqueFlow.git"
+      "title": "Earn++: Full-Stack Mobile Investment Tracker",
+      "badge": "Mobile",
+      "icon": "📈",
+      "description": "Developed a Flutter application backed by a Dart Shelf REST API, engineering an offline-first SQLite sync queue paired with Gemini AI to generate dynamic, on-device portfolio insights. Automated the deployment of Android APKs and Web builds via a GitHub Actions CI/CD pipeline, validating edge cases by simulating concurrent multi-user portfolios with deterministic seed data.",
+      "tech": ["Flutter", "Dart Shelf", "MySQL", "SQLite", "Gemini AI", "GitHub Actions"],
+      "liveUrl": "",
+      "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/EarnPlusPlus.git"
     },
     {
-      "title": "Cypher-UI",
+      "title": "TableTalk: Restaurant Ordering System",
+      "badge": "Web",
+      "icon": "🍽️",
+      "description": "Built a dependency-free PHP REST API using OOP, MVC architecture, and a Front Controller pattern, paired with a tablet-installable PWA for table-side ordering and a Kitchen Display System for chefs, secured with JWT authentication and ACID-compliant PDO transactions. Synced live order status and wait times via asynchronous polling.",
+      "tech": ["PHP", "MySQL", "Vanilla JavaScript", "HTML/CSS", "REST API"],
+      "liveUrl": "",
+      "codeUrl": ""
+    },
+    {
+      "title": "Cypher-UI: Interactive Cryptography Platform",
       "badge": "Web",
       "icon": "🔐",
-      "description": "An educational platform bridging theoretical cryptography with hands-on implementation. Features highly interactive, real-time visualizers for algorithms like AES, RSA, and DES. Includes advanced brute-force simulators and step-by-step cryptographic transformations, built with a robust TypeScript engine validated by over 95% Jest test coverage.",
+      "description": "Built React-based encryption/decryption visualizers and brute-force simulators showing real attack timescales against weak keys. Backed by a Jest testing pipeline achieving zero regressions across all cipher modules.",
       "tech": ["React.js", "Node.js", "MySQL"],
       "liveUrl": "https://cipher-ui-zeta.vercel.app/",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/cipher-ui.git"
     },
     {
-      "title": "Smart Campus",
-      "badge": "Mobile",
-      "icon": "🎓",
-      "description": "A production-grade, multi-role Flutter application that digitizes and centralizes administrative and academic workflows. Designed with a resilient offline-first architecture utilizing SQLite, ensuring 100% core functionality in low-connectivity environments. Implements Clean Architecture principles and Provider state management for maintainable and scalable code.",
-      "tech": ["Flutter", "Dart", "Provider", "SQLite", "MySQL", "Clean Architecture"],
-      "liveUrl": "",
-      "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/smart_campus.git"
+      "title": "BoutiqueFlow: Digital Clothing Shop",
+      "badge": "Web",
+      "icon": "👗",
+      "description": "Built a role-based Angular dashboard with a Node.js/Express API, RBAC and OTP security, and automated post-sale workflows (payment, invoicing, restock alerts). Eliminated three manual steps per transaction while keeping inventory accurate during live sales.",
+      "tech": ["Angular", "Node.js", "Express", "MongoDB"],
+      "liveUrl": "https://abdclothingstore.netlify.app/",
+      "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/BoutiqueFlow.git"
     },
     {
-      "title": "Earn++",
-      "badge": "Mobile",
-      "icon": "📈",
-      "description": "A cross-platform mobile application providing beginner investors with a streamlined, dollar-based alternative to complex spreadsheet portfolio management. Leverages Dart Shelf for the backend to synchronize real-time profit/loss calculations and portfolio metrics, delivering an intuitive UI focused on frictionless asset tracking.",
-      "tech": ["Flutter", "Dart Shelf", "MySQL"],
-      "liveUrl": "",
-      "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/EarnPlusPlus.git"
-    },
-    {
-      "title": "Secure Vault",
+      "title": "Secure Environment Variable Vault",
       "badge": "Desktop",
       "icon": "🔒",
-      "description": "A secure desktop utility built with JavaFX and Java, designed to manage, organize, and edit .env files across multiple local development environments. Employs AES-256 encryption to protect sensitive credentials at rest, featuring automated encrypted backup generation and a clean, developer-focused interface.",
+      "description": "Built a JavaFX desktop vault with AES-encrypted storage, full CRUD for secret rotation, and an encrypted SQL-backed backup pipeline. Eliminates plaintext secret exposure across multiple repos without sacrificing recoverability.",
       "tech": ["Java", "JavaFX", "SQL"],
       "liveUrl": "",
       "codeUrl": "https://github.com/BuddhikaBICT-UoR-FoT-6/Secure-Environment-Variable-Vault.git"
