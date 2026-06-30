@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { useMode } from '../context/ModeContext';
 
@@ -104,6 +105,9 @@ const Projects = () => {
   const { projects } = usePortfolioData();
   const { mode } = useMode();
   const isDev = mode === 'developer';
+  const [showAll, setShowAll] = useState(false);
+
+  const displayedProjects = showAll ? projects : projects.slice(0, 6);
 
   return (
     <section id="projects" className="content-section py-10 md:py-20 px-5 md:px-10 max-w-7xl mx-auto relative z-10">
@@ -114,11 +118,39 @@ const Projects = () => {
         <div className="flex-1 h-[1px] bg-[var(--pcb-green-light)] opacity-30" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {projects.map((p, i) => (
-          <ProjectCard key={i} project={p} isDev={isDev} />
-        ))}
-      </div>
+      <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <AnimatePresence>
+          {displayedProjects.map((p, i) => (
+            <motion.div
+              key={p.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="h-full"
+            >
+              <ProjectCard project={p} isDev={isDev} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </motion.div>
+
+      {projects.length > 6 && (
+        <div className="mt-12 flex justify-center">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className={`
+              px-6 py-2 rounded-full border transition-all duration-300 font-mono text-sm
+              ${isDev 
+                ? 'border-[var(--terminal-green)] text-[var(--terminal-green)] hover:bg-[rgba(0,255,65,0.1)]' 
+                : 'border-[rgba(0,255,65,0.3)] text-white hover:border-[rgba(0,255,65,0.8)] hover:shadow-[0_0_15px_rgba(0,255,65,0.2)] bg-[rgba(0,10,20,0.5)]'
+              }
+            `}
+          >
+            {showAll ? 'Show Less' : 'Show More Projects'}
+          </button>
+        </div>
+      )}
     </section>
   );
 };
