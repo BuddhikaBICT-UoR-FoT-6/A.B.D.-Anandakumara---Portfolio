@@ -58,6 +58,18 @@ const skillCategories = [
   }
 ];
 
+const CERTS = [
+  { name: 'Back End Development & APIs', issuer: 'freeCodeCamp', date: 'Oct 2025', verifyLink: 'https://www.freecodecamp.org/certification/buddhikadarshan/back-end-development-and-apis', detail: 'Built robust Node.js and Express RESTful APIs, handled routing and middleware, and deeply integrated MongoDB for data storage.' },
+  { name: 'OCI Foundations Associate',   issuer: 'Oracle',        date: 'Sep 2025', detail: 'Demonstrated fundamental knowledge of public cloud services provided by Oracle Cloud Infrastructure (OCI), covering core architecture and security.' },
+  { name: 'Front End Development Libraries', issuer: 'freeCodeCamp', date: 'Sep 2025', verifyLink: 'https://www.freecodecamp.org/certification/buddhikadarshan/front-end-development-libraries', detail: 'Mastered React, Redux, and Bootstrap. Built dynamic SPAs with state management and responsive UI components.' },
+  { name: 'Responsive Web Design',       issuer: 'freeCodeCamp', date: 'Jan 2025', verifyLink: 'https://www.freecodecamp.org/certification/buddhikadarshan/responsive-web-design', detail: 'Acquired advanced CSS skills including Flexbox, CSS Grid, and media queries to build highly responsive web applications.' },
+  { name: 'AutoCAD & 3Ds Max',           issuer: 'Wijeya Graphics',     date: 'Sep 2019', detail: 'Certified in industrial 2D/3D drafting and high-fidelity rendering, focusing on architectural and mechanical modeling.' },
+  { name: 'Web Development',             issuer: 'NAC Computer System', date: 'Sep 2015', detail: 'Learned core web fundamentals, establishing a solid foundation in HTML, CSS, and basic JavaScript interactivity.' },
+  { name: '3D Max',                      issuer: 'NAC Computer System', date: 'Feb 2014', detail: 'Focused on 3D modeling, texturing, and animation workflows.' },
+  { name: 'Computer Graphics',           issuer: 'NAC Computer System', date: 'Feb 2013', detail: 'Mastered graphic design tools, typography, and visual communication principles.' },
+  { name: 'Computer Studies',            issuer: 'NAC Computer System', date: 'Jul 2012', detail: 'Foundational coursework in computer hardware, networking, and software operations.' },
+];
+
 const Skills = () => {
   return (
     <section id="skills" className="content-section py-10 md:py-20 px-5 md:px-10 max-w-6xl mx-auto relative z-10">
@@ -86,6 +98,32 @@ const Skills = () => {
                   </span>
                 </div>
               ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="section-header flex items-center gap-4 mt-20 mb-12">
+        <h2 className="text-2xl font-bold text-white tracking-wide">Certifications</h2>
+        <div className="flex-1 h-[1px] bg-white/20" />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {CERTS.map((cert, i) => (
+          <div key={i} className="flex items-start gap-4 p-5 border border-white/10 rounded-2xl bg-[#050505]/90 backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.02)] transition-all hover:border-white/30 hover:-translate-y-1">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#00FF41] mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(0,255,65,0.8)]" />
+            <div className="flex-1">
+              <div className="text-sm md:text-base text-white font-bold leading-tight mb-1">{cert.name}</div>
+              <div className="text-xs text-[#7dd3fc] opacity-80 mb-2">{cert.issuer} · {cert.date}</div>
+              <p className="text-[11px] text-white/50 leading-relaxed mb-3 hidden md:block">
+                {cert.detail}
+              </p>
+              {cert.verifyLink && (
+                <a href={cert.verifyLink} target="_blank" rel="noreferrer"
+                  className="text-[10px] text-[#00FF41] hover:text-[#7dd3fc] hover:underline uppercase tracking-wider font-semibold transition-colors">
+                  Verify Credential →
+                </a>
+              )}
             </div>
           </div>
         ))}
